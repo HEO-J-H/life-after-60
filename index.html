@@ -1,0 +1,2977 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>은퇴 현금흐름 시뮬레이터 v6</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#05080f;--bg2:#090e18;--bgc:#0c1220;--bgh:#111828;--gold:#c9a84c;--goldl:#e8c96a;--goldd:#7a5c18;--t1:#dde4f0;--t2:#7a8fa8;--t3:#3a5070;--bd:#162236;--bdl:#1e3050;--green:#2dbe74;--red:#e05555;--blue:#3b8fe8;--orange:#e8873b;--purple:#9b6fe0;--teal:#2bbfb0;--ibg:#060a12;--ibd:#1a2e48;--ifocus:#2a4060;}
+*{margin:0;padding:0;box-sizing:border-box;}html{font-size:15px;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.55;}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bdl);border-radius:3px;}
+.hdr{background:linear-gradient(135deg,#0a1522,#0f1e35,#0a1522);border-bottom:1px solid var(--goldd);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:300;box-shadow:0 2px 20px #000a;flex-wrap:wrap;}
+.hdr-logo{font-size:18px;font-weight:800;color:var(--goldl);}
+.hdr-sub{color:var(--t2);font-size:11px;}
+.hdr-r{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.ai-sel{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t1);padding:4px 8px;font-size:12px;font-family:inherit;}
+.ai-key{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t2);padding:5px 9px;font-size:11px;width:165px;font-family:monospace;}
+.ai-key:focus{outline:none;border-color:var(--goldd);color:var(--t1);}
+.tabs{background:var(--bg2);border-bottom:1px solid var(--bd);padding:0 16px;display:flex;overflow-x:auto;}
+.tab{padding:10px 15px;background:none;border:none;border-bottom:2px solid transparent;color:var(--t2);cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;transition:all .18s;}
+.tab:hover{color:var(--t1);}
+.tab.on{color:var(--goldl);border-bottom-color:var(--gold);}
+.main{padding:14px 16px;max-width:1800px;margin:0 auto;}
+.panel{display:none;}.panel.on{display:block;}
+.card{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:13px;margin-bottom:12px;}
+.ctitle{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+.badge{font-size:10px;background:var(--goldd);color:var(--goldl);padding:1px 6px;border-radius:10px;}
+.ctr{margin-left:auto;display:flex;gap:5px;align-items:center;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.frow{margin-bottom:8px;}
+.fl{display:block;font-size:12px;color:var(--t2);margin-bottom:3px;font-weight:500;}
+.fi,.fs{width:100%;background:var(--ibg);border:1px solid var(--ibd);border-radius:6px;color:var(--t1);padding:6px 9px;font-size:14px;font-family:inherit;transition:border-color .18s;}
+.fi:focus,.fs:focus{outline:none;border-color:var(--ifocus);}
+.fi.mono{font-family:'JetBrains Mono',monospace;text-align:right;}
+.ka{font-size:11px;color:var(--goldl);margin-top:2px;min-height:15px;}
+.hint{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4;}
+input[type=date]{color-scheme:dark;}
+input[type=checkbox]{accent-color:var(--gold);width:15px;height:15px;cursor:pointer;vertical-align:middle;}
+input[type=range]{accent-color:var(--gold);width:100%;}
+.btn{padding:6px 13px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:4px;}
+.btn-gold{background:linear-gradient(135deg,#7a5c18,#c9a84c);color:#040810;}
+.btn-gold:hover{opacity:.9;transform:translateY(-1px);}
+.btn-sec{background:var(--bg2);border:1px solid var(--bdl);color:var(--t1);}
+.btn-sec:hover{border-color:var(--goldd);}
+.btn-green{background:rgba(45,190,116,.15);border:1px solid rgba(45,190,116,.3);color:var(--green);}
+.btn-red{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.2);color:var(--red);}
+.btn-blue{background:rgba(59,143,232,.15);border:1px solid rgba(59,143,232,.3);color:var(--blue);}
+.btn-purple{background:rgba(155,111,224,.15);border:1px solid rgba(155,111,224,.3);color:var(--purple);}
+.btn-sm{padding:3px 9px;font-size:12px;}
+.btn-xs{padding:2px 6px;font-size:11px;}
+.btn-lg{padding:9px 20px;font-size:14px;}
+.sgrids{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px;}
+.sc{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:11px;text-align:center;}
+.sl{font-size:11px;color:var(--t2);margin-bottom:2px;}
+.sv{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--goldl);}
+.sv.pos{color:var(--green);}.sv.neg{color:var(--red);}
+.ss{font-size:10px;color:var(--t3);margin-top:2px;}
+.al{padding:8px 11px;border-radius:6px;margin-bottom:10px;font-size:13px;line-height:1.5;}
+.al-i{background:rgba(59,143,232,.07);border:1px solid rgba(59,143,232,.18);color:#7ab8f0;}
+.al-w{background:rgba(232,135,59,.07);border:1px solid rgba(232,135,59,.18);color:#f0b07a;}
+.al-s{background:rgba(45,190,116,.07);border:1px solid rgba(45,190,116,.18);color:#6ad8a8;}
+.al-e{background:rgba(224,85,85,.07);border:1px solid rgba(224,85,85,.18);color:#f08080;}
+/* ACCOUNT CARD */
+.acct-card{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;margin-bottom:10px;}
+.acct-hdr{padding:10px 13px;display:flex;align-items:center;gap:8px;cursor:pointer;border-radius:8px;}
+.acct-hdr:hover{background:rgba(255,255,255,.02);}
+.acct-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.acct-lbl{font-size:14px;font-weight:700;flex:1;}
+.atog{color:var(--t3);font-size:11px;transition:transform .2s;margin-left:4px;}
+.atog.open{transform:rotate(180deg);}
+.abody{padding:13px;display:none;border-top:1px solid var(--bd);}
+.abody.open{display:block;}
+/* HOLDINGS TABLE */
+.ht{width:100%;border-collapse:collapse;font-size:12px;}
+.ht th{background:#04080e;color:var(--t2);padding:5px 6px;text-align:left;font-size:11px;font-weight:500;border-bottom:1px solid var(--bd);}
+.ht th.r,.ht td.r{text-align:right;}
+.ht td{padding:4px 5px;border-bottom:1px solid rgba(22,34,54,.5);vertical-align:middle;}
+.ht tr:hover td{background:rgba(17,24,40,.5);}
+.hi{background:var(--ibg);border:1px solid var(--ibd);border-radius:4px;color:var(--t1);padding:3px 5px;font-size:12px;font-family:inherit;width:100%;}
+.hi:focus{outline:none;border-color:var(--ifocus);}
+.hi.r{text-align:right;font-family:'JetBrains Mono',monospace;}
+.hi.sm{font-size:11px;padding:2px 4px;}
+/* LOAN CARD */
+.li-card{background:var(--bg2);border:1px solid var(--bd);border-radius:8px;margin-bottom:9px;}
+.li-hdr{padding:9px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);}
+/* SIM TABLE */
+.sim-wrap{overflow:auto;max-height:500px;border-radius:6px;}
+.sim-wrap.fs{position:fixed;inset:0;z-index:500;max-height:100vh;border-radius:0;background:var(--bg);padding:10px;}
+.st{width:100%;border-collapse:collapse;font-size:11.5px;}
+.st th{background:#04080e;color:var(--t2);padding:6px 6px;text-align:right;border-bottom:1px solid var(--bd);white-space:nowrap;font-weight:500;position:sticky;top:0;z-index:10;font-size:11px;}
+.st th.tl,.st td.tl{text-align:left;}
+.st th.tc,.st td.tc{text-align:center;}
+.st td{padding:4px 6px;text-align:right;border-bottom:1px solid rgba(22,34,54,.4);font-family:'JetBrains Mono',monospace;white-space:nowrap;font-size:11px;}
+.st tr:hover td{background:rgba(17,24,40,.5);}
+.st tr.retired td{background:rgba(10,18,30,.5);color:var(--t2);}
+.st tr.ev-r td{background:rgba(200,168,75,.07)!important;border-top:1px solid rgba(200,168,75,.25)!important;}
+.st tr.ev-e td{background:rgba(45,190,116,.04)!important;}
+.tcol{color:var(--goldl);font-weight:600;}
+.divcol{color:var(--teal);}
+.ev-tag{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;margin:1px;background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.2);color:var(--goldl);}
+.ev-tag.g{background:rgba(45,190,116,.1);border-color:rgba(45,190,116,.2);color:var(--green);}
+.ev-tag.b{background:rgba(59,143,232,.1);border-color:rgba(59,143,232,.2);color:var(--blue);}
+.pbw{background:var(--bd);border-radius:4px;height:7px;overflow:hidden;margin:6px 0;}
+.pbf{height:100%;background:linear-gradient(90deg,var(--goldd),var(--goldl));border-radius:4px;transition:width .5s;}
+.cw{position:relative;height:280px;}
+.ai-resp{background:var(--bg2);border:1px solid var(--bdl);border-radius:8px;padding:15px;line-height:1.75;white-space:pre-wrap;font-size:13px;min-height:120px;max-height:500px;overflow-y:auto;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.blink{animation:pulse 1.2s infinite;}
+.sugg-card{background:var(--bg2);border:1px solid var(--bdl);border-radius:6px;padding:10px;margin-bottom:7px;cursor:pointer;transition:all .18s;}
+.sugg-card:hover{border-color:var(--gold);}
+.alloc-bar{height:18px;border-radius:4px;overflow:hidden;display:flex;margin:6px 0;}
+.alloc-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;transition:width .3s;}
+.vtog{display:flex;background:var(--bg2);border:1px solid var(--bd);border-radius:6px;overflow:hidden;}
+.vtog button{padding:4px 11px;font-size:12px;border:none;background:none;color:var(--t2);cursor:pointer;font-family:inherit;}
+.vtog button.on{background:rgba(200,168,75,.12);color:var(--goldl);}
+.np-opt{border:1px solid var(--bd);border-radius:6px;padding:8px;text-align:center;cursor:pointer;transition:all .18s;}
+.np-opt:hover,.np-opt.on{border-color:var(--gold);background:rgba(200,168,75,.05);}
+.sc-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;}
+.sec-off{opacity:.35;pointer-events:none;}
+.price-live{font-size:10px;padding:1px 4px;border-radius:3px;background:rgba(45,190,116,.12);color:var(--green);border:1px solid rgba(45,190,116,.25);}
+.price-err{font-size:10px;padding:1px 4px;border-radius:3px;background:rgba(224,85,85,.1);color:var(--red);border:1px solid rgba(224,85,85,.2);}
+.spin{display:inline-block;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
+@keyframes toast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){.sgrids{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr;}.sgrids{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div>
+    <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 v6</div>
+    <div class="hdr-sub">실시간 주가·배당 · 3시나리오 · AI 비교분석 · 역산기</div>
+  </div>
+  <div style="display:flex;flex-direction:column;justify-content:center;padding:0 12px;border-left:1px solid var(--bd);margin-left:4px;">
+    <div style="font-size:13px;font-weight:700;color:var(--t1);">허정훈</div>
+    <div style="font-size:11px;color:var(--t3);">hjh1014@naver.com</div>
+  </div>
+  <div class="hdr-r">
+    <select id="aiProv" class="ai-sel"><option value="gemini">Gemini (무료)</option><option value="gpt">ChatGPT</option></select>
+    <input type="password" id="aiKey" class="ai-key" placeholder="AI API Key (AIza... / sk-...)">
+    <button class="btn btn-red btn-sm" onclick="resetAll()">🔄 초기화</button>
+    <button class="btn btn-sec btn-sm" onclick="saveProfile()">💾 저장</button>
+    <button class="btn btn-sec btn-sm" onclick="G('fin').click()">📂 불러오기</button>
+    <input type="file" id="fin" accept=".json" style="display:none" onchange="loadFile(event)">
+    <button class="btn btn-sec btn-sm" onclick="doExcel()">📊 엑셀</button>
+    <button class="btn btn-gold btn-lg" onclick="runSim()">▶ 시뮬레이션</button>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab on"  onclick="ST('basic',this)">📋 기본정보</button>
+  <button class="tab"     onclick="ST('accts',this)">💳 계좌설정</button>
+  <button class="tab"     onclick="ST('loans',this)">🏠 대출·보험</button>
+  <button class="tab"     onclick="ST('sim',this)">📈 시뮬레이션</button>
+  <button class="tab"     onclick="ST('scenario',this)">🎲 시나리오</button>
+  <button class="tab"     onclick="ST('ai',this)">🤖 AI 평가</button>
+</div>
+<div class="main">
+
+<!-- ════ 기본정보 ════ -->
+<div id="tab-basic" class="panel on">
+  <div class="g3">
+    <div class="card">
+      <div class="ctitle">👤 개인 정보</div>
+      <div class="g2">
+        <div class="frow"><label class="fl">생년월일</label><input class="fi" id="birthDate" type="date" value="1978-02-25" oninput="onBirth()"><div class="ka" id="ka-age"></div></div>
+        <div class="frow"><label class="fl">현재 나이</label><input class="fi mono" id="curAge" type="number" value="47" oninput="onAge()"><div class="hint">입력하면 생년월일 자동계산</div></div>
+      </div>
+      <div class="frow">
+        <label class="fl">은퇴 목표 나이: <strong id="retireAge-val" style="color:var(--goldl)">60세</strong> <span id="ka-retire" style="font-size:11px;color:var(--t2);"></span></label>
+        <input type="range" id="retireAge" min="45" max="75" value="60" oninput="onRetireAge()">
+      </div>
+      <div class="g2">
+        <div class="frow"><label class="fl">기대 수명</label><input class="fi mono" id="lifeExp" type="number" value="90"></div>
+        <div class="frow"><label class="fl">국민연금 수령 나이 <strong id="npAge-val" style="color:var(--goldl)">65세</strong></label><input type="range" id="npAge" min="55" max="70" value="65" oninput="renderNP()"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">💰 소득</div>
+      <div class="frow"><label class="fl">현재 연봉 (원)</label><input class="fi mono" id="salary" type="number" value="70000000" oninput="onSalary()"><div class="ka" id="ka-sal"></div><div id="sal-hint" style="font-size:12px;margin-top:4px;"></div></div>
+      <div class="g2">
+        <div class="frow"><label class="fl">연봉 상승률 (%/년)</label><input class="fi mono" id="salGrowth" type="number" value="3" step="0.5"></div>
+        <div class="frow"><label class="fl">급여일 <span style="font-size:10px;color:var(--t2)">(매월 며칠)</span></label>
+          <input class="fi mono" id="salaryDay" type="number" value="25" min="1" max="31" oninput="onSalaryDay()">
+          <div class="hint" id="salary-day-hint"></div>
+        </div>
+      </div>
+      <div class="frow"><label class="fl">세액공제 구간 <span id="tax-badge" class="badge" style="background:var(--green);color:#fff">자동</span></label>
+        <select class="fs" id="taxBracket" onchange="updateTax()">
+          <option value="low">총급여 5,500만원 이하 → 16.5%</option>
+          <option value="high" selected>총급여 5,500만원 초과 → 13.2%</option>
+        </select>
+      </div>
+      <div class="frow"><label class="fl">은퇴 후 기타 월소득 (원)</label><input class="fi mono" id="retireOther" type="number" value="0" oninput="ka(this,'ka-ro')"><div class="ka" id="ka-ro"></div></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">🛒 지출 &amp; 목표
+        <div class="ctr"><input type="checkbox" id="expOn" checked onchange="toggleExp(this.checked)"><label for="expOn" style="font-size:12px;color:var(--t2)">활성</label></div>
+      </div>
+      <div id="exp-sec">
+        <div class="g2">
+          <div class="frow"><label class="fl">현재 월 생활비 (원)</label><input class="fi mono" id="mExp" type="number" value="2500000" oninput="ka(this,'ka-me')"><div class="ka" id="ka-me"></div></div>
+          <div class="frow"><label class="fl">은퇴 후 월 생활비 (원)</label><input class="fi mono" id="rExp" type="number" value="2000000" oninput="ka(this,'ka-re');calcTarget()"><div class="ka" id="ka-re"></div></div>
+        </div>
+        <div class="g2">
+          <div class="frow"><label class="fl">물가상승률 (%/년)</label><input class="fi mono" id="inf" type="number" value="2.5" step="0.5"></div>
+          <div class="frow"><label class="fl">안전인출률 (%/년)</label><input class="fi mono" id="sw" type="number" value="4" step="0.5" oninput="calcTarget()"></div>
+        </div>
+        <div class="frow"><label class="fl">목표 자산 (원) <span style="font-size:10px;color:var(--t2)">(0=자동)</span></label><input class="fi mono" id="target" type="number" value="0" oninput="ka(this,'ka-tgt')"><div class="ka" id="ka-tgt"></div><div class="hint" id="target-hint"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 주택연금 -->
+  <div class="card">
+    <div class="ctitle">🏠 주택연금 <span class="badge">선택</span>
+      <div class="ctr"><input type="checkbox" id="hpOn" onchange="toggleHP(this.checked)"><label for="hpOn" style="font-size:12px;color:var(--t2)">활성</label></div>
+    </div>
+    <div id="hp-sec" style="display:none;">
+      <div class="al al-i" style="font-size:12px;margin-bottom:10px;">
+        주택을 담보로 평생·일정기간 매달 연금 수령. 주택가격×보증료율/연금현가계수로 산정
+      </div>
+      <div class="g3">
+        <div class="frow"><label class="fl">주택 공시가격 (원)</label><input class="fi mono" id="hpPrice" type="number" value="500000000" oninput="calcHP()"><div class="ka" id="ka-hp"></div></div>
+        <div class="frow"><label class="fl">주택연금 개시 나이</label><input class="fi mono" id="hpStartAge" type="number" value="70" min="55" max="84" oninput="calcHP()"><div class="hint">부부 모두 만 55세 이상 (보통 70세 전후)</div></div>
+        <div class="frow"><label class="fl">지급 방식</label>
+          <select class="fs" id="hpMode" onchange="calcHP()">
+            <option value="lifetime">종신지급 (평생 동일금액)</option>
+            <option value="fixed10">확정 10년 혼합 (고액+종신)</option>
+            <option value="fixed15">확정 15년 혼합</option>
+            <option value="loan">대출상환방식 (일시금+종신)</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2">
+        <div id="hp-result" class="al al-s" style="font-size:13px;"></div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.8;">
+          <b>종신지급</b>: 평생 동일금액 / 배우자 사망 후에도 계속<br>
+          <b>확정기간혼합</b>: 정해진 기간은 더 많이 → 이후 종신으로 전환<br>
+          <b>대출상환</b>: 기존 대출 상환용 일시금 + 잔여 종신연금
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 국민연금 -->
+  <div class="card">
+    <div class="ctitle">🏛️ 국민연금 수령 시뮬레이션</div>
+    <div class="g2">
+      <div>
+        <div class="frow"><label class="fl">기준 월수령액 — 65세 기준 (원)</label><input class="fi mono" id="npBase" type="number" value="1200000" oninput="ka(this,'ka-np');renderNP()"><div class="ka" id="ka-np"></div></div>
+        <div class="al al-i" style="font-size:12px;margin-top:6px;">조기수령: 1년마다 <strong>-6%</strong> · 연기수령: 1년마다 <strong>+7.2%</strong></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;" id="np-grid"></div>
+    </div>
+  </div>
+
+  <!-- 퇴직금 -->
+  <div class="card">
+    <div class="ctitle">🏛️ 퇴직금 <span class="badge">DB/DC</span></div>
+    <div class="g3">
+      <div>
+        <div class="frow"><label class="fl">유형</label>
+          <select class="fs" id="sevType" onchange="toggleSev()">
+            <option value="DB">DB형 (확정급여)</option>
+            <option value="DC">DC형 (직접 종목 입력)</option>
+            <option value="manual">직접 입력</option>
+          </select>
+        </div>
+        <div id="sec-DB">
+          <div class="g2">
+            <div class="frow"><label class="fl">현재 근속연수(년)</label><input class="fi mono" id="workYrs" type="number" value="15" oninput="calcDB()"></div>
+            <div class="frow"><label class="fl">퇴직 예상 연봉(0=자동)</label><input class="fi mono" id="dbSal" type="number" value="0" oninput="calcDB()"></div>
+          </div>
+          <div id="db-res" class="al al-i" style="font-size:12px;"></div>
+        </div>
+        <div id="sec-DC" style="display:none;"><div id="dc-sum" class="al al-s" style="font-size:12px;"></div></div>
+        <div id="sec-manual" style="display:none;"><div class="frow"><label class="fl">예상 퇴직금(원)</label><input class="fi mono" id="manSev" type="number" value="50000000" oninput="ka(this,'ka-msev')"><div class="ka" id="ka-msev"></div></div></div>
+      </div>
+      <div>
+        <div class="frow"><label class="fl">퇴직금 수령 방법</label>
+          <select class="fs" id="sevTarget" onchange="updateSevTargetInfo()">
+            <option value="IRP_RETIRE">✅ 퇴직IRP 이전 (권장) — 세금 30~40% 절감</option>
+            <option value="IRP_ACCUM">적립IRP 이전 — 동일 절세 효과</option>
+            <option value="PENSION_FUND">연금저축펀드 (퇴직IRP 경유 필수)</option>
+            <option value="CASH">💰 현금 수령 — 퇴직소득세 즉시 납부</option>
+          </select>
+        </div>
+        <div id="sev-target-info" class="al al-i" style="font-size:12px;margin-top:4px;"></div>
+      </div>
+      <div>
+        <div class="frow"><label class="fl">배당 성장률 (%/년)</label><input class="fi mono" id="divGrowthRate" type="number" value="3" step="0.5"><div class="hint">보유 종목 배당금 연간 성장 가정</div></div>
+        <div class="al al-i" style="font-size:11px;margin-top:4px;">💡 세액공제 환급액 재투자 설정은 <b>계좌설정 탭</b>에서 할 수 있습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DC형 전용 종목 -->
+  <div class="card" id="dc-holdings-card" style="display:none;">
+    <div class="ctitle">📌 DC형 퇴직금 운용
+      <div class="ctr" style="gap:4px;">
+        <button class="btn btn-sm" id="dc-tab-direct" onclick="switchDCTab('direct')"
+          style="background:rgba(200,168,75,.2);color:var(--goldl);border:1px solid var(--goldd);">① 직접 입력</button>
+        <button class="btn btn-sec btn-sm" id="dc-tab-stocks" onclick="switchDCTab('stocks')">② 보유종목</button>
+      </div>
+    </div>
+
+    <!-- ① 직접 입력 모드 -->
+    <div id="dc-mode-direct">
+      <div style="background:var(--bg2);border-radius:8px;border:1px solid var(--bdl);padding:14px;margin-bottom:10px;">
+        <div class="g3">
+          <div class="frow">
+            <label class="fl">현재 DC 잔액 (원)</label>
+            <input class="fi mono" id="dc-direct-bal" type="number" value="0" placeholder="0"
+              oninput="G('ka-dc-bal').textContent=toKor(+this.value);calcDB()">
+            <div class="ka" id="ka-dc-bal">0원</div>
+            <div class="hint">지금까지 쌓인 퇴직금 누적액</div>
+          </div>
+          <div class="frow">
+            <label class="fl">연 수익률 (%/년)</label>
+            <input class="fi mono" id="dc-rr-override" type="number" value="" placeholder="예) 7.0" step="0.5"
+              oninput="calcDB()">
+            <div class="hint">비우면 퇴직IRP 계좌 수익률 자동사용</div>
+          </div>
+          <div class="frow">
+            <label class="fl">매월 DC 적립금 <span style="font-size:10px;color:var(--teal)">법정: 연봉÷12 = 월 기준</span></label>
+            <div style="position:relative;">
+              <input class="fi mono" id="dc-extra-monthly" type="text" readonly
+                style="background:var(--bg2);cursor:default;color:var(--t2);padding-right:10px;"
+                placeholder="연봉 입력 시 자동계산">
+              <div id="ka-dc-extra" style="font-size:13px;color:var(--goldl);font-weight:700;margin-top:3px;min-height:18px;"></div>
+            </div>
+            <div class="hint" id="dc-auto-contrib">매달 이 금액이 퇴직IRP에 적립됩니다 (연간 합계 = 연봉)</div>
+          </div>
+        </div>
+        <div id="dc-live-result" class="al al-s" style="margin-top:8px;font-size:12px;"></div>
+      </div>
+    </div>
+
+    <!-- ② 보유종목 모드 -->
+    <div id="dc-mode-stocks" style="display:none;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+        <input id="dc-quick-code" class="fi" placeholder="종목코드 예) 379810" style="width:150px;padding:4px 8px;font-size:12px;">
+        <button class="btn btn-blue btn-sm" onclick="dcQuickAdd()">＋ 조회·추가</button>
+        <button class="btn btn-sec btn-sm" id="dcFetchAllBtn" onclick="fetchDCPrices()">🔄 전체 갱신</button>
+        <span style="font-size:11px;color:var(--t2)">종목코드 입력 후 조회·추가 → 현재가·CAGR·배당률 자동반영</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+        <div class="frow" style="margin:0;min-width:200px;">
+          <label class="fl">일괄 수익률 적용 (%)</label>
+          <input class="fi mono" id="dc-rr-stocks" type="number" value="" placeholder="자동(종목CAGR)" step="0.5"
+            style="max-width:130px;" oninput="calcDB()">
+          <div class="hint">비우면 종목 CAGR 가중평균 자동</div>
+        </div>
+        <div id="dc-live-result-stocks" class="al al-s" style="flex:1;min-width:180px;margin:0;font-size:12px;"></div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="ht" style="min-width:820px;">
+          <thead><tr>
+            <th style="width:85px">코드</th>
+            <th style="width:160px">종목명</th>
+            <th class="r" style="width:75px">수량(주)</th>
+            <th class="r" style="width:80px">평단(원)</th>
+            <th class="r" style="width:85px">현재가(원)</th>
+            <th class="r" style="width:65px">수익률</th>
+            <th class="r" style="width:90px">평가금액</th>
+            <th class="r" style="width:75px">10년CAGR</th>
+            <th class="r" style="width:65px">배당률%</th>
+            <th style="width:38px"></th>
+          </tr></thead>
+          <tbody id="dc-tbody"></tbody>
+          <tfoot><tr>
+            <td colspan="6" style="text-align:right;font-size:11px;color:var(--t2);padding:5px 6px;">DC형 합계 (평가금액)</td>
+            <td id="dc-total-ev" class="r tcol" style="padding:5px 6px;font-family:monospace;font-size:13px;"></td>
+            <td colspan="3"></td>
+          </tr></tfoot>
+        </table>
+      </div>
+      <div id="dc-cagr-avg" class="al al-s" style="font-size:12px;margin-top:6px;display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 계좌설정 ════ -->
+<div id="tab-accts" class="panel">
+  <div class="card">
+    <div class="ctitle">💴 월 투자 현황</div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div><label class="fl">월 총 예산 (참고, 원)</label>
+        <input class="fi mono" id="budget" type="number" value="1000000" style="max-width:180px;" oninput="ka(this,'ka-bgt');updateBudBar()">
+        <div class="ka" id="ka-bgt"></div></div>
+      <div style="flex:1;min-width:200px;"><div id="bud-bar" class="alloc-bar"></div><div id="bud-lbl" style="font-size:11px;color:var(--t2);text-align:right;margin-top:2px;"></div></div>
+    </div>
+    <hr class="d" style="margin:10px 0;">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+        <input type="checkbox" id="globalRR-on" onchange="applyGlobalRR(this.checked)">
+        <b>전체 계좌 수익률 일괄 적용</b>
+      </label>
+      <input class="fi mono" id="globalRR" type="number" value="7" step="0.5" style="max-width:90px;padding:4px 8px;" oninput="if(G('globalRR-on').checked)applyGlobalRR(true)">
+      <span style="font-size:12px;color:var(--t2)">%/년</span>
+      <span id="globalRR-status" style="font-size:12px;color:var(--t3)">체크하면 모든 계좌에 동일 수익률 적용</span>
+    </div>
+  </div>
+  <div class="card" style="border-color:rgba(200,168,75,.3);">
+    <div class="ctitle">💰 세액공제 환급액 재투자</div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+        <input type="checkbox" id="taxReinvest" checked>재투자 실행
+      </label>
+      <div style="flex:1;min-width:200px;">
+        <select class="fs" id="taxReinvestTgt"><option value="">투자 안 함</option></select>
+      </div>
+      <div class="hint" id="tax-hint" style="flex-basis:100%"></div>
+    </div>
+  </div>
+  <div class="al al-i" style="font-size:12px;">계좌 추가 후 각 계좌에서 직접 월납입액을 입력하세요. 보유종목 평가금액은 현재잔액에 자동반영됩니다.</div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+    <select class="fs" id="newAcct" style="max-width:300px;">
+      <option value="">-- 계좌 유형 선택 --</option>
+      <optgroup label="절세 계좌">
+        <option value="ISA_BRK">ISA 중개형 — 비과세 200만원</option>
+        <option value="ISA_GEN">ISA 일반형 — 비과세 200만원</option>
+        <option value="ISA_WKR">ISA 서민형 — 비과세 400만원</option>
+        <option value="PENSION_FUND">연금저축펀드 — 세액공제 16.5/13.2%</option>
+        <option value="PENSION_INS">연금저축보험</option>
+        <option value="IRP_ACCUM">적립IRP — 추가 세액공제</option>
+        <option value="IRP_RETIRE">퇴직IRP</option>
+      </optgroup>
+      <optgroup label="일반">
+        <option value="STOCKS">주식계좌</option>
+        <option value="SUBSCRIPTION">청약저축</option>
+        <option value="CMA">CMA</option>
+        <option value="DEPOSIT">예금·적금</option>
+        <option value="GENERAL">일반계좌</option>
+      </optgroup>
+      <optgroup label="특수">
+        <option value="YOUTH_LEAP">청년도약계좌</option>
+        <option value="DISABLED">장애인전용저축</option>
+        <option value="CUSTOM">사용자정의 ★</option>
+      </optgroup>
+    </select>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <input class="fi mono" id="quick-mo" type="number" placeholder="월납입(원)" style="width:130px;padding:4px 8px;font-size:12px;">
+        <span style="font-size:11px;color:var(--t2)">월납입</span>
+      </div>
+    <button class="btn btn-green" onclick="addAcct()">＋ 계좌 추가</button>
+  </div>
+  <div id="accts-list"></div>
+  <div class="card"><div class="ctitle">📊 세액공제 요약</div><div class="g4" id="tax-grid"></div></div>
+</div>
+
+<!-- ════ 대출·보험 ════ -->
+<div id="tab-loans" class="panel">
+  <div class="g2">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><b style="font-size:15px;color:var(--goldl);">🏠 대출</b><button class="btn btn-sec btn-sm" onclick="addLoan()">＋</button></div>
+      <div id="loan-list"></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><b style="font-size:15px;color:var(--goldl);">🛡️ 보험</b><button class="btn btn-sec btn-sm" onclick="addIns()">＋</button></div>
+      <div id="ins-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 시뮬레이션 ════ -->
+<div id="tab-sim" class="panel">
+  <div id="sim-empty" class="al al-w">▶ 기본정보·계좌설정 입력 후 상단 <b>시뮬레이션</b> 버튼을 누르세요.</div>
+  <div id="sim-res" style="display:none;">
+    <div class="sgrids" id="sim-stats"></div>
+    <div class="card">
+      <div class="ctitle">🎯 목표 달성도</div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--t2);margin-bottom:3px;"><span>은퇴자산 vs 목표</span><span id="pg-lbl">0%</span></div>
+      <div class="pbw"><div class="pbf" id="pg-bar" style="width:0%"></div></div>
+      <div id="pg-desc" style="font-size:13px;color:var(--t2);margin-top:4px;"></div>
+    </div>
+    <div class="card" style="border-color:var(--goldd);">
+      <div class="ctitle">🔢 목표 달성 역산기</div>
+      <div class="g4" style="align-items:end;">
+        <div class="frow"><label class="fl">달성 목표 자산 (원)</label><input class="fi mono" id="rev-target" type="number" value="500000000" oninput="ka(this,'ka-rv')"><div class="ka" id="ka-rv"></div></div>
+        <div class="frow"><label class="fl">현재 월납입 합계 <span style="font-size:10px;color:var(--t2)">(수정 가능)</span></label><input class="fi mono" id="rev-cur" type="number" style="background:var(--bg2);" oninput="G('rev-cur').style.background='var(--ifocus)'"></div>
+        <div class="frow">
+          <label class="fl">가정 수익률 <span style="font-size:10px;color:var(--t2)">(0=계좌별)</span></label>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <input class="fi mono" id="rev-rr" type="number" value="0" step="0.5" style="max-width:80px;">
+            <span style="font-size:12px;color:var(--t2)">%/년</span>
+          </div>
+        </div>
+        <div><button class="btn btn-gold" onclick="calcReverse()">역산 계산</button></div>
+      </div>
+      <div id="rev-result" class="al al-s" style="display:none;margin-top:8px;font-size:13px;"></div>
+    </div>
+    <div class="card" style="border-color:rgba(59,143,232,.3);">
+      <div class="ctitle">🏥 은퇴 후 건강보험료 추정 (지역가입자)</div>
+      <div class="g3">
+        <div class="frow"><label class="fl">보유 부동산 공시지가 (원)</label><input class="fi mono" id="realEstate" type="number" value="0" oninput="ka(this,'ka-re2');calcHealth()"><div class="ka" id="ka-re2"></div></div>
+        <div class="frow"><label class="fl">금융자산 (시뮬레이션 자동)</label><div class="fi mono" id="fin-asset" style="background:var(--bg2);cursor:default;color:var(--goldl)">시뮬레이션 후 자동</div></div>
+        <div class="frow"><label class="fl">연금·기타 연소득 (원)</label><input class="fi mono" id="healthInc" type="number" value="0" oninput="ka(this,'ka-hi');calcHealth()"><div class="ka" id="ka-hi"></div></div>
+      </div>
+      <div id="health-res" class="al al-i" style="font-size:12px;margin-top:4px;"></div>
+    </div>
+    <div class="card"><div class="ctitle">📈 자산 추이</div><div class="cw" style="height:360px;"><canvas id="mainChart"></canvas></div></div>
+    <div class="card">
+      <div class="ctitle" style="justify-content:space-between;">
+        📋 현금흐름표 <span style="font-size:11px;color:var(--teal);margin-left:6px;">● 배당금 포함</span>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <div class="vtog"><button class="on" onclick="setView('year',this)">연도별</button><button onclick="setView('month',this)">월별</button></div>
+          <button class="btn btn-blue btn-sm" onclick="toggleFS()">⛶ 전체화면</button>
+          <button class="btn btn-sec btn-sm" onclick="doExcel()">📊 엑셀</button>
+        </div>
+      </div>
+      <div class="sim-wrap" id="simWrap">
+        <table class="st"><thead id="sim-th"></thead><tbody id="sim-tb"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 시나리오 ════ -->
+<div id="tab-scenario" class="panel">
+  <div class="card">
+    <div class="ctitle">🎲 시나리오 비교 설정</div>
+    <div class="g4">
+      <div class="frow"><label class="fl">낙관 수익률 (%/년)</label><input class="fi mono" id="sc-opt" type="number" value="10" step="0.5"></div>
+      <div class="frow"><label class="fl">평균 수익률 (%/년)</label><input class="fi mono" id="sc-avg" type="number" value="7" step="0.5"></div>
+      <div class="frow"><label class="fl">비관 수익률 (%/년)</label><input class="fi mono" id="sc-pes" type="number" value="3" step="0.5"></div>
+      <div class="frow"><label class="fl">ISA 만기→배당 교체 수익률(%)</label><input class="fi mono" id="sc-div" type="number" value="6" step="0.5"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div class="sc-chip" style="background:rgba(45,190,116,.15);border:1px solid rgba(45,190,116,.3);color:var(--green);">● 낙관</div>
+      <div class="sc-chip" style="background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);color:var(--goldl);">● 평균</div>
+      <div class="sc-chip" style="background:rgba(224,85,85,.15);border:1px solid rgba(224,85,85,.3);color:var(--red);">● 비관</div>
+      <div class="sc-chip" style="background:rgba(43,191,176,.15);border:1px solid rgba(43,191,176,.3);color:var(--teal);">● ISA 만기→배당형</div>
+      <button class="btn btn-gold" style="margin-left:auto;" onclick="runScenario()">📊 시나리오 실행</button>
+    </div>
+  </div>
+  <div id="sc-empty" class="al al-w">▶ 먼저 시뮬레이션을 실행하세요.</div>
+  <div id="sc-res" style="display:none;">
+    <div class="card"><div class="ctitle">📈 4가지 시나리오 비교</div><div class="cw" style="height:320px;"><canvas id="scChart"></canvas></div></div>
+    <div class="g4" id="sc-stats"></div>
+    <div class="card"><div class="ctitle">📋 시나리오별 비교표</div><div class="sim-wrap"><table class="st"><thead id="sc-th"></thead><tbody id="sc-tb"></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ════ AI 평가 ════ -->
+<div id="tab-ai" class="panel">
+  <div class="g2" style="align-items:start;">
+    <div>
+      <div class="card">
+        <div class="ctitle">🤖 AI 포트폴리오 평가</div>
+        <div class="al al-i" style="font-size:12px;margin-bottom:10px;">
+          <b>Gemini (무료)</b> → <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">aistudio.google.com</a> (AIza...)<br>
+          <b>ChatGPT</b> → <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--blue)">platform.openai.com</a> (sk-...)
+        </div>
+        <div class="frow"><label class="fl">분석 중점</label>
+          <select class="fs" id="aiFocus">
+            <option value="overall">전반적 종합 분석</option>
+            <option value="tax">세금 최적화</option>
+            <option value="div">배당 전략 최적화</option>
+            <option value="retire">은퇴 가능성</option>
+            <option value="isa">ISA 전략</option>
+            <option value="loan">대출·보험 최적화</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;">
+          <button class="btn btn-gold btn-lg" onclick="runAI()" id="ai-btn">🤖 AI 분석 시작</button>
+          <button class="btn btn-purple" onclick="runAICompare()">⚡ AI 추천 vs 내 계획</button>
+          <button class="btn btn-sec btn-sm" onclick="clearAI()">초기화</button>
+        </div>
+      </div>
+      <div class="card" id="ai-suggs" style="display:none;"><div class="ctitle">💡 개선 제안 (클릭 즉시 적용)</div><div id="ai-sugg-list"></div></div>
+      <div class="card" id="ai-cmp-card" style="display:none;">
+        <div class="ctitle">⚡ 내 계획 vs AI 추천</div>
+        <div class="cw" style="height:250px;"><canvas id="cmpChart"></canvas></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;" id="cmp-stats"></div>
+      </div>
+    </div>
+    <div class="card"><div class="ctitle">📝 AI 분석 결과</div><div class="ai-resp" id="ai-resp"><span style="color:var(--t3)">AI 분석 결과가 여기 표시됩니다.</span></div></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+<script>
+// ═══════════ CONSTANTS ═══════════
+const TMAP={
+  '379810':'KODEX 나스닥100','069500':'KODEX 200','360750':'TIGER 미국S&P500',
+  '102110':'TIGER 200','133690':'TIGER 미국나스닥100','261240':'KODEX 미국S&P500TR',
+  '453810':'TIGER 미국S&P500배당성장','411060':'ACE 미국S&P500','148020':'KINDEX 미국S&P500',
+  '232080':'TIGER 미국채10년선물','458730':'KODEX 미국30년국채',
+  '468380':'ACE 미국배당다우존스','455050':'TIGER 미국배당다우존스','251340':'KODEX 코스닥150',
+  '219390':'TIGER 코스닥150','304660':'TIGER 미국달러단기채권','272580':'KODEX 배당성장'
+};
+const NMAP=Object.fromEntries(Object.entries(TMAP).map(([k,v])=>[v,k]));
+const AMETA={
+  ISA_BRK:    {label:'ISA(중개형)',    color:'#3b8fe8', al:20000000, cat:'ISA',     taxFree:2000000},
+  ISA_GEN:    {label:'ISA(일반형)',    color:'#4a9fe8', al:20000000, cat:'ISA',     taxFree:2000000},
+  ISA_WKR:    {label:'ISA(서민형)',    color:'#5ab0f0', al:20000000, cat:'ISA',     taxFree:4000000},
+  PENSION_FUND:{label:'연금저축펀드', color:'#9b6fe0', al:18000000, cat:'PENSION', dm:6000000},
+  PENSION_INS: {label:'연금저축보험', color:'#8b5fd0', al:18000000, cat:'PENSION', dm:6000000},
+  IRP_ACCUM:   {label:'적립IRP',       color:'#e8873b', al:18000000, cat:'IRP',     dm:3000000},
+  IRP_RETIRE:  {label:'퇴직IRP',       color:'#2bbfb0', al:0,        cat:'IRP_RET'},
+  STOCKS:      {label:'주식계좌',       color:'#e05555', al:0,        cat:'STOCK'},
+  SUBSCRIPTION:{label:'청약저축',      color:'#f39c12', ml:500000,   cat:'SUB'},
+  CMA:         {label:'CMA',           color:'#2bbfb0', al:0,        cat:'FREE'},
+  DEPOSIT:     {label:'예금·적금',     color:'#2980b9', al:0,        cat:'FREE'},
+  GENERAL:     {label:'일반계좌',       color:'#7f8c8d', al:0,        cat:'FREE'},
+  YOUTH_LEAP:  {label:'청년도약',      color:'#27ae60', ml:700000,   cat:'YOUTH'},
+  DISABLED:    {label:'장애인전용',    color:'#8e44ad', al:24000000, cat:'DISABLED'},
+  CUSTOM:      {label:'사용자정의',    color:'#a06040', al:0,        cat:'CUSTOM'}
+};
+const DIV_TAX_RATE=0.154; // 일반계좌 배당소득세 15.4%
+const ACCT_INFO={
+  'ISA_BRK': '💡 비과세 200만원 | 연 2천만원 한도 | 3년 만기 가능 | ✅이전가능: 연금저축·IRP (만기후, 10% 추가세액공제) | ❌이전불가: ISA→연금저축→ISA 순환 불가',
+  'ISA_GEN': '💡 비과세 200만원 | 연 2천만원 한도 | ✅이전가능: 연금저축·IRP | ❌이전불가: 연금저축→ISA 불가',
+  'ISA_WKR': '💡 비과세 400만원 (서민형) | ✅이전가능: 연금저축·IRP | ❌이전불가: 연금저축→ISA 불가',
+  'PENSION_FUND': '💡 세액공제 13.2~16.5% | IRP 포함 연 1800만원 | 55세+5년 조건 충족 시 연금수령 (3.3~5.5%) | ✅이전가능: 적립IRP← / ❌이전불가: 연금저축→ISA, →퇴직IRP 직접불가',
+  'PENSION_INS': '💡 세액공제 13.2~16.5% | 55세+5년 조건 충족 시 연금수령 | ✅이전가능: 적립IRP← | ❌이전불가: ISA→',
+  'IRP_ACCUM': '💡 추가 세액공제 최대 300만원 | 연 1800만원 한도 | 55세+5년 연금수령 | ✅이전가능: 연금저축→ | ❌이전불가: →퇴직IRP, →ISA, 중도해지 시 16.5%',
+  'IRP_RETIRE': '💡 퇴직금 이전 전용 | ✅이전가능: 연금저축→(55세이후), 적립IRP→ | ❌이전불가: →ISA | DC/DB형에서 자동 연동',
+  'CMA': '💡 수시입출금 | 하루이자 지급 | 이자소득세 15.4% | 제약 없음 (자유로운 이동 가능)',
+  'STOCKS': '💡 배당소득세 15.4% | 매매차익 비과세 | ✅이전가능: 자유롭게 다른 계좌로 이전',
+  'YOUTH_LEAP': '💡 정부기여금 월 최대 3.3만원 | 비과세 | 5년 유지 조건 | 중도해지 시 기여금 반환',
+};
+const CORS_PROXIES=[
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?',
+];
+const PCACHE={};
+
+// ═══════════ STATE ═══════════
+let accounts=[],loans=[],insurances=[];
+window._hpMonthly=0;window._hpStartAge=70; // 주택연금 초기값
+let simY=[],simM=[],simChartObj=null,scChartObj=null,cmpChartObj=null;
+let viewMode='year',CTR={a:0,l:0,i:0,c:0};
+let aiPlan=null;
+
+// ═══════════ INIT ═══════════
+window.onload=()=>{
+  // 구버전 키 정리
+  ['retireSim_v6','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
+  const s=localStorage.getItem('retireSim_v6r');
+  if(s){
+    try{
+      const p=JSON.parse(s);
+      if(p?.ver===6){applyProfile(p);toast('💾 저장 데이터 복원');}
+      else{localStorage.removeItem('retireSim_v6r');initDef();}
+    }catch(e){localStorage.removeItem('retireSim_v6r');initDef();}
+  }else initDef();
+};
+function initDef(){
+  // ── 완전 초기화 (기존 계좌/대출/보험 전부 제거) ──
+  accounts=[];loans=[];insurances=[];CTR={a:0,l:0,i:0,c:0};
+  onBirth();
+  // DC형 샘플 종목 초기화
+  dcHoldings=[];DCctr=0;
+  DCctr++;dcHoldings.push({id:'dc1',ticker:'379810',name:'KODEX 나스닥100',qty:100,avg:17000,cp:0,cagr:null,divYield:3.5,pb:null});
+  DCctr++;dcHoldings.push({id:'dc2',ticker:'455050',name:'TIGER 미국배당다우존스',qty:80,avg:12000,cp:0,cagr:null,divYield:4.2,pb:null});
+  // 퇴직IRP 기본 추가 (항상)
+  addAcctD('IRP_RETIRE', 0, 0, 5, true);
+  renderAccts();renderLoans();renderIns();
+  updateBudBar();updateTax();renderNP();calcTarget();onSalary();
+  // DC형 디폴트: 카드 표시 + 계산
+  Gv('sevType','DC');
+  // DC section 강제 표시
+  ['DB','manual'].forEach(k=>{const e=G('sec-'+k);if(e)e.style.display='none';});
+  const secDC=G('sec-DC');if(secDC)secDC.style.display='';
+  const dcCard=G('dc-holdings-card');if(dcCard)dcCard.style.display='';
+  renderDCTable();
+  calcDB();
+  // Initial Korean display
+  const kaMap={'mExp':'ka-me','rExp':'ka-re','npBase':'ka-np','salary':'ka-sal','budget':'ka-bgt'};
+  Object.entries(kaMap).forEach(([id,kid])=>{const el=G(id),k=G(kid);if(el&&k)k.textContent=toKor(parseFloat(el.value)||0);});
+}
+
+// ═══════════ UTILS ═══════════
+const G=(id)=>document.getElementById(id);
+const Gv=(id,v)=>{const e=G(id);if(e)e.value=v;};
+const Gval=(id)=>G(id)?.value||'';
+
+function toKor(n){
+  if(n===undefined||n===null||isNaN(n)||n===0) return '0원';
+  const neg=n<0;n=Math.abs(Math.round(n));
+  const uk=Math.floor(n/100000000),man=Math.floor((n%100000000)/10000),won=n%10000;
+  let r='';if(uk)r+=uk+'억 ';if(man)r+=man.toLocaleString()+'만 ';if(won||(r===''))r+=won.toLocaleString();
+  return (neg?'-':'')+r.trim()+'원';
+}
+function wf(n){return Math.round(n||0).toLocaleString('ko-KR');}
+function ws(n){
+  n=Math.round(n||0);
+  if(Math.abs(n)>=100000000)return (n/100000000).toFixed(1)+'억';
+  if(Math.abs(n)>=10000000) return (n/10000000).toFixed(0)+'천만';
+  if(Math.abs(n)>=10000)    return (n/10000).toFixed(0)+'만';
+  return n.toLocaleString();
+}
+// FIX: ka() properly updates Korean display
+function ka(inp,kid){const e=G(kid);if(e)e.textContent=toKor(parseFloat(inp?.value||0)||0);}
+
+function toast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:20px;right:20px;background:#1a3050;border:1px solid #c9a84c;color:#e8c96a;padding:9px 16px;border-radius:8px;font-size:13px;z-index:9999;animation:toast .3s ease';
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);
+}
+
+// ═══════════ DATE/AGE ═══════════
+function onBirth(){
+  const bd=Gval('birthDate');if(!bd)return;
+  const b=new Date(bd),t=new Date();
+  let age=t.getFullYear()-b.getFullYear();
+  if(t.getMonth()<b.getMonth()||(t.getMonth()===b.getMonth()&&t.getDate()<b.getDate()))age--;
+  Gv('curAge',age);
+  const el=G('ka-age');if(el)el.textContent=`만 ${age}세`;
+  onRetireAge();
+}
+function onAge(){
+  const age=parseInt(Gval('curAge'))||47;
+  Gv('birthDate',`${new Date().getFullYear()-age}-01-01`);
+  const el=G('ka-age');if(el)el.textContent=`만 ${age}세`;
+  onRetireAge();
+}
+function onRetireAge(){
+  const ra=parseInt(Gval('retireAge'))||60;
+  const rv=G('retireAge-val');if(rv)rv.textContent=ra+'세';
+  const curA=parseInt(Gval('curAge'))||47;
+  const left=Math.max(0,ra-curA),ry=new Date().getFullYear()+left;
+  const kr=G('ka-retire');if(kr)kr.textContent=left>0?`→ ${ry}년 (${left}년 후)`:'이미 은퇴';
+  calcDB();
+}
+
+// ═══════════ SALARY & TAX ═══════════
+function onSalary(){
+  const sal=parseFloat(Gval('salary'))||0;
+  const ks=G('ka-sal');if(ks)ks.textContent=toKor(sal);
+
+  // ── 월급 기준 계산 (연봉÷12 = 월급)
+  const monthSal = Math.round(sal / 12);
+
+  // 4대보험 (2024년 기준, 월 기준)
+  // 국민연금: 월 기준소득 상한 5,900,000원, 요율 4.5%
+  const npMon   = Math.round(Math.min(monthSal, 5900000) * 0.045);
+  // 건강보험: 7.09% × 50% = 3.545%
+  const hltMon  = Math.round(monthSal * 0.03545);
+  // 장기요양: 건강보험료 × 12.81%
+  const ltcMon  = Math.round(hltMon * 0.1281);
+  // 고용보험: 1.8% × 50% = 0.9%
+  const empMon  = Math.round(monthSal * 0.009);
+
+  // 소득세 (월 기준 간이세액표 근사치)
+  // 과세표준 = 월급 - 월 공제합계 - 근로소득공제
+  const deductMon = npMon + hltMon + ltcMon + empMon;
+  const taxableMon = Math.max(0, monthSal - deductMon);
+  // 근로소득공제 (연간) → 월 환산
+  let wageDeduct = 0;
+  const taxableAnnForWage = taxableMon * 12;
+  if(taxableAnnForWage <= 5000000)       wageDeduct = taxableAnnForWage * 0.70;
+  else if(taxableAnnForWage <= 15000000) wageDeduct = 3500000 + (taxableAnnForWage-5000000)*0.40;
+  else if(taxableAnnForWage <= 45000000) wageDeduct = 7500000 + (taxableAnnForWage-15000000)*0.15;
+  else if(taxableAnnForWage <= 100000000)wageDeduct = 12000000 + (taxableAnnForWage-45000000)*0.05;
+  else                                   wageDeduct = 14750000 + (taxableAnnForWage-100000000)*0.02;
+  const wageDeductMon = Math.round(wageDeduct / 12);
+  // 인적공제 월 환산 (본인 150만원 ÷ 12)
+  const personalDeductMon = Math.round(1500000 / 12);
+  const incomeTaxBase = Math.max(0, taxableMon - wageDeductMon - personalDeductMon);
+
+  // 소득세 누진
+  const annBase = incomeTaxBase * 12;
+  let annTax = 0;
+  if(annBase <= 14000000)       annTax = annBase * 0.06;
+  else if(annBase <= 50000000)  annTax = 840000   + (annBase-14000000)*0.15;
+  else if(annBase <= 88000000)  annTax = 6240000  + (annBase-50000000)*0.24;
+  else if(annBase <= 150000000) annTax = 15360000 + (annBase-88000000)*0.35;
+  else if(annBase <= 300000000) annTax = 37060000 + (annBase-150000000)*0.38;
+  else                          annTax = 94060000 + (annBase-300000000)*0.40;
+  const incomeTaxMon = Math.round(annTax / 12);
+  const localTaxMon  = Math.round(incomeTaxMon * 0.10);
+
+  const totalDeductMon = npMon + hltMon + ltcMon + empMon + incomeTaxMon + localTaxMon;
+  const netMonthly = monthSal - totalDeductMon;
+  const netAnnual  = netMonthly * 12;
+
+  // 화면 표시
+  const sh=G('sal-hint');
+  if(sh) sh.innerHTML =
+    `<div style="background:var(--bg2);border-radius:6px;padding:8px;margin-top:4px;font-size:12px;color:var(--t2);">` +
+    `<div style="display:grid;grid-template-columns:1fr auto;gap:2px 12px;">` +
+    `<span style="color:var(--t2)">월급 (연봉÷12)</span><span style="font-family:monospace;text-align:right">${wf(monthSal)}원</span>` +
+    `<span style="color:var(--t3)">└ 국민연금 (4.5%)</span><span style="font-family:monospace;color:var(--t3);text-align:right">-${wf(npMon)}원</span>` +
+    `<span style="color:var(--t3)">└ 건강+장기요양</span><span style="font-family:monospace;color:var(--t3);text-align:right">-${wf(hltMon+ltcMon)}원</span>` +
+    `<span style="color:var(--t3)">└ 고용보험 (0.9%)</span><span style="font-family:monospace;color:var(--t3);text-align:right">-${wf(empMon)}원</span>` +
+    `<span style="color:var(--t3)">└ 소득세+지방세</span><span style="font-family:monospace;color:var(--t3);text-align:right">-${wf(incomeTaxMon+localTaxMon)}원</span>` +
+    `</div>` +
+    `<div style="border-top:1px solid var(--bd);margin-top:5px;padding-top:5px;display:grid;grid-template-columns:1fr auto;">` +
+    `<span style="font-weight:700">💛 월 실수령</span><span style="font-family:monospace;font-weight:700;color:var(--goldl);font-size:14px;text-align:right">${wf(netMonthly)}원</span>` +
+    `<span style="color:var(--t2);font-size:11px">연 실수령</span><span style="font-family:monospace;color:var(--t2);font-size:11px;text-align:right">${wf(netAnnual)}원</span>` +
+    `</div></div>`;
+
+  window._netMonthly = netMonthly;
+  window._monthSal = monthSal;
+  onSalaryDay();
+
+  // DC 자동납입 표시 갱신
+  const dcHint = G('dc-auto-contrib');
+  if(dcHint) dcHint.innerHTML = `연봉÷12 = <b style="color:var(--goldl)">${wf(monthSal)}원/월</b>이 매년 자동 적립됩니다 (연봉상승률 반영)`;
+  // dc-extra-monthly 자동 기입 (readonly)
+  const dcInp2 = G('dc-extra-monthly');
+  if(dcInp2){ dcInp2.value = wf(monthSal)+'원'; }
+  const dcKa2 = G('ka-dc-extra');
+  if(dcKa2){ dcKa2.textContent = toKor(monthSal); }
+  // dc-extra-monthly 자동 기입
+  const dcInp = G('dc-extra-monthly');
+  if(dcInp){ dcInp.value = wf(monthSal)+'원'; }
+  const dcKa = G('ka-dc-extra');
+  if(dcKa){ dcKa.textContent = toKor(monthSal); }
+
+  // 세액공제 구간 자동 설정 (연봉 기준)
+  const bracket = sal > 55000000 ? 'high' : 'low';
+  Gv('taxBracket', bracket);
+  const badgeEl = G('tax-badge');
+  if(badgeEl) badgeEl.textContent = sal > 55000000 ? '자동 13.2%' : '자동 16.5%';
+
+  updateTax(); calcDB();
+}
+
+function onSalaryDay(){
+  const day=parseInt(Gval('salaryDay'))||25;
+  const today=new Date();
+  const todayDay=today.getDate();
+  const todayMonth=today.getMonth()+1;
+  const todayYear=today.getFullYear();
+  // 이번달 급여 수령 여부
+  const paidThisMonth=todayDay>=day;
+  const nextPayDate=paidThisMonth
+    ? new Date(todayYear,todayMonth,day)       // 다음달 급여
+    : new Date(todayYear,todayMonth-1,day);    // 이번달 급여
+  const daysLeft=Math.ceil((nextPayDate-today)/(1000*60*60*24));
+  const el=G('salary-day-hint');
+  if(el){
+    el.innerHTML=paidThisMonth
+      ? `이번달 ${todayMonth}/${day} 수령 완료 · 다음 급여 <b style="color:var(--goldl)">${todayMonth<12?todayMonth+1:1}/${day}</b> (<b>${daysLeft}</b>일 후)`
+      : `이번달 <b style="color:var(--goldl)">${todayMonth}/${day}</b>까지 <b>${daysLeft}</b>일 남음`;
+  }
+  // 시뮬레이션 시작월 갱신 (급여일 지난 경우 이번달, 아니면 다음달 시작)
+  window._simStartMonth = paidThisMonth ? todayMonth : (todayMonth===12?1:todayMonth+1);
+  window._simStartYear  = paidThisMonth ? todayYear  : (todayMonth===12?todayYear+1:todayYear);
+}
+function showISATransferBenefit(acctId, postEvent, bal){
+  const el=G('isa-benefit-'+acctId);
+  if(!el)return;
+  const isTransfer=postEvent==='transfer'||postEvent==='transfer300';
+  el.style.display=isTransfer?'':'none';
+  if(!isTransfer)return;
+  const a=accounts.find(x=>x.id===acctId);
+  const curBal=a?a.balance:bal;
+  const transferAmt=postEvent==='transfer300'?Math.min(curBal,30000000):curBal;
+  const addDeduct=Math.min(transferAmt*0.10,3000000);
+  const rate=(Gval('taxBracket')||'high')==='low'?0.165:0.132;
+  const refund=Math.round(addDeduct*rate);
+  el.innerHTML=`✅ <b>연금계좌 이전 특별 혜택</b><br>`+
+    `이전금액 <b>${wf(Math.round(transferAmt))}원</b>의 10% → 세액공제 추가 산입 <b style="color:var(--goldl)">${wf(Math.round(addDeduct))}원</b> (최대 300만원)<br>`+
+    `예상 추가 환급액: <b style="color:var(--goldl)">${wf(refund)}원</b> <span style="color:var(--t2);font-size:11px">(세율 ${(rate*100).toFixed(1)}% 기준, 기존 한도와 별도)</span>`;
+}
+function updateTax(){
+  const rate=(Gval('taxBracket')||'high')==='low'?0.165:0.132;
+  let pA=0,iA=0;
+  accounts.filter(a=>a.active).forEach(a=>{
+    const c=(AMETA[a.type]||{}).cat;
+    if(c==='PENSION')pA+=a.monthlyContrib*12;
+    if(c==='IRP')iA+=a.monthlyContrib*12;
+    if(c==='CUSTOM'&&a.cDeductLimit>0)pA+=Math.min(a.monthlyContrib*12,a.cDeductLimit);
+  });
+  const pD=Math.min(pA,6000000),iD=Math.min(Math.max(0,iA-Math.max(0,pA-6000000)),3000000);
+  const pT=Math.round(pD*rate),iT=Math.round(iD*rate),tot=pT+iT;
+  const tg=G('tax-grid');
+  if(tg)tg.innerHTML=`
+    <div class="sc"><div class="sl">연금저축 세액공제</div><div class="sv">${wf(pT)}원</div><div class="ss">한도 600만원</div></div>
+    <div class="sc"><div class="sl">IRP 추가공제</div><div class="sv">${wf(iT)}원</div><div class="ss">한도 300만원</div></div>
+    <div class="sc"><div class="sl">ISA 비과세</div><div class="sv" style="color:var(--teal)">${getISATaxFreeLabel()}</div><div class="ss">일반200만/서민400만원</div></div>
+    <div class="sc"><div class="sl">연간 총절세</div><div class="sv pos">${wf(tot)}원</div><div class="ss">${toKor(tot)}</div></div>`;
+  const th=G('tax-hint');if(th)th.innerHTML=`환급 약 <b style="color:var(--goldl)">${wf(tot)}원</b>`;
+  // Per-account tax labels
+  accounts.forEach(a=>{
+    const el=G(`tax-${a.id}`);if(!el)return;
+    const c=(AMETA[a.type]||{}).cat,m=AMETA[a.type]||{};
+    if(c==='PENSION')el.textContent=`절세 ${wf(Math.round(Math.min(a.monthlyContrib*12,6000000)*rate))}원`;
+    else if(c==='IRP')el.textContent=`절세 ${wf(Math.round(Math.min(a.monthlyContrib*12,3000000)*rate))}원`;
+    else if(c==='ISA')el.textContent=`비과세 ${wf((m.taxFree||2000000)/10000)}만원`;
+    else if(c==='CUSTOM'&&a.cDeductLimit>0)el.textContent=`절세 ${wf(Math.round(Math.min(a.monthlyContrib*12,a.cDeductLimit)*rate))}원`;
+    else el.textContent='—';
+  });
+  // Update taxReinvestTgt dropdown
+  const sel=G('taxReinvestTgt');
+  if(sel){const pv=sel.value;sel.innerHTML='<option value="">투자 안 함</option>'+accounts.filter(a=>a.active).map(a=>`<option value="${a.id}" ${a.id===pv?'selected':''}>${a.label}</option>`).join('');}
+}
+function getISATaxFreeLabel(){
+  const hasWorker=accounts.some(a=>a.active&&a.type==='ISA_WKR');
+  const hasISA=accounts.some(a=>a.active&&(AMETA[a.type]||{}).cat==='ISA');
+  if(!hasISA)return '계좌 없음';
+  return hasWorker?'최대 400만원':'최대 200만원';
+}
+
+function toggleHP(on){
+  const sec=G('hp-sec');if(sec)sec.style.display=on?'':'none';
+  if(on)calcHP();
+}
+function calcHP(){
+  if(!G('hpOn')?.checked)return;
+  const price=parseFloat(Gval('hpPrice'))||500000000;
+  const startAge=parseInt(Gval('hpStartAge'))||70;
+  const mode=Gval('hpMode')||'lifetime';
+  const ka=G('ka-hp');if(ka)ka.textContent=toKor(price);
+
+  // 주택연금 월수령액 간이계산 (한국주택금융공사 기준 근사치)
+  // 기준: 부부기준, 주택가격×지급률/1000
+  // 지급률은 나이·방식별 (공시 기준 근사치)
+  const rates={
+    // [종신, 확정10, 확정15, 대출상환] × 나이(55~84, 5세 간격)
+    55:{lifetime:0.90,fixed10:1.10,fixed15:1.05,loan:0.80},
+    60:{lifetime:1.18,fixed10:1.45,fixed15:1.35,loan:1.05},
+    65:{lifetime:1.52,fixed10:1.88,fixed15:1.72,loan:1.35},
+    70:{lifetime:2.00,fixed10:2.50,fixed15:2.25,loan:1.80},
+    75:{lifetime:2.65,fixed10:3.30,fixed15:2.95,loan:2.40},
+    80:{lifetime:3.57,fixed10:4.45,fixed15:3.95,loan:3.25},
+  };
+  // 가장 가까운 나이 찾기
+  const ages=[55,60,65,70,75,80];
+  const nearAge=ages.reduce((a,b)=>Math.abs(b-startAge)<Math.abs(a-startAge)?b:a);
+  const rateObj=rates[nearAge]||rates[70];
+  const ratePerMillion=rateObj[mode]||rateObj.lifetime;
+  // 월수령액 = 주택가격(억) × 지급률(만원)
+  const monthly=Math.round(price/100000000*ratePerMillion*10000);
+
+  // 초기보증료 1.5%, 연보증료 0.75%
+  const initFee=Math.round(price*0.015);
+  const annFee=Math.round(price*0.0075);
+
+  const modeLabel={lifetime:'종신지급',fixed10:'확정10년혼합',fixed15:'확정15년혼합',loan:'대출상환'}[mode];
+  const lifeExp=parseInt(Gval('lifeExp'))||90;
+  const totalMonths=Math.max(0,lifeExp-startAge)*12;
+  const totalRecv=monthly*totalMonths;
+
+  const res=G('hp-result');
+  if(res){
+    res.innerHTML=
+      `<div style="font-size:13px;margin-bottom:6px;"><b style="color:var(--goldl)">${modeLabel}</b> · ${startAge}세 개시</div>`+
+      `<div style="display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:12px;">`+
+      `<span style="color:var(--t2)">예상 월수령액</span><span style="font-family:monospace;font-weight:700;font-size:15px;color:var(--goldl)">${wf(monthly)}원</span>`+
+      `<span style="color:var(--t2)">연 수령액</span><span style="font-family:monospace">${wf(monthly*12)}원</span>`+
+      `<span style="color:var(--t2)">초기보증료 (1.5%)</span><span style="font-family:monospace;color:var(--t3)">-${wf(initFee)}원</span>`+
+      `<span style="color:var(--t2)">연보증료 (0.75%)</span><span style="font-family:monospace;color:var(--t3)">-${wf(annFee)}원/년</span>`+
+      `<span style="color:var(--t2)">기대수명 ${lifeExp}세 총수령</span><span style="font-family:monospace;color:var(--green)">${wf(totalRecv)}원</span>`+
+      `</div>`;
+  }
+
+  // 전역에 저장 (simEngine에서 참조)
+  window._hpMonthly=monthly;
+  window._hpStartAge=startAge;
+}
+function toggleExp(on){const sec=G('exp-sec');if(sec)sec.classList.toggle('sec-off',!on);}
+function calcTarget(){
+  const re=parseFloat(Gval('rExp'))||2000000;
+  const sw=(parseFloat(Gval('sw'))||4)/100;
+  const auto=sw>0?Math.round(re*12/sw):0;
+  const h=G('target-hint');if(h)h.innerHTML=`자동계산: <b style="color:var(--goldl)">${toKor(auto)}</b>`;
+}
+
+// ═══════════ NP ═══════════
+function renderNP(){
+  const base=parseFloat(Gval('npBase'))||1200000;
+  const sel=parseInt(Gval('npAge'))||65;
+  const av=G('npAge-val');if(av)av.textContent=sel+'세';
+  const kn=G('ka-np');if(kn)kn.textContent=toKor(base);
+  const grid=G('np-grid');if(!grid)return;
+
+  // 국민연금 소득세 간이계산
+  // 연금소득공제: 연금액 × 40% (900만원 이상 구간)
+  // 실제는 공제 후 다른 소득과 합산하지만 단독 과세 기준으로 표시
+  function npAfterTax(monthAmt){
+    const ann = monthAmt * 12;
+    // 연금소득공제 (2024년 기준)
+    let deduct = 0;
+    if(ann <= 3500000)       deduct = ann;
+    else if(ann <= 7000000)  deduct = 3500000 + (ann-3500000)*0.40;
+    else if(ann <= 14000000) deduct = 4900000 + (ann-7000000)*0.20;
+    else if(ann <= 35000000) deduct = 6300000 + (ann-14000000)*0.10;
+    else                     deduct = 8400000 + (ann-35000000)*0.05;
+    const taxable = Math.max(0, ann - deduct - 1500000); // 기본공제
+    let tax = 0;
+    if(taxable <= 14000000)       tax = taxable * 0.06;
+    else if(taxable <= 50000000)  tax = 840000 + (taxable-14000000)*0.15;
+    else                          tax = 6240000 + (taxable-50000000)*0.24;
+    const local = Math.round(tax * 0.10);
+    const totalTax = Math.round(tax + local);
+    const netMon = Math.round((ann - totalTax) / 12);
+    return { netMon, totalTax };
+  }
+
+  const opts=[
+    {age:55,label:'조기 55세',r:-0.30},
+    {age:60,label:'조기 60세',r:-0.18},
+    {age:65,label:'기본 65세',r:0},
+    {age:67,label:'연기 67세',r:0.144},
+    {age:70,label:'연기 70세',r:0.36}
+  ];
+  grid.innerHTML=opts.map(o=>{
+    const adj=Math.round(base*(1+o.r));
+    const diff=adj-base;
+    const isOn=sel===o.age;
+    const {netMon,totalTax}=npAfterTax(adj);
+    return `<div class="np-opt ${isOn?'on':''}" onclick="Gv('npAge',${o.age});renderNP()"
+      style="border-color:${isOn?'var(--gold)':'var(--bd)'};background:${isOn?'rgba(200,168,75,.08)':''}">
+      <div style="font-size:10px;font-weight:600;color:${isOn?'var(--goldl)':'var(--t2)'};margin-bottom:3px">${o.label}</div>
+      <div style="font-size:16px;font-weight:800;color:${o.r<0?'var(--red)':o.r>0?'var(--green)':'var(--goldl)'}">${o.r>=0?'+':''}${(o.r*100).toFixed(0)}%</div>
+      <div style="font-size:13px;font-weight:700;color:var(--t1);font-family:monospace;margin:2px 0">${wf(adj)}원/월</div>
+      <div style="font-size:10px;color:var(--t2)">세전 연 ${ws(adj*12)}원</div>
+      <div style="border-top:1px solid var(--bd);margin-top:3px;padding-top:3px;">
+        <div style="font-size:10px;color:var(--t3)">세금 -${wf(Math.round(totalTax/12))}원/월</div>
+        <div style="font-size:12px;font-weight:700;color:var(--green)">세후 ${wf(netMon)}원/월</div>
+      </div>
+      <div style="font-size:10px;font-weight:600;color:${diff>=0?'var(--green)':'var(--red)'};margin-top:2px">${diff>=0?'+':''}${wf(diff)}/월 차이</div>
+    </div>`;
+  }).join('');
+}
+
+function switchDCTab(tab){
+  const direct=G('dc-mode-direct'),stocks=G('dc-mode-stocks');
+  const t1=G('dc-tab-direct'),t2=G('dc-tab-stocks');
+  const activeStyle={background:'rgba(200,168,75,.2)',color:'var(--goldl)',border:'1px solid var(--goldd)'};
+  const inactiveStyle={background:'var(--bg2)',color:'var(--t2)',border:'1px solid var(--bdl)'};
+  if(tab==='direct'){
+    if(direct)direct.style.display='';
+    if(stocks)stocks.style.display='none';
+    if(t1)Object.assign(t1.style,activeStyle);
+    if(t2)Object.assign(t2.style,inactiveStyle);
+  }else{
+    if(direct)direct.style.display='none';
+    if(stocks)stocks.style.display='';
+    if(t1)Object.assign(t1.style,inactiveStyle);
+    if(t2)Object.assign(t2.style,activeStyle);
+  }
+  calcDB(); // 탭 전환 시 즉시 계산 갱신
+}
+function toggleSev(){
+  const t=Gval('sevType');
+  ['DB','DC','manual'].forEach(k=>{const e=G(`sec-${k}`);if(e)e.style.display=t===k?'':'none';});
+  // Show/hide DC holdings card (below퇴직금 card)
+  const dcCard=G('dc-holdings-card');
+  if(dcCard)dcCard.style.display=t==='DC'?'':'none';
+  if(t==='DC'){renderDCTable();updateDCSummary();calcDB();}
+  if(t==='DB')calcDB();
+  updateSevTargetInfo();
+}
+function calcRetirementTax(sev){
+  // 퇴직소득세 간이계산 (2024년 기준)
+  // 환산급여 = 퇴직급여 - 비과세 (근속연수×100만원)
+  const wy=parseInt(Gval('workYrs'))||15;
+  const ra=parseInt(Gval('retireAge'))||60, ca=parseInt(Gval('curAge'))||47;
+  const totalWork=wy+Math.max(0,ra-ca);
+  const taxFreeBase=Math.min(totalWork*1000000, sev); // 근속연수×100만원 공제
+  const taxable=Math.max(0, sev-taxFreeBase);
+  // 환산급여 방식 간소화 (실제는 더 복잡하나 근사치)
+  const annualEquiv=totalWork>0?taxable/totalWork*12:taxable;
+  let tax=0;
+  if(annualEquiv<=14000000)       tax=annualEquiv*0.06;
+  else if(annualEquiv<=50000000)  tax=840000+(annualEquiv-14000000)*0.15;
+  else if(annualEquiv<=88000000)  tax=6240000+(annualEquiv-50000000)*0.24;
+  else if(annualEquiv<=150000000) tax=15360000+(annualEquiv-88000000)*0.35;
+  else                            tax=37060000+(annualEquiv-150000000)*0.38;
+  // 퇴직소득세 = 산출세액 × 근속연수/12
+  const retireTax=Math.round(tax*totalWork/12);
+  return {retireTax, taxFreeBase, taxable, totalWork};
+}
+function updateSevTargetInfo(){
+  const tgt=Gval('sevTarget');
+  const sev=getSev();
+  const el=G('sev-target-info');
+  if(!el)return;
+  if(tgt==='IRP_RETIRE'||tgt==='IRP_ACCUM'){
+    const{retireTax,totalWork}=calcRetirementTax(sev);
+    const deferred=retireTax; // 이연 절세
+    el.className='al al-s';
+    el.innerHTML=`✅ <b>퇴직IRP/IRP 이전 시 퇴직소득세 이연</b><br>퇴직금 ${wf(sev)}원 전액 이전 → 연금수령 시 세율 3.3~5.5% (퇴직소득세의 30~40% 절감)<br>예상 절감세액: <b style="color:var(--goldl)">${wf(Math.round(deferred*0.35))}원 이상</b> (근속${totalWork}년 기준)`;
+  } else if(tgt==='PENSION_FUND'){
+    el.className='al al-w';
+    el.innerHTML=`⚠️ 연금저축펀드 직접 이전 불가 — 반드시 <b>퇴직IRP → 연금저축 순서</b>로 이전해야 합니다<br>퇴직IRP 이전 후 55세 이후 연금저축으로 통합 가능`;
+  } else if(tgt==='CASH'){
+    const{retireTax,taxFreeBase,taxable,totalWork}=calcRetirementTax(sev);
+    const net=sev-retireTax;
+    el.className='al al-e';
+    el.innerHTML=`💸 <b>현금 수령 시 퇴직소득세 즉시 납부</b><br>`+
+      `퇴직금 ${toKor(sev)} | 비과세 공제 ${toKor(taxFreeBase)} | 과세표준 ${toKor(taxable)}<br>`+
+      `예상 퇴직소득세: <b style="color:var(--red)">${toKor(retireTax)}</b> | `+
+      `<b>실수령액: <span style="color:var(--green)">${toKor(net)}</span></b> (근속${totalWork}년 기준)`;
+  }
+}
+function getDCWeightedCAGR(){
+  // 직접 입력 수익률 우선
+  const rrOverride=parseFloat(Gval('dc-rr-override')||'')||parseFloat(Gval('dc-rr-stocks')||'')||0;
+  if(rrOverride>0) return rrOverride/100;
+  // 종목 CAGR 가중평균 (평가금액 기준)
+  const withC=dcHoldings.filter(h=>h.cagr!=null&&parseFloat(h.cagr)!==0);
+  if(!withC.length){
+    // CAGR 없으면 퇴직IRP 계좌 수익률 fallback
+    const dcAcct=accounts.find(a=>a.type==='IRP_RETIRE'&&a.active);
+    return (dcAcct?.returnRate||5)/100;
+  }
+  const totEv=withC.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(cp>0&&h.qty>0?h.qty*cp:0);},0);
+  if(totEv<=0){
+    const dcAcct=accounts.find(a=>a.type==='IRP_RETIRE'&&a.active);
+    return (dcAcct?.returnRate||5)/100;
+  }
+  const wavg=withC.reduce((s,h)=>{
+    const cp=h.cp>0?h.cp:h.avg;
+    const ev=cp>0&&h.qty>0?h.qty*cp:0;
+    return s+parseFloat(h.cagr)*ev;
+  },0)/totEv;
+  return wavg/100;
+}
+function applyDCRROverride(){
+  // 수동 입력 수익률을 dcHoldings에 CAGR로 임시 적용
+  const rr=parseFloat(Gval('dc-rr-override'));
+  if(!isNaN(rr)&&rr>0){
+    dcHoldings.forEach(h=>h.cagrOverride=rr.toString());
+    toast('✅ DC형 수익률 '+rr+'% 일괄 적용');
+    calcDB();
+  }else{
+    dcHoldings.forEach(h=>delete h.cagrOverride);
+    toast('↩ DC형 수익률 CAGR 자동으로 복원');
+    calcDB();
+  }
+}
+function calcDCProjection(){
+  // 핵심 계산: 현재 DC잔액 + 매년 연봉÷12 적립 + 추가납입 + 종목CAGR 복리 운용
+  const sal=parseFloat(Gval('salary'))||0;
+  const sg=(parseFloat(Gval('salGrowth'))||3)/100;
+  const ra=parseInt(Gval('retireAge'))||60;
+  const ca=parseInt(Gval('curAge'))||47;
+  const yl=Math.max(0,ra-ca);
+  const extraMonthly=0; // 자동적립금(연봉÷12)은 별도 salY/12로 계산됨
+  const rr=getDCWeightedCAGR(); // 직접입력 → 종목CAGR → IRP수익률 순 우선
+  let bal=getDCTotal(); // 현재 평가잔액
+  let totalContrib=0;
+  let totalExtra=0;
+  for(let i=0;i<yl;i++){
+    const salY=sal*Math.pow(1+sg,i);
+    const dcAnnual=Math.round(salY/12); // 법정DC: 연봉÷12
+    const extraAnn=extraMonthly*12;
+    totalContrib+=dcAnnual;
+    totalExtra+=extraAnn;
+    bal=(bal+dcAnnual+extraAnn)*(1+rr);
+  }
+  return {proj:Math.round(bal),totalContrib:Math.round(totalContrib),totalExtra:Math.round(totalExtra),rr,yl,sal,sg};
+}
+function calcDB(){
+  const t=Gval('sevType');
+  if(t==='DC'){
+    // dc-direct-bal 한글 표시
+    const dbEl=G('dc-direct-bal');
+    const kbEl=G('ka-dc-bal');
+    if(dbEl&&kbEl)kbEl.textContent=toKor(parseFloat(dbEl.value)||0);
+    const now=getDCTotal();
+    const{proj,totalContrib,rr,yl,sal,sg}=calcDCProjection();
+    const firstSal=sal;
+    const lastSal=yl>0?Math.round(sal*Math.pow(1+sg,yl-1)):sal;
+    const hasCagr=dcHoldings.some(h=>h.cagr!=null);
+    const rrLabel=hasCagr?`종목 가중평균 CAGR`:`퇴직IRP 수익률`;
+    const ds=G('dc-sum');
+    if(ds){
+      ds.className='al al-s';
+      ds.innerHTML=
+        `<div style="margin-bottom:6px;font-size:13px;">📊 <b>DC형 퇴직금 시뮬레이션</b></div>`+
+        `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">`+
+          `<div>🏦 현재 DC 잔액</div><div style="text-align:right;font-family:monospace;color:var(--goldl)">${wf(now)}원</div>`+
+          `<div>📅 남은 근무기간</div><div style="text-align:right;font-family:monospace">${yl}년 (${ca}세 → ${ca+yl}세)</div>`+
+          `<div>💴 연간 DC 적립액 (연봉÷12, 상승률 ${(sg*100).toFixed(1)}%)</div><div style="text-align:right;font-family:monospace">${wf(Math.round(firstSal/12))}원/년 → ${wf(Math.round(lastSal/12))}원/년</div>`+
+          `<div>💰 총 연봉 적립액</div><div style="text-align:right;font-family:monospace;color:var(--blue)">${wf(totalContrib)}원</div>`+
+          `<div>📈 ${rrLabel}</div><div style="text-align:right;font-family:monospace;color:${hasCagr?'var(--green)':'var(--t2)'}">${hasCagr?'':'(기본값) '}${(rr*100).toFixed(1)}%/년${!hasCagr?' ← 종목 CAGR 조회 후 자동반영':''}</div>`+
+        `</div>`+
+        `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);">`+
+          `은퇴 시 예상 DC형 퇴직금: <b style="color:var(--goldl);font-size:14px;">${wf(proj)}원</b> <span style="color:var(--t2);font-size:11px;">(${toKor(proj)})</span>`+
+          `<span style="font-size:11px;color:var(--t2);margin-left:8px;">수익 ${wf(proj-now-totalContrib)}원 포함</span>`+
+        `</div>`;
+    }
+    // dc-live-result (직접입력 모드) 업데이트
+    const liveEl=G('dc-live-result');
+    const liveContent=`🎯 은퇴시 예상: <b style="color:var(--goldl);font-size:14px;">${wf(proj)}원</b><br>`+
+      `<span style="font-size:11px;color:var(--t2)">현재잔액 ${ws(now)} + ${yl}년 적립 → 수익률 ${(rr*100).toFixed(1)}%</span>`;
+    if(liveEl)liveEl.innerHTML=liveContent;
+    // dc-live-result-stocks (보유종목 모드) 도 동일하게
+    const liveSEl=G('dc-live-result-stocks');
+    if(liveSEl)liveSEl.innerHTML=liveContent;
+    updateSevTargetInfo();
+    return;
+  }
+  if(t!=='DB')return;
+  const sal=parseFloat(Gval('salary'))||0,sg=(parseFloat(Gval('salGrowth'))||3)/100;
+  const ra=parseInt(Gval('retireAge'))||60,ca=parseInt(Gval('curAge'))||47;
+  const wy=parseInt(Gval('workYrs'))||15,yl=Math.max(0,ra-ca),tw=wy+yl;
+  const cs=parseFloat(Gval('dbSal'))||0;
+  // DB형: 연봉은 은퇴 시점까지 연봉상승률 복리 반영
+  const rs=cs>0?cs:sal*Math.pow(1+sg,yl);
+  const sev=Math.round(rs/12*tw);
+  const dr=G('db-res');
+  if(dr)dr.innerHTML=
+    `현재연봉 ${wf(sal)}원 <span style="color:var(--t2);font-size:11px;">× (1+${(sg*100).toFixed(1)}%)^${yl}년</span>`+
+    ` → 은퇴시 월급 <b>${wf(Math.round(rs/12))}원</b><br>`+
+    `총 근속 ${tw}년 (현재${wy}년 + 잔여${yl}년) → 퇴직금 <b style="color:var(--goldl)">${wf(sev)}원</b> <span style="color:var(--t2)">(${toKor(sev)})</span>`;
+}
+// ─── DC형 전용 보유종목 (독립 state) ───
+let dcHoldings=[];  // [{ticker,name,qty,avg,cp,cagr,divYield,pb}]
+let DCctr=0;
+
+function getDCTotal(){
+  const fromHoldings=dcHoldings.reduce((s,h)=>{
+    const cp=h.cp>0?h.cp:h.avg;
+    return s+(cp>0&&h.qty>0?h.qty*cp:0);
+  },0);
+  if(fromHoldings>0) return fromHoldings;
+  // 종목 없으면 직접 입력 잔액 사용
+  return parseFloat(Gval('dc-direct-bal'))||0;
+}
+function updateDCSummary(){
+  const tot=getDCTotal();
+  const ds=G('dc-sum');if(!ds)return;
+  if(!dcHoldings.length||tot===0){
+    ds.innerHTML='아래 DC형 보유종목 테이블에서 종목을 추가하세요. (종목코드 입력 후 조회·추가 버튼)';
+    ds.className='al al-w';
+  }else{
+    const list=dcHoldings.map(h=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0&&h.qty>0?h.qty*cp:0;return `${h.name||h.ticker} ${ws(ev)}원`;}).join(' · ');
+    ds.innerHTML=`DC형 합계: <b style="color:var(--goldl)">${wf(tot)}원 (${toKor(tot)})</b><br><span style="font-size:11px;color:var(--t2)">${list}</span>`;
+    ds.className='al al-s';
+  }
+}
+function getSev(){
+  const t=Gval('sevType');
+  if(t==='manual') return parseFloat(Gval('manSev'))||0;
+
+  const sal=parseFloat(Gval('salary'))||0;
+  const sg=(parseFloat(Gval('salGrowth'))||3)/100;
+  const ra=parseInt(Gval('retireAge'))||60;
+  const ca=parseInt(Gval('curAge'))||47;
+  const yl=Math.max(0,ra-ca);
+
+  if(t==='DC'){
+    // calcDCProjection()과 동일 로직 (종목 CAGR 가중평균 + 연봉상승률 반영)
+    const{proj}=calcDCProjection();
+    return proj;
+  }
+
+  // DB형: 은퇴시 연봉상승률 반영 월급 × 총근속
+  const wy=parseInt(Gval('workYrs'))||15, tw=wy+yl;
+  const cs=parseFloat(Gval('dbSal'))||0;
+  const rs=cs>0?cs:sal*Math.pow(1+sg,yl);
+  return Math.round(rs/12*tw);
+}
+
+// ─── DC 종목 테이블 렌더 ───
+function renderDCTable(){
+  const tbody=G('dc-tbody');if(!tbody)return;
+  let totalEv=0;
+  tbody.innerHTML=dcHoldings.map((h,i)=>{
+    const cp=h.cp>0?h.cp:h.avg;
+    const ev=cp>0&&h.qty>0?h.qty*cp:0;
+    totalEv+=ev;
+    const ret=h.avg>0&&h.cp>0?((h.cp-h.avg)/h.avg*100).toFixed(1):'—';
+    const rc=parseFloat(ret)>0?'pos':parseFloat(ret)<0?'neg':'dim';
+    const badge=h.pb==='live'?`<span class="price-live">실시간</span>`:h.pb==='err'?`<span class="price-err">실패</span>`:'';
+    const cagrHtml=h.cagr!=null?`<b style="color:${parseFloat(h.cagr)>=0?'var(--green)':'var(--red)'}">${parseFloat(h.cagr)>=0?'+':''}${h.cagr}%</b>`
+      :`<button class="btn btn-sec" style="padding:1px 5px;font-size:10px;" onclick="fetchDCOne(${i})">조회</button>`;
+    return `<tr>
+      <td><input class="hi sm" value="${h.ticker||''}" placeholder="코드" oninput="dcF(${i},'ticker',this.value)" style="width:80px"></td>
+      <td><input class="hi sm" value="${h.name||''}" placeholder="종목명" oninput="dcF(${i},'name',this.value)" style="width:150px"></td>
+      <td class="r"><input class="hi r sm" type="number" value="${h.qty||0}" oninput="dcF(${i},'qty',+this.value);renderDCTable()" style="width:70px"></td>
+      <td class="r"><input class="hi r sm" type="number" value="${h.avg||0}" oninput="dcF(${i},'avg',+this.value);renderDCTable()" style="width:75px"></td>
+      <td class="r" style="white-space:nowrap;">
+        <input class="hi r sm" type="number" value="${h.cp||0}" oninput="dcF(${i},'cp',+this.value);renderDCTable()" style="width:75px">
+        ${badge}
+        <button class="btn btn-blue" style="padding:1px 5px;font-size:10px;margin-left:2px;" title="현재가 조회" onclick="fetchDCOne(${i})">📡</button>
+      </td>
+      <td class="r ${rc}" style="font-family:monospace;font-size:11px;">${ret}%</td>
+      <td class="r divcol" style="font-family:monospace;font-size:12px;font-weight:600;">${ws(ev)}</td>
+      <td class="r">${cagrHtml}</td>
+      <td class="r"><input class="hi r sm" type="number" value="${h.divYield||0}" step="0.1" oninput="dcF(${i},'divYield',+this.value)" style="width:55px" placeholder="0.0"></td>
+      <td><button class="btn btn-red btn-xs" onclick="dcHoldings.splice(${i},1);renderDCTable();updateDCSummary()">✕</button></td>
+    </tr>`;
+  }).join('');
+  const te=G('dc-total-ev');if(te)te.textContent=wf(Math.round(totalEv))+'원';
+  // CAGR weighted avg
+  const withC=dcHoldings.filter(h=>h.cagr!=null);
+  const cEl=G('dc-cagr-avg');
+  if(cEl){
+    if(withC.length){
+      const totEv2=withC.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(cp>0&&h.qty>0?h.qty*cp:0);},0);
+      const wavg=totEv2>0?withC.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0&&h.qty>0?h.qty*cp:0;return s+parseFloat(h.cagr)*ev;},0)/totEv2:0;
+      const annDiv=dcHoldings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0&&h.qty>0?h.qty*cp:0;return s+ev*(h.divYield||0)/100;},0);
+      cEl.style.display='block';
+      cEl.innerHTML=`📊 DC형 가중평균 10년CAGR: <b style="color:var(--goldl)">${wavg>=0?'+':''}${wavg.toFixed(1)}%/년</b>&nbsp;&nbsp;|&nbsp;&nbsp;연간 예상 배당: <b style="color:var(--teal)">${wf(Math.round(annDiv))}원</b>`;
+    }else cEl.style.display='none';
+  }
+  // DC형 선택 시 예측 자동 갱신
+  if(Gval('sevType')==='DC'){
+    calcDB(); // calcDB가 dc-live-result와 dc-live-result-stocks 모두 갱신
+    // 종목 모드 실시간 결과도 갱신
+    const lrs=G('dc-live-result-stocks');
+    const lr=G('dc-live-result');
+    if(lrs&&lr)lrs.innerHTML=lr.innerHTML;
+  }else updateDCSummary();
+}
+function dcF(i,k,v){
+  if(!dcHoldings[i])return;
+  if(k==='ticker'){
+    dcHoldings[i].ticker=v;
+    const n=TMAP[v.trim()];if(n){dcHoldings[i].name=n;setTimeout(()=>renderDCTable(),30);}
+  }else if(k==='name'){
+    dcHoldings[i].name=v;
+    const t=NMAP[v.trim()];if(t){dcHoldings[i].ticker=t;setTimeout(()=>renderDCTable(),30);}
+  }else{dcHoldings[i][k]=v;}
+}
+async function fetchDCOne(i){
+  const h=dcHoldings[i];if(!h?.ticker)return;
+  toast(`📡 ${h.ticker} 조회 중...`);
+  const info=await fetchStockInfo(h.ticker);
+  if(info.price){dcHoldings[i].cp=info.price;dcHoldings[i].pb='live';}
+  else dcHoldings[i].pb='err';
+  if(info.cagr!=null)dcHoldings[i].cagr=info.cagr;
+  if(info.divYield!=null&&info.divYield>0)dcHoldings[i].divYield=info.divYield;
+  renderDCTable();
+  toast(info.price?`✅ ${h.ticker}: ${wf(info.price)}원`:`⚠ ${h.ticker} 현재가 조회 실패`);
+}
+async function fetchDCPrices(){
+  const btn=G('dcFetchAllBtn');if(btn)btn.innerHTML='<span class="spin">⟳</span>';
+  toast('📡 DC형 전체 종목 가격 조회 중...');
+  await Promise.all(dcHoldings.map(async(_,i)=>fetchDCOne(i)));
+  if(btn)btn.innerHTML='🔄 전체 갱신';
+  toast('✅ DC형 전체 갱신 완료');
+}
+// 종목코드 입력 후 즉시 조회·추가
+async function dcQuickAdd(){
+  const inp=G('dc-quick-code');
+  const code=(inp?.value||'').trim();
+  if(!code){alert('종목코드를 입력하세요 (예: 379810)');return;}
+  const name=TMAP[code]||'';
+  DCctr++;
+  dcHoldings.push({id:`dc${DCctr}`,ticker:code,name,qty:0,avg:0,cp:0,cagr:null,divYield:0,pb:null});
+  const idx=dcHoldings.length-1;
+  renderDCTable();
+  inp.value='';
+  // Auto-fetch price
+  toast(`📡 ${code} 현재가 조회 중...`);
+  const info=await fetchStockInfo(code);
+  if(info.price){dcHoldings[idx].cp=info.price;dcHoldings[idx].pb='live';}else dcHoldings[idx].pb='err';
+  if(info.cagr!=null)dcHoldings[idx].cagr=info.cagr;
+  if(info.divYield!=null&&info.divYield>0)dcHoldings[idx].divYield=info.divYield;
+  if(info.name)dcHoldings[idx].name=info.name||name;
+  renderDCTable();
+  toast(info.price?`✅ ${code} 추가됨 (현재가: ${wf(info.price)}원)`:`✅ ${code} 추가됨 (현재가 조회 실패)`);
+}
+
+// ═══════════ PRICE FETCH ═══════════
+function yfCode(c){if(!c||!c.trim())return null;return/^\d{6}$/.test(c.trim())?c.trim()+'.KS':c.trim();}
+
+async function fetchFromProxy(url){
+  for(const proxy of CORS_PROXIES){
+    try{
+      const r=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(7000)});
+      if(r.ok){const d=await r.json();return d;}
+    }catch(e){}
+  }
+  return null;
+}
+
+async function fetchPrice(code){
+  const yf=yfCode(code);if(!yf)return null;
+  const ck=yf+'_p';
+  if(PCACHE[ck]&&Date.now()-PCACHE[ck].ts<180000)return PCACHE[ck].price;
+  try{
+    const url=`https://query1.finance.yahoo.com/v8/finance/chart/${yf}?interval=1d&range=1d`;
+    const d=await fetchFromProxy(url);
+    const p=d?.chart?.result?.[0]?.meta?.regularMarketPrice;
+    if(p){PCACHE[ck]={price:Math.round(p),ts:Date.now()};return Math.round(p);}
+  }catch(e){}
+  return null;
+}
+
+async function fetchStockInfo(code){
+  // Returns {price, cagr, divYield}
+  const yf=yfCode(code);if(!yf)return {};
+  const ck=yf+'_full';
+  if(PCACHE[ck]&&Date.now()-PCACHE[ck].ts<300000)return PCACHE[ck].data;
+  
+  const result={};
+  try{
+    // Chart for price + 10y CAGR
+    const url=`https://query1.finance.yahoo.com/v8/finance/chart/${yf}?interval=1mo&range=10y`;
+    const d=await fetchFromProxy(url);
+    if(d?.chart?.result?.[0]){
+      const meta=d.chart.result[0].meta;
+      result.price=Math.round(meta.regularMarketPrice||0);
+      const prices=(d.chart.result[0].indicators?.quote?.[0]?.close||[]).filter(p=>p!=null&&p>0);
+      if(prices.length>=12&&prices[0]>0){
+        const yrs=prices.length/12;
+        result.cagr=((Math.pow(prices[prices.length-1]/prices[0],1/yrs)-1)*100).toFixed(1);
+      }
+    }
+  }catch(e){}
+  
+  try{
+    // Summary for dividend yield
+    const url2=`https://query2.finance.yahoo.com/v11/finance/quoteSummary/${yf}?modules=summaryDetail`;
+    const d2=await fetchFromProxy(url2);
+    const sd=d2?.quoteSummary?.result?.[0]?.summaryDetail;
+    if(sd){
+      const dy=sd.dividendYield?.raw||sd.trailingAnnualDividendYield?.raw||0;
+      result.divYield=parseFloat((dy*100).toFixed(2));
+    }
+  }catch(e){}
+  
+  if(Object.keys(result).length>0)PCACHE[ck]={data:{...result},ts:Date.now()};
+  return result;
+}
+
+async function fetchAllPrices(){
+  const btn=G('fetchAllBtn');if(btn)btn.innerHTML='<span class="spin">⟳</span> 조회중...';
+  toast('📡 현재가·배당률·CAGR 조회 중...');
+  
+  const jobs=cHoldings.map(async(h,i)=>{
+    if(!h.ticker)return;
+    const info=await fetchStockInfo(h.ticker);
+    if(info.price){cHoldings[i].currentPrice=info.price;cHoldings[i].pb='live';}
+    else cHoldings[i].pb='err';
+    if(info.cagr)cHoldings[i].cagr=info.cagr;
+    if(info.divYield!==undefined&&info.divYield>0)cHoldings[i].divYield=info.divYield;
+  });
+  await Promise.all(jobs);
+  renderCH();
+  if(btn)btn.innerHTML='🔄 전체 가격갱신';
+  toast('✅ 가격 갱신 완료');
+}
+
+async function fetchOneCH(i){
+  const h=cHoldings[i];if(!h?.ticker)return;
+  const info=await fetchStockInfo(h.ticker);
+  if(info.price){cHoldings[i].currentPrice=info.price;cHoldings[i].pb='live';}
+  else cHoldings[i].pb='err';
+  if(info.cagr)cHoldings[i].cagr=info.cagr;
+  if(info.divYield!==undefined&&info.divYield>0)cHoldings[i].divYield=info.divYield;
+  renderCH();
+}
+
+// Also fetch for individual account holdings
+async function fetchOneH(acctId, hi){
+  const a=accounts.find(x=>x.id===acctId);if(!a||!a.holdings[hi])return;
+  const h=a.holdings[hi];if(!h.ticker)return;
+  const info=await fetchStockInfo(h.ticker);
+  if(info.price)a.holdings[hi].cp=info.price;
+  if(info.cagr)a.holdings[hi].cagr=info.cagr;
+  if(info.divYield!==undefined)a.holdings[hi].divYield=info.divYield;
+  const el=G(`hl-${acctId}`);if(el)el.innerHTML=renderHoldings(a);
+  syncHoldingsToBalance(acctId);
+}
+
+// ═══════════ COMMON HOLDINGS ═══════════
+function addCH(ticker='',name='',pct=0,bal=0,avg=0,cp=0,divYield=0,endAge='',endAction='keep',endTarget=''){
+  CTR.c++;
+  cHoldings.push({id:`c${CTR.c}`,ticker,name,pct,balance:bal,avgPrice:avg,currentPrice:cp,
+    divYield:divYield||0,endAge:endAge||'',endAction:endAction||'keep',endTarget:endTarget||'',
+    cagr:null,pb:null});
+  renderCH();
+}
+function renderCH(){}  // 공통종목 제거됨
+function chF(i,k,v){
+  if(!cHoldings[i])return;
+  if(k==='ticker'){
+    cHoldings[i].ticker=v;
+    const n=TMAP[v.trim()];
+    if(n){cHoldings[i].name=n;setTimeout(()=>{renderCH();fetchOneCH(i);},30);}
+  }else if(k==='name'){
+    cHoldings[i].name=v;
+    const t=NMAP[v.trim()];
+    if(t){cHoldings[i].ticker=t;setTimeout(()=>{renderCH();fetchOneCH(i);},30);}
+  }else cHoldings[i][k]=v;
+}
+function renderBar(){
+  const bar=G('ch-bar'),lbl=G('ch-lbl');if(!bar||!lbl)return;
+  const tot=cHoldings.reduce((s,h)=>s+(+h.pct||0),0);
+  const cols=['#3b8fe8','#e8873b','#2dbe74','#9b6fe0','#e05555','#f39c12','#2bbfb0','#e07b9b'];
+  bar.innerHTML=cHoldings.map((h,i)=>{const w=tot>0?(+h.pct||0)/tot*100:0;return `<div class="alloc-seg" style="width:${w}%;background:${cols[i%cols.length]};min-width:${h.pct>0?'16px':'0'}">${w>8?h.pct+'%':''}</div>`;}).join('');
+  const d=100-tot;lbl.textContent=`합계 ${tot.toFixed(1)}% ${Math.abs(d)<0.1?'✓':d>0?d.toFixed(1)+'% 미배분':Math.abs(d).toFixed(1)+'% 초과'}`;
+  lbl.style.color=Math.abs(d)<0.1?'var(--green)':'var(--orange)';
+}
+function updateCHAvgCAGR(){}  // DC형 전용 테이블로 이전됨
+
+// ═══════════ ACCOUNTS ═══════════
+function addAcct(){
+  const t=Gval('newAcct');
+  if(!t){alert('계좌 유형 선택');return;}
+  // ISA 중복 경고
+  if(['ISA_BRK','ISA_GEN','ISA_WKR'].includes(t)){
+    const hasISA=accounts.some(a=>['ISA_BRK','ISA_GEN','ISA_WKR'].includes(a.type)&&a.active);
+    if(hasISA){
+      if(!confirm('⚠️ ISA 계좌 안내\n\n1인당 1개 금융기관에서 1개의 계좌만 개설 가능합니다.\n기존 ISA 계좌가 있습니다. 계속 추가하시겠습니까?')) return;
+    }
+    // ISA 이동 제약 안내
+    toast('💡 ISA → 연금저축/IRP 이전 가능 (만기 후). 연금저축/IRP → ISA 이전은 불가합니다.');
+  }
+  if(t==='IRP_RETIRE'){
+    alert('✅ 퇴직IRP는 기본 계좌로 자동 제공됩니다.\n계좌설정 목록에서 퇴직IRP를 확인하세요.');
+    return;
+  }
+  // 빠른 월납입 입력
+  const moEl=G('quick-mo');
+  const moVal=moEl?parseFloat(moEl.value)||0:0;
+  addAcctD(t,0,moVal,7,true);
+  Gv('newAcct','');
+  if(moEl)moEl.value='';
+}
+function addAcctD(type,bal,mo,rr,active){
+  CTR.a++;const id=`a${CTR.a}`;
+  const m=AMETA[type]||{label:type,color:'#888',cat:'FREE'};
+  // 같은 유형 계좌가 있으면 번호 붙이기
+  const sameType=accounts.filter(a=>a.type===type);
+  const labelSuffix=sameType.length>0?' '+(sameType.length+1):'';
+  if(type==='IRP_RETIRE')mo=0; // 퇴직IRP: 월납입 없음 (퇴직금 이전 전용)
+  accounts.push({id,type,active,label:(m.label||type)+labelSuffix,color:m.color,balance:+(bal||0),monthlyContrib:+(mo||0),returnRate:+(rr||7),
+    isaElapsed:0,isaTransferTiming:'maturity',isaPostEvent:'transfer',isaTransferTarget:'',isaManualAge:60,
+    irpOnRetire:'keep',irpAccumTarget:'',
+    // 연금수령 옵션
+    pensionStartAge:55,pensionYears:10,pensionMode:'equal', // 연금수령시작나이/기간/방식
+    // 월배당 설정 슬롯 (2개)
+    divSlots:[
+      {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},
+      {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}
+    ],
+    divAllocPct:0,divMonthlyRate:0, // 레거시 (하위호환)
+    acctEndAge:'',acctEndAction:'keep',acctEndTarget:'',
+    cLabel:'',cDeductLimit:0,cAnnualLimit:0,holdings:[],useCommonH:false});
+  renderAccts();updateBudBar();updateTax();
+}
+function renderAccts(){
+  const list=G('accts-list');if(!list)return;list.innerHTML='';
+  accounts.forEach(a=>{try{
+    const m=AMETA[a.type]||{};
+    const isISA=m.cat==='ISA',isIRP=m.cat==='IRP',isIRPR=m.cat==='IRP_RET',isCust=m.cat==='CUSTOM';
+    const penIRPOpts=accounts.filter(x=>['PENSION','IRP','IRP_RET'].includes((AMETA[x.type]||{}).cat))
+      .map(x=>`<option value="${x.id}" ${x.id===a.isaTransferTarget?'selected':''}>${x.label}</option>`).join('');
+    const penOpts=accounts.filter(x=>(AMETA[x.type]||{}).cat==='PENSION'&&x.id!==a.id)
+      .map(x=>`<option value="${x.id}" ${x.id===a.irpAccumTarget?'selected':''}>${x.label}</option>`).join('');
+
+    let extra='';
+    if(isISA)extra=`<hr class="d">
+      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:7px;">🔄 ISA 이전·해지</div>
+      <div class="g3">
+        <div class="frow"><label class="fl">경과 년수</label><input class="fi mono" type="number" value="${a.isaElapsed||0}" oninput="AP('${a.id}','isaElapsed',+this.value)"></div>
+        <div class="frow"><label class="fl">이전 타이밍</label><select class="fs" onchange="AP('${a.id}','isaTransferTiming',this.value)">
+          <option value="maturity" ${a.isaTransferTiming==='maturity'?'selected':''}>3년 만기</option>
+          <option value="retire" ${a.isaTransferTiming==='retire'?'selected':''}>은퇴시점</option>
+          <option value="age65" ${a.isaTransferTiming==='age65'?'selected':''}>65세</option>
+          <option value="manual" ${a.isaTransferTiming==='manual'?'selected':''}>지정나이</option>
+          <option value="never" ${a.isaTransferTiming==='never'?'selected':''}>이전 안 함</option>
+        </select></div>
+        <div class="frow"><label class="fl">이전 후 처리</label><select class="fs" id="isa-post-${a.id}" onchange="AP('${a.id}','isaPostEvent',this.value);showISATransferBenefit('${a.id}',this.value,${a.balance||0})">
+          <option value="transfer" ${a.isaPostEvent==='transfer'?'selected':''}>연금계좌 전액 이전</option>
+          <option value="transfer300" ${a.isaPostEvent==='transfer300'?'selected':''}>연금계좌 3천만원 이전</option>
+          <option value="keep" ${a.isaPostEvent==='keep'?'selected':''}>계속유지 (재납입)</option>
+          <option value="liquidate" ${a.isaPostEvent==='liquidate'?'selected':''}>해지 후 현금</option>
+        </select>
+        <div id="isa-benefit-${a.id}" class="al al-s" style="font-size:12px;margin-top:5px;${(a.isaPostEvent==='transfer'||a.isaPostEvent==='transfer300')?'':'display:none'}">
+          ✅ <b>연금계좌 이전 특별 혜택</b><br>
+          이전 금액의 10%를 세액공제 대상에 추가 산입 <b style="color:var(--goldl)">(최대 300만원)</b><br>
+          예: 이전금액 3,000만원 → 추가 세액공제 <b style="color:var(--goldl)">300만원</b> (환급 약 ${wf(Math.round(Math.min((a.balance||0)*0.10,3000000)*(Gval('taxBracket')==='low'?0.165:0.132)))}원)
+        </div></div>
+        <div class="frow"><label class="fl">이전 대상 계좌 <span style="font-size:10px;color:var(--teal)">(연금/IRP)</span></label><select class="fs" onchange="AP('${a.id}','isaTransferTarget',this.value)"><option value="">없음</option>${penIRPOpts}</select></div>
+        <div class="frow"><label class="fl">지정 나이</label><input class="fi mono" type="number" value="${a.isaManualAge||60}" oninput="AP('${a.id}','isaManualAge',+this.value)"></div>
+        <div class="frow"><label class="fl">비과세 한도</label><div style="padding:6px 9px;background:var(--ibg);border-radius:6px;font-size:13px;color:var(--teal);">${wf((m.taxFree||2000000)/10000)}만원</div></div>
+      </div>`;
+    // ── 연금 이동 제약 정보 ──
+    const moveRules={
+      'PENSION_FUND': '이전가능: 적립IRP← / 이전불가: 퇴직IRP→(직접불가), ISA→, 은퇴후 연금수령 전용',
+      'PENSION_INS':  '이전가능: 적립IRP← / 이전불가: ISA→',
+      'IRP_ACCUM':    '이전가능: 연금저축펀드→ / 이전불가: 퇴직IRP→, ISA→',
+      'IRP_RETIRE':   '이전가능: 연금저축펀드→(55세이후), 적립IRP→ / 이전불가: ISA→',
+    };
+    const isPension=m.cat==='PENSION';
+    // 연금수령 대상 이전 계좌 (IRP→연금저축만 가능)
+    const irpToOpts=accounts.filter(x=>(AMETA[x.type]||{}).cat==='PENSION'&&x.id!==a.id)
+      .map(x=>`<option value="${x.id}" ${x.id===a.irpAccumTarget?'selected':''}>${x.label}</option>`).join('');
+    if(isIRP||isIRPR)extra+=`<hr class="d">
+      <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:7px;">🔄 ${isIRPR?'퇴직':'적립'}IRP 처리</div>
+      ${isIRPR?`<div class="al al-i" style="font-size:12px;margin-bottom:8px;">
+        📋 <b>기본정보 → 퇴직금</b>에서 DC/DB형 설정 시 자동 연동<br>
+        이동 제약: <span style="color:var(--green)">연금저축→ (55세이후)</span> · <span style="color:var(--red)">ISA→ 불가</span>
+      </div>`:''}
+      ${moveRules[a.type]?`<div class="al al-w" style="font-size:11px;margin-bottom:8px;">📋 ${moveRules[a.type]}</div>`:''}
+      <div class="g2">
+        <div class="frow"><label class="fl">은퇴 후 처리</label><select class="fs" onchange="AP('${a.id}','irpOnRetire',this.value)">
+          <option value="keep" ${a.irpOnRetire==='keep'?'selected':''}>연금수령 유지</option>
+          <option value="toAccum" ${a.irpOnRetire==='toAccum'?'selected':''}>연금저축으로 이전 (55세이후)</option>
+          <option value="liquidate" ${a.irpOnRetire==='liquidate'?'selected':''}>해지 (기타소득세 16.5%)</option>
+        </select></div>
+        <div class="frow"><label class="fl">이전 대상 계좌 <span style="color:var(--green);font-size:10px">연금저축만 가능</span></label><select class="fs" onchange="AP('${a.id}','irpAccumTarget',this.value)"><option value="">없음</option>${irpToOpts}</select></div>
+      </div>`;
+    // ── 연금수령 옵션 (PENSION + IRP 모두) ──
+    if(isPension||isIRP||isIRPR)extra+=`<hr class="d">
+      <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px;">🎯 연금수령 계획 <span style="font-weight:400;color:var(--t2);font-size:11px">(55세 & 5년 이상 가입 조건)</span></div>
+      <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
+        📌 사적연금 수령 조건: <b>만 55세 이상</b> & <b>가입기간 5년 이상</b><br>
+        💰 연금소득세: 70세 미만 5.5% · 70~80세 4.4% · 80세+ 3.3% (분리과세)<br>
+        ⚠️ 연간 1,500만원 초과 시 다른 소득과 합산 종합과세 또는 16.5% 분리과세 선택
+      </div>
+      <div class="g3">
+        <div class="frow"><label class="fl">연금수령 시작 나이</label>
+          <input class="fi mono" type="number" value="${a.pensionStartAge||55}" min="55" max="80" oninput="AP('${a.id}','pensionStartAge',+this.value);checkPensionAge('${a.id}',+this.value)">
+          <div class="hint" id="pension-age-hint-${a.id}"></div>
+        </div>
+        <div class="frow"><label class="fl">연금수령 기간 (년)</label>
+          <select class="fs" onchange="AP('${a.id}','pensionYears',+this.value)">
+            <option value="10" ${(a.pensionYears||10)===10?'selected':''}>10년</option>
+            <option value="15" ${a.pensionYears===15?'selected':''}>15년</option>
+            <option value="20" ${a.pensionYears===20?'selected':''}>20년</option>
+            <option value="99" ${a.pensionYears===99?'selected':''}>종신</option>
+          </select>
+        </div>
+        <div class="frow"><label class="fl">수령 방식</label>
+          <select class="fs" onchange="AP('${a.id}','pensionMode',this.value)">
+            <option value="equal" ${(a.pensionMode||'equal')==='equal'?'selected':''}>정액 (매년 동일)</option>
+            <option value="front" ${a.pensionMode==='front'?'selected':''}>전반 집중</option>
+            <option value="back"  ${a.pensionMode==='back'?'selected':''}>후반 집중</option>
+          </select>
+        </div>
+      </div>`;
+    if(isCust)extra+=`<hr class="d"><div class="g3">
+      <div class="frow"><label class="fl">계좌명</label><input class="fi" value="${a.cLabel||''}" oninput="AP('${a.id}','cLabel',this.value);AP('${a.id}','label',this.value||'사용자정의');G('albl-${a.id}').textContent=this.value||'사용자정의'"></div>
+      <div class="frow"><label class="fl">세액공제 한도(원/년)</label><input class="fi mono" type="number" value="${a.cDeductLimit||0}" oninput="AP('${a.id}','cDeductLimit',+this.value)"></div>
+      <div class="frow"><label class="fl">연간납입한도(0=무제한)</label><input class="fi mono" type="number" value="${a.cAnnualLimit||0}" oninput="AP('${a.id}','cAnnualLimit',+this.value)"></div>
+    </div>`;
+
+    // ── 월배당 ETF 설정 (ISA/주식/연금계좌) ──
+    const showDivSetting=['ISA','STOCK','PENSION','IRP','IRP_RET'].includes(m.cat);
+    if(showDivSetting){
+      // 예상 총자산 계산
+      const _projBal=getAcctProjectedBal(a);
+      // 슬롯별 렌더 함수
+      const renderDivSlot=(si)=>{
+        const sl=(a.divSlots&&a.divSlots[si])||{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0};
+        const divBal=Math.round(_projBal*(sl.allocPct||0)/100);
+        const annRate=(sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0);
+        const freqMap={monthly:'월배당',quarterly:'분기배당',semiannual:'반기배당',annual:'연배당'};
+        const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(m.cat);
+        const monthlyDiv=divBal>0&&annRate>0?Math.round(divBal*annRate/100/12):0;
+        const afterTaxMon=isTaxFree?monthlyDiv:Math.round(monthlyDiv*(1-0.154));
+        return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:6px;padding:10px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;">📌 배당 설정 ${si+1}</div>
+          <div class="g4" style="gap:8px;">
+            <div class="frow">
+              <label class="fl">운용 나이</label>
+              <div style="display:flex;gap:4px;align-items:center;">
+                <input class="fi mono" type="number" value="${sl.startAge||0}" placeholder="시작" style="width:60px;"
+                  oninput="APSlot('${a.id}',${si},'startAge',+this.value);calcDivPreview('${a.id}')">
+                <span style="color:var(--t2)">~</span>
+                <input class="fi mono" type="number" value="${sl.endAge||0}" placeholder="종료" style="width:60px;"
+                  oninput="APSlot('${a.id}',${si},'endAge',+this.value);calcDivPreview('${a.id}')">
+                <span style="font-size:11px;color:var(--t2)">세</span>
+              </div>
+              <div class="hint">0 = 제한없음</div>
+            </div>
+            <div class="frow">
+              <label class="fl">ETF 비중 (%)</label>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <input class="fi mono" type="number" value="${sl.allocPct||0}" min="0" max="100" step="5" style="width:70px;"
+                  oninput="APSlot('${a.id}',${si},'allocPct',+this.value);calcDivPreview('${a.id}')">
+                <span style="font-size:11px;color:var(--t2)">%</span>
+              </div>
+              <div class="ka" style="color:var(--goldl);font-size:11px;">${divBal>0?wf(divBal)+'원':''}</div>
+            </div>
+            <div class="frow">
+              <label class="fl">배당률</label>
+              <div style="display:flex;gap:4px;">
+                <input class="fi mono" type="number" value="${sl.rate||0}" min="0" step="0.1" style="width:65px;"
+                  oninput="APSlot('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
+                <select class="fi" style="max-width:60px;" onchange="APSlot('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
+                  <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>연%</option>
+                  <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>월%</option>
+                </select>
+              </div>
+              <div class="hint">월배당ETF ~4%/년, 분기배당 ~3%</div>
+            </div>
+            <div class="frow">
+              <label class="fl">배당 주기</label>
+              <select class="fi" onchange="APSlot('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
+                <option value="monthly" ${(sl.freq||'monthly')==='monthly'?'selected':''}>월배당</option>
+                <option value="quarterly" ${sl.freq==='quarterly'?'selected':''}>분기배당</option>
+                <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
+                <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
+              </select>
+              <div class="ka" style="color:var(--teal);font-size:11px;">${afterTaxMon>0?wf(afterTaxMon)+'원/월 예상':''}</div>
+            </div>
+          </div>
+        </div>`;
+      };
+      extra+=`<hr class="d">
+      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:7px;">💰 배당 투자 설정
+        <span style="font-weight:400;color:var(--t2);font-size:11px">(월배당·분기배당·선택)</span>
+      </div>
+      <div style="background:var(--bg2);border-radius:8px;border:1px solid var(--bdl);padding:10px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-size:12px;color:var(--t2)">📊 은퇴 시 예상 총자산</div>
+          <div style="font-family:monospace;font-size:14px;font-weight:700;color:var(--goldl);" id="divtotal-${a.id}">${wf(_projBal)}원</div>
+        </div>
+        ${renderDivSlot(0)}
+        ${renderDivSlot(1)}
+        <div id="div-preview-${a.id}" style="margin-top:8px;padding:10px;background:rgba(43,191,176,.06);border-radius:6px;border:1px solid rgba(43,191,176,.2);font-size:12px;display:none;"></div>
+      </div>`;
+    }
+    // Account lifecycle
+    extra+=`<hr class="d">
+      <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:7px;">📅 계좌 라이프사이클</div>
+      <div class="g3">
+        <div class="frow"><label class="fl">계좌 종료 나이 (0=계속)</label><input class="fi mono" type="number" value="${a.acctEndAge||''}" placeholder="예: 65" oninput="AP('${a.id}','acctEndAge',this.value)"></div>
+        <div class="frow"><label class="fl">종료 후 처리</label><select class="fs" onchange="AP('${a.id}','acctEndAction',this.value)">
+          <option value="keep"     ${a.acctEndAction==='keep'?'selected':''}>계속유지</option>
+          <option value="transfer" ${a.acctEndAction==='transfer'?'selected':''}>다른계좌로 이전</option>
+          <option value="liquidate"${a.acctEndAction==='liquidate'?'selected':''}>해지현금</option>
+        </select></div>
+        <div class="frow"><label class="fl">이전 대상 계좌</label><select class="fs" onchange="AP('${a.id}','acctEndTarget',this.value)"><option value="">없음</option>${accounts.filter(x=>x.id!==a.id).map(x=>`<option value="${x.id}" ${x.id===a.acctEndTarget?'selected':''}>${x.label}</option>`).join('')}</select></div>
+      </div>`;
+
+    const div=document.createElement('div');
+    div.className='acct-card';div.id=`ac-${a.id}`;
+    div.innerHTML=`
+      <div class="acct-hdr" onclick="togBody('${a.id}')">
+        <input type="checkbox" ${a.active?'checked':''} onclick="event.stopPropagation();AP('${a.id}','active',this.checked);updateBudBar();updateTax()">
+        <div class="acct-dot" style="background:${a.color}"></div>
+        <div class="acct-lbl" id="albl-${a.id}" style="color:${a.active?'var(--t1)':'var(--t2)'}">${a.label}</div>
+        <span style="font-size:12px;color:var(--t2)">${ws(a.balance)}원 | ${(+a.returnRate||0).toFixed(1)}%/년</span>
+        ${a.type==='IRP_RETIRE'?'<span style="font-size:10px;color:var(--teal);margin-left:6px;">기본계좌</span>':`<button class="btn btn-red btn-xs" style="margin-left:8px" onclick="event.stopPropagation();try{accounts=accounts.filter(x=>x.id!=='${a.id}');renderAccts();updateBudBar();}catch(e){console.error(e);}">삭제</button>`}
+        <span class="atog" id="atog-${a.id}">▼</span>
+      </div>
+      <div class="abody" id="ab-${a.id}">
+        <div class="g4" style="margin-bottom:10px;">
+          <div class="frow"><label class="fl">현재 잔액(원)</label>
+            <input class="fi mono" id="bal-${a.id}" type="number" value="${Math.round(a.balance)}" oninput="AP('${a.id}','balance',+this.value);updateBudBar();G('ka-bal-${a.id}').textContent=toKor(+this.value)">
+            <div class="ka" id="ka-bal-${a.id}">${toKor(a.balance)}</div></div>
+          <div class="frow"><label class="fl">월 납입액(원)</label>
+            ${isIRPR?`<div class="fi mono" style="background:var(--bg2);cursor:default;color:var(--t2);font-size:12px;">퇴직금 이전 전용</div>`:
+              `<input class="fi mono" id="mc-${a.id}" type="number" value="${a.monthlyContrib}" oninput="AP('${a.id}','monthlyContrib',+this.value);updateBudBar();G('ka-mc-${a.id}').textContent=toKor(+this.value)">
+               <div class="ka" id="ka-mc-${a.id}">${toKor(a.monthlyContrib)}</div>`}
+            ${(m.al||0)>0?`<div class="hint">연한도: ${wf(m.al)}원</div>`:''}</div>
+          <div class="frow"><label class="fl">예상 수익률(%/년) <span id="rr-hint-${a.id}" style="font-size:10px;color:var(--teal)"></span></label>
+            <input class="fi mono" id="rr-${a.id}" type="number" value="${a.returnRate}" step="0.5" oninput="AP('${a.id}','returnRate',+this.value)">
+            <button class="btn btn-sec" style="margin-top:4px;padding:2px 8px;font-size:11px;" onclick="applyCAGRtoAcct('${a.id}')">종목CAGR 적용</button></div>
+          <div class="frow"><label class="fl">세액공제</label>
+            <div id="tax-${a.id}" style="padding:6px 9px;background:var(--ibg);border-radius:6px;font-size:13px;color:var(--goldl);">—</div></div>
+        </div>
+        ${ACCT_INFO[a.type]?`<div class="al al-i" style="font-size:11px;margin-bottom:8px;padding:7px 10px;">${ACCT_INFO[a.type]}</div>`:''}
+        ${extra}
+        <hr class="d">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+          <div style="font-size:13px;font-weight:600;color:var(--t2);">📌 보유종목</div>
+          <div style="display:flex;gap:5px;align-items:center;">
+            <label style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:4px;"><input type="checkbox" ${a.useCommonH?'checked':''} onchange="AP('${a.id}','useCommonH',this.checked);refreshHoldingsEl('${a.id}')">공통종목</label>
+            ${!a.useCommonH?`
+              <input id="hqcode-${a.id}" class="fi" placeholder="종목코드/명" style="width:120px;padding:3px 7px;font-size:12px;">
+              <button class="btn btn-blue btn-xs" onclick="quickAddH('${a.id}')">＋ 조회추가</button>
+            `:''}
+          </div>
+        </div>
+        <div id="hl-${a.id}">${a.useCommonH?`<div class="al al-i" style="font-size:12px;">공통종목 사용 중</div>`:renderHoldings(a)}</div>
+      </div>`;
+    list.appendChild(div);
+  }catch(err){
+    console.error('계좌 렌더 오류 ['+a.id+']:', err);
+    const errDiv=document.createElement('div');
+    errDiv.className='al al-e';
+    errDiv.style.margin='0 0 8px 0';
+    errDiv.innerHTML='⚠ 계좌 표시 오류: '+(a.label||a.id)+' — '+err.message;
+    list.appendChild(errDiv);
+  }});
+  updateTax();updateBudBar();
+}
+
+function renderHoldings(a){
+  if(!a||!a.holdings?.length)return`<div class="hint" style="padding:5px;">종목 없음. ＋ 종목 버튼으로 추가하세요.</div>`;
+  const tot=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(cp>0?h.qty*cp:0);},0);
+  const totalDivInc=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0?h.qty*cp:0;return s+ev*(h.divYield||0)/100;},0);
+  return `<div style="overflow-x:auto;">
+  <table class="ht" style="min-width:680px;">
+    <thead><tr>
+      <th style="width:80px">코드</th><th>종목명</th>
+      <th class="r">수량</th><th class="r">평단(원)</th><th class="r">현재가(원)</th>
+      <th class="r">평가금액</th><th class="r">수익률</th><th class="r">배당률%</th><th class="r">비중</th><th></th>
+    </tr></thead>
+    <tbody>${a.holdings.map((h,hi)=>{
+      const cp=h.cp>0?h.cp:h.avg,ev=cp>0?h.qty*cp:0;
+      const ret=h.avg>0&&h.cp>0?((h.cp-h.avg)/h.avg*100).toFixed(1):'—';
+      const rc=parseFloat(ret)>0?'pos':parseFloat(ret)<0?'neg':'dim';
+      const w=tot>0?(ev/tot*100).toFixed(1):'0';
+      return `<tr>
+        <td><input class="hi sm" value="${h.ticker||''}" oninput="hF('${a.id}',${hi},'ticker',this.value)" style="width:75px" placeholder="코드"></td>
+        <td><input class="hi sm" value="${h.name||''}" oninput="hF('${a.id}',${hi},'name',this.value)" style="width:130px" placeholder="종목명"></td>
+        <td class="r"><input class="hi r sm" type="number" value="${h.qty||0}" oninput="hF('${a.id}',${hi},'qty',+this.value);refH('${a.id}')" style="width:70px"></td>
+        <td class="r"><input class="hi r sm" type="number" value="${h.avg||0}" oninput="hF('${a.id}',${hi},'avg',+this.value);refH('${a.id}')" style="width:80px"></td>
+        <td class="r" style="white-space:nowrap;"><input class="hi r sm" type="number" value="${h.cp||0}" oninput="hF('${a.id}',${hi},'cp',+this.value);refH('${a.id}')" style="width:80px">
+          <button class="btn btn-sec" style="padding:1px 4px;font-size:9px;margin-left:2px;" onclick="fetchOneH('${a.id}',${hi})">📡</button></td>
+        <td class="r divcol" style="font-family:monospace;font-size:11px;">${ws(ev)}</td>
+        <td class="r ${rc}" style="font-family:monospace;font-size:11px;">${ret}%</td>
+        <td class="r"><input class="hi r sm" type="number" value="${h.divYield||0}" step="0.1" oninput="hF('${a.id}',${hi},'divYield',+this.value)" style="width:55px" placeholder="0.00"></td>
+        <td class="r dim" style="font-family:monospace;font-size:11px;">${w}%</td>
+        <td><button class="btn btn-red btn-xs" onclick="splH('${a.id}',${hi})">✕</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+    <tfoot><tr>
+      <td colspan="5" style="text-align:right;font-size:11px;color:var(--t2);padding:4px 5px;">합계 평가금액</td>
+      <td class="r tcol" style="padding:4px 5px;font-family:monospace;">${ws(tot)}</td>
+      <td colspan="2" style="text-align:right;font-size:11px;color:var(--teal);padding:4px 5px;">연 배당 ${ws(totalDivInc)}</td>
+      <td colspan="2"></td>
+    </tfoot>
+  </table></div>`;
+}
+
+// FIX: sync holdings evaluation to balance input and state
+function syncHoldingsToBalance(acctId){
+  const a=accounts.find(x=>x.id===acctId);if(!a)return;
+  const evalTotal=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(cp>0?h.qty*cp:0);},0);
+  if(evalTotal>0){
+    a.balance=evalTotal;
+    // Update balance input in DOM
+    const inp=G(`bal-${acctId}`);if(inp)inp.value=Math.round(evalTotal);
+    const ka=G(`ka-bal-${acctId}`);if(ka)ka.textContent=toKor(evalTotal);
+    // Update header summary
+    const hdr=G(`ac-${acctId}`)?.querySelector('.acct-hdr span');
+    if(hdr)hdr.textContent=`${ws(evalTotal)}원 | ${a.returnRate.toFixed(1)}%/년`;
+    // Also apply holdings CAGR weighted avg to return rate
+    applyCAGRtoAcct(acctId);
+  }
+  // Refresh DC summary if this is an IRP account
+  if((AMETA[a.type]||{}).cat==='IRP_RET'||(AMETA[a.type]||{}).cat==='IRP'){
+    if(Gval('sevType')==='DC') updateDCSummary();
+  }
+}
+
+// Apply weighted CAGR from holdings to account return rate
+function applyCAGRtoAcct(acctId){
+  const a=accounts.find(x=>x.id===acctId);if(!a)return;
+  // For IRP_RET account in DC mode, use dcHoldings
+  const isDCMode=Gval('sevType')==='DC'&&(AMETA[a.type]||{}).cat==='IRP_RET';
+  const source=isDCMode?dcHoldings.map(h=>({...h,currentPrice:h.cp,avgPrice:h.avg})):a.holdings;
+  const withCagr=source.filter(h=>h.cagr!=null);
+  if(!withCagr.length)return;
+  const totalBal=withCagr.reduce((s,h)=>s+(h.balance||h.qty*(h.avgPrice||h.avg)||0),0);
+  if(totalBal<=0)return;
+  const wavg=withCagr.reduce((s,h)=>s+parseFloat(h.cagr)*(h.balance||h.qty*(h.avgPrice||h.avg)||0),0)/totalBal;
+  const rounded=Math.round(wavg*10)/10;
+  a.returnRate=rounded;
+  const inp=G(`rr-${acctId}`);if(inp)inp.value=rounded;
+  const hint=G(`rr-hint-${acctId}`);if(hint)hint.textContent=`(종목CAGR: ${rounded>=0?'+':''}${rounded.toFixed(1)}%)`;
+}
+
+function refreshHoldingsEl(acctId){
+  const a=accounts.find(x=>x.id===acctId);
+  const el=G(`hl-${acctId}`);
+  if(!el||!a)return;
+  el.innerHTML=a.useCommonH?`<div class="al al-i" style="font-size:12px;">공통종목 사용 중</div>`:renderHoldings(a);
+}
+function addH(id,ticker,name){
+  const a=accounts.find(x=>x.id===id);if(!a)return;
+  a.holdings.push({ticker:ticker||'',name:name||'',qty:0,avg:0,cp:0,divYield:0,cagr:null});
+  const el=G('hl-'+id);if(el)el.innerHTML=renderHoldings(a);
+}
+async function quickAddH(id){
+  const inp=G('hqcode-'+id);
+  const code=(inp?.value||'').trim();if(!code){toast('종목코드 또는 종목명을 입력하세요');return;}
+  const ticker=TMAP[code]?code:(NMAP[code]||code);
+  const name=TMAP[ticker]||code;
+  addH(id,ticker,name);
+  if(inp)inp.value='';
+  const a=accounts.find(x=>x.id===id);if(!a)return;
+  const hi=a.holdings.length-1;
+  toast('📡 '+ticker+' 조회 중...');
+  const info=await fetchStockInfo(ticker);
+  if(info.price)a.holdings[hi].cp=info.price;
+  if(info.cagr)a.holdings[hi].cagr=info.cagr;
+  if(info.divYield!=null&&info.divYield>0)a.holdings[hi].divYield=info.divYield;
+  const el=G('hl-'+id);if(el)el.innerHTML=renderHoldings(a);
+  syncHoldingsToBalance(id);
+  toast(info.price?'✅ '+name+' 추가 ('+wf(info.price)+'원)':'✅ '+name+' 추가됨');
+}
+function splH(id,hi){const a=accounts.find(x=>x.id===id);if(!a)return;a.holdings.splice(hi,1);const el=G(`hl-${id}`);if(el)el.innerHTML=renderHoldings(a);syncHoldingsToBalance(id);}
+function hF(id,hi,k,v){
+  const a=accounts.find(x=>x.id===id);if(!a||!a.holdings[hi])return;
+  if(k==='ticker'){
+    a.holdings[hi].ticker=v;
+    const n=TMAP[v.trim()];if(n){a.holdings[hi].name=n;setTimeout(()=>{const el=G(`hl-${id}`);if(el)el.innerHTML=renderHoldings(a);},30);}
+  }else if(k==='name'){
+    a.holdings[hi].name=v;
+    const t=NMAP[v.trim()];if(t){a.holdings[hi].ticker=t;setTimeout(()=>{const el=G(`hl-${id}`);if(el)el.innerHTML=renderHoldings(a);},30);}
+  }else a.holdings[hi][k]=v;
+}
+function refH(id){
+  const a=accounts.find(x=>x.id===id);if(!a)return;
+  const el=G(`hl-${id}`);if(el)el.innerHTML=renderHoldings(a);
+  syncHoldingsToBalance(id);
+}
+function APSlot(acctId,slotIdx,field,val){
+  const a=accounts.find(x=>x.id===acctId);if(!a)return;
+  if(!a.divSlots)a.divSlots=[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}];
+  if(!a.divSlots[slotIdx])a.divSlots[slotIdx]={allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0};
+  a.divSlots[slotIdx][field]=val;
+}
+function AP(id,k,v){
+  const a=accounts.find(x=>x.id===id);if(!a)return;
+  a[k]=v;
+  // 연금저축 + IRP 합산 연 1800만원 한도 체크
+  if(k==='monthlyContrib'){
+    const penTypes=['PENSION_FUND','PENSION_INS','IRP_ACCUM'];
+    const penTotal=accounts.filter(x=>x.active&&penTypes.includes(x.type)).reduce((s,x)=>s+x.monthlyContrib,0)*12;
+    if(penTotal>18000000){
+      alert('⚠️ 납입 한도 초과\n\n연금계좌(연금저축 + IRP)의 연간 납입 한도인 1,800만 원을 초과합니다.\n현재 합산: '+wf(penTotal)+'원/년\n한도: 18,000,000원/년');
+    }
+  }
+}
+function togBody(id){const b=G(`ab-${id}`),t=G(`atog-${id}`);if(!b||!t)return;b.classList.toggle('open');t.classList.toggle('open');}
+function checkPensionAge(acctId, age){
+  const el=G('pension-age-hint-'+acctId);if(!el)return;
+  const curAge=parseInt(Gval('curAge'))||47;
+  const yearsToStart=Math.max(0,age-curAge);
+  if(age<55){el.innerHTML='<span style="color:var(--red)">⚠ 최소 55세부터 수령 가능</span>';}
+  else{el.innerHTML=`${yearsToStart>0?yearsToStart+'년 후 수령 시작':'이미 수령 가능'} <span style="color:var(--teal)">연금소득세 ${age<70?'5.5':'4.4'}%</span>`;}
+}
+function calcAcctProjection(acctId){
+  // 은퇴 시점까지 해당 계좌 예상 총자산 계산
+  const a=accounts.find(x=>x.id===acctId);if(!a)return '계산불가';
+  const ra=parseInt(Gval('retireAge'))||60;
+  const ca=parseInt(Gval('curAge'))||47;
+  const yl=Math.max(0,ra-ca);
+  const rr=(a.returnRate||7)/100;
+  let bal=a.balance;
+  for(let i=0;i<yl;i++){
+    bal=(bal+a.monthlyContrib*12)*(1+rr);
+  }
+  return wf(Math.round(bal))+'원';
+}
+function getAcctProjectedBal(a){
+  const ra=parseInt(Gval('retireAge'))||60;
+  const ca=parseInt(Gval('curAge'))||47;
+  const yl=Math.max(0,ra-ca);
+  const rr=(a.returnRate||7)/100;
+  let bal=a.balance;
+  for(let i=0;i<yl;i++) bal=(bal+a.monthlyContrib*12)*(1+rr);
+  return Math.round(bal);
+}
+function calcDivPreview(acctId){
+  const a=accounts.find(x=>x.id===acctId);if(!a)return;
+  const el=G('div-preview-'+acctId);if(!el)return;
+  const projBal=getAcctProjectedBal(a);
+  const totalEl=G('divtotal-'+acctId);if(totalEl)totalEl.textContent=wf(projBal)+'원';
+  const cat=(AMETA[a.type]||{}).cat;
+  const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(cat);
+  if(!a.divSlots||!a.divSlots.length||a.divSlots.every(sl=>!sl||!sl.allocPct||!sl.rate)){el.style.display='none';el.innerHTML='';return;}
+  let totalMonDiv=0,lines=[];
+  const freqPerYear={monthly:12,quarterly:4,semiannual:2,annual:1};
+  a.divSlots.forEach((sl,si)=>{
+    if(!sl.allocPct||!sl.rate)return;
+    const divBal=Math.round(projBal*sl.allocPct/100);
+    const annRate=(sl.rateMode||'annual')==='monthly'?sl.rate*12:sl.rate;
+    const fpy=freqPerYear[sl.freq||'monthly']||12;
+    const perPayment=Math.round(divBal*annRate/100/fpy);
+    const monthlyEquiv=Math.round(divBal*annRate/100/12);
+    const afterTax=isTaxFree?monthlyEquiv:Math.round(monthlyEquiv*(1-0.154));
+    totalMonDiv+=afterTax;
+    const freqLabel={monthly:'월배당',quarterly:'분기배당',semiannual:'반기배당',annual:'연배당'}[sl.freq||'monthly'];
+    const ageLabel=(sl.startAge>0||sl.endAge>0)?` (${sl.startAge||'?'}~${sl.endAge||'?'}세)`:'';
+    lines.push(`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--bd);">` +
+      `<span style="color:var(--t2)">설정${si+1} ${freqLabel}${ageLabel} ${sl.allocPct}%×${annRate}%/년</span>` +
+      `<span style="color:var(--teal);font-weight:600">${wf(afterTax)}원/월</span></div>`);
+  });
+  if(!totalMonDiv){el.style.display='none';el.innerHTML='';return;}
+  el.style.display='';
+  el.innerHTML=lines.join('')+
+    `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;">` +
+    `<span style="font-size:12px;color:var(--t2)">💰 합산 세후 배당 (월 환산)</span>` +
+    `<b style="font-size:16px;color:var(--teal)">${wf(totalMonDiv)}원<span style="font-size:11px">/월</span></b></div>` +
+    `<div style="text-align:right;font-size:11px;color:var(--t2)">연 ${wf(totalMonDiv*12)}원 · ${isTaxFree?'비과세':'15.4% 차감'}</div>`;
+}
+function applyGlobalRR(on){
+  const rr=parseFloat(G('globalRR')?.value)||7;
+  const st=G('globalRR-status');
+  if(on){
+    accounts.filter(a=>a.active).forEach(a=>{
+      a.returnRate=rr;
+      const inp=G('rr-'+a.id);if(inp)inp.value=rr;
+      const hint=G('rr-hint-'+a.id);if(hint)hint.textContent='(일괄 '+rr+'% 적용중)';
+    });
+    if(st)st.innerHTML='<b style="color:var(--goldl)">✅ 모든 계좌에 '+rr+'%/년 적용됨</b>';
+  }else{
+    if(st)st.textContent='체크하면 모든 계좌에 동일 수익률 적용';
+    accounts.filter(a=>a.active).forEach(a=>{
+      const hint=G('rr-hint-'+a.id);if(hint)hint.textContent='';
+    });
+  }
+}
+function updateBudBar(){
+  const tot=parseFloat(Gval('budget'))||1000000;
+  const kb=G('ka-bgt');if(kb)kb.textContent=toKor(tot);
+  const bar=G('bud-bar'),lbl=G('bud-lbl');if(!bar||!lbl)return;
+  const used=accounts.filter(a=>a.active&&(AMETA[a.type]||{}).cat!=='IRP_RET').reduce((s,a)=>s+a.monthlyContrib,0);
+  const cols=['#3b8fe8','#9b6fe0','#e8873b','#2dbe74','#e05555','#f39c12','#2bbfb0'];
+  const act=accounts.filter(a=>a.active&&(AMETA[a.type]||{}).cat!=='IRP_RET');
+  bar.innerHTML=act.map((a,i)=>{const w=tot>0?Math.min(100,a.monthlyContrib/tot*100):0;return `<div class="alloc-seg" style="width:${w}%;background:${a.color||cols[i%cols.length]}">${w>8?a.label.slice(0,4):''}</div>`;}).join('');
+  const rem=tot-used;
+  lbl.innerHTML=`배분 ${wf(used)}원 / 잔여 <b style="color:${rem>=0?'var(--green)':'var(--red)'}">${wf(rem)}원</b>`;
+}
+
+// ═══════════ LOANS / INSURANCE ═══════════
+function getRO(sel){return`<option value="">투자 안 함</option>`+accounts.filter(a=>a.active).map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label}</option>`).join('');}
+function addLoan(n='',bal=0,mo=0,r=4.5,sd='',ed='',ri=''){
+  CTR.l++;
+  loans.push({id:`l${CTR.l}`,name:n,balance:bal,monthly:mo,rate:r,
+    startDate:sd||`${new Date().getFullYear()-5}-01-01`,
+    endDate:ed||`${new Date().getFullYear()+10}-01-01`,reinvest:ri});
+  renderLoans();
+}
+function renderLoans(){
+  const w=G('loan-list');if(!w)return;w.innerHTML='';
+  loans.forEach((ln,i)=>{
+    const end=ln.endDate?new Date(ln.endDate):null;
+    const rem=end?Math.round((end-new Date())/(1000*60*60*24*30.5)):0;
+    const rt=rem>0?`(${Math.floor(rem/12)}년${rem%12}개월)`:rem<0?'만기완료':'';
+    const d=document.createElement('div');d.className='li-card';
+    d.innerHTML=`<div class="li-hdr"><b>🏠 ${ln.name||'대출 '+(i+1)}</b><button class="btn btn-red btn-xs" onclick="loans.splice(${i},1);renderLoans()">삭제</button></div>
+    <div style="padding:12px;"><div class="g3">
+      <div class="frow"><label class="fl">대출명</label><input class="fi" value="${ln.name}" onchange="loans[${i}].name=this.value"></div>
+      <div class="frow"><label class="fl">잔액(원)</label><input class="fi mono" type="number" value="${ln.balance}" oninput="loans[${i}].balance=+this.value"><div class="ka">${toKor(ln.balance)}</div></div>
+      <div class="frow"><label class="fl">월상환(원)</label><input class="fi mono" type="number" value="${ln.monthly}" oninput="loans[${i}].monthly=+this.value"><div class="ka">${toKor(ln.monthly)}</div></div>
+      <div class="frow"><label class="fl">금리(%)</label><input class="fi mono" type="number" value="${ln.rate}" step="0.1" oninput="loans[${i}].rate=+this.value"></div>
+      <div class="frow"><label class="fl">시작일</label><input class="fi" type="date" value="${ln.startDate}" onchange="loans[${i}].startDate=this.value"></div>
+      <div class="frow"><label class="fl">만기일 <span style="color:var(--teal);font-size:10px">${rt}</span></label><input class="fi" type="date" value="${ln.endDate}" onchange="loans[${i}].endDate=this.value;renderLoans()"></div>
+    </div>
+    <div class="frow"><label class="fl">완납 후 월${wf(ln.monthly)}원 재투자</label><select class="fs" onchange="loans[${i}].reinvest=this.value">${getRO(ln.reinvest)}</select></div>
+    </div>`;
+    w.appendChild(d);
+  });
+}
+function addIns(n='',mo=0,sd='',ed='',rf=0,ri=''){
+  CTR.i++;
+  insurances.push({id:`i${CTR.i}`,name:n,monthly:mo,
+    startDate:sd||`${new Date().getFullYear()-5}-01-01`,
+    endDate:ed||`${new Date().getFullYear()+8}-01-01`,refund:rf,reinvest:ri});
+  renderIns();
+}
+function renderIns(){
+  const w=G('ins-list');if(!w)return;w.innerHTML='';
+  insurances.forEach((ins,i)=>{
+    const end=ins.endDate?new Date(ins.endDate):null;
+    const rem=end?Math.round((end-new Date())/(1000*60*60*24*30.5)):0;
+    const rt=rem>0?`(${Math.floor(rem/12)}년${rem%12}개월)`:rem<0?'완납':'';
+    const d=document.createElement('div');d.className='li-card';
+    d.innerHTML=`<div class="li-hdr"><b>🛡️ ${ins.name||'보험 '+(i+1)}</b><button class="btn btn-red btn-xs" onclick="insurances.splice(${i},1);renderIns()">삭제</button></div>
+    <div style="padding:12px;"><div class="g3">
+      <div class="frow"><label class="fl">보험명</label><input class="fi" value="${ins.name}" onchange="insurances[${i}].name=this.value"></div>
+      <div class="frow"><label class="fl">월보험료(원)</label><input class="fi mono" type="number" value="${ins.monthly}" oninput="insurances[${i}].monthly=+this.value"><div class="ka">${toKor(ins.monthly)}</div></div>
+      <div class="frow"><label class="fl">환급금(원)</label><input class="fi mono" type="number" value="${ins.refund||0}" oninput="insurances[${i}].refund=+this.value"><div class="ka">${toKor(ins.refund||0)}</div></div>
+      <div class="frow"><label class="fl">시작일</label><input class="fi" type="date" value="${ins.startDate}" onchange="insurances[${i}].startDate=this.value"></div>
+      <div class="frow"><label class="fl">완납일 <span style="color:var(--teal);font-size:10px">${rt}</span></label><input class="fi" type="date" value="${ins.endDate}" onchange="insurances[${i}].endDate=this.value;renderIns()"></div>
+    </div>
+    <div class="frow"><label class="fl">완납 후 월${wf(ins.monthly)}원 재투자</label><select class="fs" onchange="insurances[${i}].reinvest=this.value">${getRO(ins.reinvest)}</select></div>
+    </div>`;
+    w.appendChild(d);
+  });
+}
+
+// ═══════════ SIMULATION ENGINE ═══════════
+function getDivIncome(acct, year, curYear, divGrowthRate){
+  // Calculate annual dividend income for an account
+  const cat=(AMETA[acct.type]||{}).cat;
+  const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(cat);
+  const source=acct.useCommonH?cHoldings:acct.holdings;
+  if(!source.length)return{gross:0,net:0};
+  
+  const evalTotal=source.reduce((s,h)=>{
+    const cp=(h.currentPrice||h.cp||0)>0?(h.currentPrice||h.cp):h.avgPrice||h.avg||0;
+    const qty=h.avgPrice||h.avg>0?Math.round((h.balance||0)/(h.avgPrice||h.avg)):h.qty||0;
+    return s+(cp>0&&qty>0?qty*cp:h.balance||0);
+  },0);
+  
+  const weightedDivYield=source.reduce((s,h)=>{
+    const cp=(h.currentPrice||h.cp||0)>0?(h.currentPrice||h.cp):(h.avgPrice||h.avg||0);
+    const qty=h.avgPrice||h.avg>0?Math.round((h.balance||0)/(h.avgPrice||h.avg)):h.qty||0;
+    const ev=cp>0&&qty>0?qty*cp:h.balance||0;
+    return s+(ev*(h.divYield||0)/100);
+  },0);
+  
+  const baseBalance=acct.balance||0;
+  const divBase=evalTotal>0?weightedDivYield:baseBalance*(source.reduce((s,h)=>s+(h.divYield||0),0)/Math.max(1,source.length)/100);
+  const yrsFromNow=year-curYear;
+  const gross=divBase*Math.pow(1+divGrowthRate,yrsFromNow);
+  const taxRate=isTaxFree?0:DIV_TAX_RATE;
+  const net=gross*(1-taxRate);
+  return{gross:Math.round(gross),net:Math.round(net),taxFree:isTaxFree};
+}
+
+function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate=null){
+  const now=new Date();
+  const curY=now.getFullYear();
+  const curMon=now.getMonth()+1; // 현재 월 (1~12)
+  const curA=parseInt(Gval('curAge'))||47;
+  const retA=overrideRetireAge!==null?overrideRetireAge:(parseInt(Gval('retireAge'))||60);
+  const life=parseInt(Gval('lifeExp'))||90;
+  const npA=parseInt(Gval('npAge'))||65;
+  const npR=npA<65?1+(npA-65)*0.06:1+(npA-65)*0.072;
+  const npMo=(parseFloat(Gval('npBase'))||1200000)*npR;
+  const sal=parseFloat(Gval('salary'))||0;
+  const sg=(parseFloat(Gval('salGrowth'))||3)/100;
+  const othr=parseFloat(Gval('retireOther'))||0;
+  const expOn=G('expOn')?.checked===true;
+  const mExp=expOn?(parseFloat(Gval('mExp'))||0):0;
+  const rExp=expOn?(parseFloat(Gval('rExp'))||0):0;
+  const inf=(parseFloat(Gval('inf'))||2.5)/100;
+  const swRate=(parseFloat(Gval('sw'))||4)/100;
+  const divGrowthRate=(overrideDivRate!==null?overrideDivRate:(parseFloat(Gval('divGrowthRate'))||3))/100;
+  
+  let tgt=parseFloat(Gval('target'))||0;
+  if(!tgt&&rExp>0&&swRate>0)tgt=Math.round(rExp*12/swRate);
+  if(!tgt)tgt=300000000;
+  
+  const sev=getSev(),sevTgt=Gval('sevTarget')||'IRP_RETIRE';
+  const taxReinv=G('taxReinvest')?.checked===true;
+  const taxReinvTgt=Gval('taxReinvestTgt');
+  const txRate=(Gval('taxBracket')||'high')==='low'?0.165:0.132;
+  
+  const active=accounts.filter(a=>a.active);
+  const bal={},retRates={};
+  const sevTypeForInit=Gval('sevType');
+  active.forEach(a=>{
+    // DC형 퇴직IRP: dc-direct-bal 또는 종목 평가금액을 초기 잔액으로 사용
+    if(sevTypeForInit==='DC'&&a.type==='IRP_RETIRE'){
+      const dcBal=getDCTotal();
+      bal[a.id]=dcBal>0?dcBal:a.balance;
+    }else{
+      bal[a.id]=a.balance;
+    }
+    retRates[a.id]=(overrideRetRate!==null?overrideRetRate:a.returnRate)/100;
+  });
+  // DC형: 퇴직IRP 수익률도 dc-rr-override가 있으면 반영
+  if(sevTypeForInit==='DC'){
+    const dcRR=parseFloat(Gval('dc-rr-override')||Gval('dc-rr-stocks'));
+    if(!isNaN(dcRR)&&dcRR>0){
+      active.filter(a=>a.type==='IRP_RETIRE').forEach(a=>retRates[a.id]=dcRR/100);
+    }
+  }
+  const isaEl={};
+  active.filter(a=>(AMETA[a.type]||{}).cat==='ISA').forEach(a=>{isaEl[a.id]=a.isaElapsed||0;});
+  
+  const yearly=[];
+  for(let i=0;i<=life-curA;i++){
+    const year=curY+i,age=curA+i,isRet=age>=retA,iF=Math.pow(1+inf,i);
+    const salY=isRet?0:sal*Math.pow(1+sg,i);
+    const npC=isRet?0:Math.min(salY*0.045,2480000),hlt=isRet?0:salY*0.0354,emp=isRet?0:salY*0.009;
+    const netSal=salY-npC-hlt-emp;
+    const npInc=(age>=npA)?npMo*12:0,othInc=isRet?othr*12:0;
+    
+    // Dividend income calculation with tax
+    let totalDivGross=0,totalDivNet=0;
+    active.forEach(a=>{
+      const{gross,net}=getDivIncome(a,year,curY,divGrowthRate);
+      totalDivGross+=gross;totalDivNet+=net;
+    });
+    
+    // 주택연금 소득 반영
+    const hpOn=G('hpOn')?.checked===true;
+    const hpMon=hpOn&&window._hpMonthly>0&&age>=(window._hpStartAge||70)?window._hpMonthly*12:0;
+    const totInc=netSal+npInc+othInc+totalDivNet+hpMon;
+    const livExp=(isRet?rExp:mExp)*12*iF;
+    
+    let lnPay=0;const events=[];
+    loans.forEach(ln=>{
+      if(!ln.endDate)return;
+      const lnE=new Date(ln.endDate),lnEY=lnE.getFullYear();
+      if(year<lnEY)lnPay+=ln.monthly*12;
+      else if(year===lnEY){lnPay+=ln.monthly*lnE.getMonth();events.push({label:`${ln.name} 완납`,color:'g',freed:ln.monthly,reinvest:ln.reinvest});}
+    });
+    let insPay=0;
+    insurances.forEach(ins=>{
+      if(!ins.endDate)return;
+      const iE=new Date(ins.endDate),iEY=iE.getFullYear();
+      if(year<iEY)insPay+=ins.monthly*12;
+      else if(year===iEY){insPay+=ins.monthly*iE.getMonth();events.push({label:`${ins.name} 완납`,color:'b',freed:ins.monthly,reinvest:ins.reinvest});if(ins.refund>0&&ins.reinvest&&bal[ins.reinvest]!==undefined)bal[ins.reinvest]+=ins.refund;}
+    });
+    
+    const totExp=livExp+lnPay+insPay;
+    const surplus=totInc-totExp;
+    
+    const freed={};
+    loans.forEach(ln=>{if(!ln.endDate||!ln.reinvest)return;if(year>new Date(ln.endDate).getFullYear())freed[ln.reinvest]=(freed[ln.reinvest]||0)+ln.monthly*12;});
+    insurances.forEach(ins=>{if(!ins.endDate||!ins.reinvest)return;if(year>new Date(ins.endDate).getFullYear())freed[ins.reinvest]=(freed[ins.reinvest]||0)+ins.monthly*12;});
+    
+    // yC(연간 납입액) 먼저 초기화 — 이후 DC 적립 포함 모든 기여금에서 사용
+    const yC={};active.forEach(a=>yC[a.id]=0);
+
+    // ── 퇴직금 처리 (DB형/수동: 은퇴시 일괄이전 | DC형: 매년 연봉 적립+운용) ──
+    const sevTypeNow=Gval('sevType');
+    if(sevTypeNow==='DC'){
+      // DC형: 법정 납입액 = 연봉÷12 (월급 기준) + 추가납입
+      if(!isRet && salY>0){
+        const extraMo=parseFloat(Gval('dc-extra-monthly'))||0;
+        const dcContrib = Math.round(salY/12) + extraMo*12;
+        const dcAcct = active.find(a=>a.type==='IRP_RETIRE')
+                    || active.find(a=>a.type===sevTgt||a.id===sevTgt);
+        if(dcAcct && yC[dcAcct.id]!==undefined){
+          yC[dcAcct.id] += dcContrib;
+          if(i===0) events.push({label:`DC형 월급적립 시작 (연 ${ws(dcContrib)}원)`,color:'g'});
+        }
+      }
+    } else {
+      // DB형 / 수동: 은퇴 시 일괄 이전
+      if(age===retA && i>0){
+        const sevAmt = getSev();
+        if(sevTgt!=='CASH'){
+          const ta = active.find(a=>a.type===sevTgt||a.id===sevTgt);
+          if(ta){bal[ta.id]=(bal[ta.id]||0)+sevAmt;events.push({label:`퇴직금 이전 ${ws(sevAmt)}`,color:''});}
+        }else{
+          const afterTax = Math.round(sevAmt*0.70);
+          const cma = active.find(a=>a.type==='CMA')||active[0];
+          if(cma){bal[cma.id]=(bal[cma.id]||0)+afterTax;events.push({label:`퇴직금 현금수령 ${ws(afterTax)} (세후70%)`,color:''});}
+        }
+      }
+    }
+
+    let txRef=0;
+    if(taxReinv&&!isRet&&taxReinvTgt){
+      let pA2=0,iA2=0;
+      active.forEach(a=>{const c=(AMETA[a.type]||{}).cat;if(c==='PENSION')pA2+=a.monthlyContrib*12;if(c==='IRP')iA2+=a.monthlyContrib*12;});
+      txRef=Math.round((Math.min(pA2,6000000)+Math.min(Math.max(0,iA2-Math.max(0,pA2-6000000)),3000000))*txRate);
+    }
+    if(!isRet){
+      let rem=Math.max(0,surplus);
+      const isaA=active.filter(a=>(AMETA[a.type]||{}).cat==='ISA');
+      const penA=active.filter(a=>(AMETA[a.type]||{}).cat==='PENSION');
+      const irpA=active.filter(a=>(AMETA[a.type]||{}).cat==='IRP');
+      const frA= active.filter(a=>!['ISA','PENSION','IRP','IRP_RET'].includes((AMETA[a.type]||{}).cat));
+      isaA.forEach(a=>{const c=Math.min(a.monthlyContrib*12,20000000,rem);yC[a.id]+=c;rem-=c;});
+      let pil=18000000;
+      penA.forEach(a=>{const c=Math.min(a.monthlyContrib*12,pil,rem);yC[a.id]+=c;rem-=c;pil-=c;});
+      irpA.forEach(a=>{const c=Math.min(a.monthlyContrib*12,pil,rem);yC[a.id]+=c;rem-=c;});
+      frA.forEach( a=>{const c=Math.min(a.monthlyContrib*12,rem);yC[a.id]+=c;rem-=c;});
+    }
+    Object.entries(freed).forEach(([id,amt])=>{if(yC[id]!==undefined)yC[id]+=amt;});
+    if(txRef>0&&taxReinvTgt&&yC[taxReinvTgt]!==undefined){yC[taxReinvTgt]+=txRef;events.push({label:`세액환급 재투자 ${ws(txRef)}`,color:'g'});}
+    
+    // ISA maturity
+    active.filter(a=>(AMETA[a.type]||{}).cat==='ISA').forEach(a=>{
+      isaEl[a.id]=(isaEl[a.id]||0)+1;
+      let doTx=false;
+      if(a.isaTransferTiming==='maturity'&&isaEl[a.id]>=3)doTx=true;
+      if(a.isaTransferTiming==='retire'&&age===retA)doTx=true;
+      if(a.isaTransferTiming==='age65'&&age===65)doTx=true;
+      if(a.isaTransferTiming==='manual'&&age===(a.isaManualAge||60))doTx=true;
+      if(doTx&&a.isaPostEvent!=='keep'&&a.isaPostEvent!=='never'){
+        const curBal=(bal[a.id]||0)+(yC[a.id]||0);
+        const amt=a.isaPostEvent==='transfer300'?Math.min(curBal,30000000):curBal;
+        const tgtA=a.isaTransferTarget?active.find(x=>x.id===a.isaTransferTarget):null;
+        if(tgtA&&a.isaPostEvent!=='liquidate'){bal[tgtA.id]=(bal[tgtA.id]||0)+amt;events.push({label:`ISA→${tgtA.label} ${ws(amt)}`,color:''});}
+        bal[a.id]-=Math.min(bal[a.id]||0,Math.max(0,amt-(yC[a.id]||0)));
+        yC[a.id]=Math.max(0,(yC[a.id]||0)-amt);
+        if(a.isaTransferTiming==='maturity')isaEl[a.id]=0;
+        if(a.isaTransferTiming==='age65'||a.isaTransferTiming==='manual')isaEl[a.id]=0;
+      }
+    });
+    
+    // ── IRP/퇴직IRP 은퇴 시 처리 (irpOnRetire 설정 반영) ──
+    if(age===retA && i>0){
+      active.filter(a=>(AMETA[a.type]||{}).cat==='IRP_RET'||(AMETA[a.type]||{}).cat==='IRP').forEach(a=>{
+        const action=a.irpOnRetire||'keep';
+        if(action==='toAccum'&&a.irpAccumTarget){
+          const tgt=active.find(x=>x.id===a.irpAccumTarget);
+          if(tgt){
+            const transferAmt=bal[a.id]||0;
+            if(transferAmt>0){
+              bal[tgt.id]=(bal[tgt.id]||0)+transferAmt;
+              bal[a.id]=0;
+              events.push({label:`${a.label}→${tgt.label} 이전 ${ws(transferAmt)}`,color:'b'});
+            }
+          }
+        } else if(action==='liquidate'){
+          const liqAmt=bal[a.id]||0;
+          if(liqAmt>0){
+            // 해지 시 기타소득세 16.5% 적용
+            const tax=Math.round(liqAmt*0.165);
+            const net=liqAmt-tax;
+            // 남은 금액은 CMA 또는 첫 번째 자유 계좌로
+            const freeAcct=active.find(a2=>['FREE','STOCK'].includes((AMETA[a2.type]||{}).cat));
+            if(freeAcct){bal[freeAcct.id]=(bal[freeAcct.id]||0)+net;}
+            bal[a.id]=0;
+            events.push({label:`${a.label} 해지 ${ws(net)} (세후, 세금 ${ws(tax)})`,color:''});
+          }
+        }
+        // 'keep'이면 그대로 연금수령 유지 (드로다운에서 제외된 채 계속 운용)
+      });
+    }
+
+    // Account lifecycle end
+    active.forEach(a=>{
+      const endAge=parseInt(a.acctEndAge)||0;
+      if(endAge>0&&age===endAge&&a.acctEndAction!=='keep'){
+        const balAmt=bal[a.id]||0;
+        if(a.acctEndAction==='transfer'&&a.acctEndTarget){
+          const tgt=active.find(x=>x.id===a.acctEndTarget);
+          if(tgt){bal[tgt.id]=(bal[tgt.id]||0)+balAmt;bal[a.id]=0;events.push({label:`${a.label}→${tgt.label} 이전`,color:'b'});}
+        }else if(a.acctEndAction==='liquidate'){bal[a.id]=0;events.push({label:`${a.label} 해지`,color:''});}
+      }
+    });
+    
+    // Apply returns
+    active.forEach(a=>{
+      const growth=(bal[a.id]||0)*retRates[a.id];
+      bal[a.id]=Math.max(0,(bal[a.id]||0)+(yC[a.id]||0)+growth);
+    });
+    
+    // Drawdown post-retirement
+    if(isRet&&surplus<0){
+      let need=Math.abs(surplus);
+      const dOrder=active
+        .filter(a=>{
+          // IRP_RET: 연금수령 유지(keep)이면 계속 보호, toAccum/liquidate는 이미 처리됨
+          if((AMETA[a.type]||{}).cat==='IRP_RET'){
+            const irpAction=a.irpOnRetire||'keep';
+            // keep: 연금계좌로 유지 - 드로다운 대신 별도 연금수령 소득원으로 취급
+            if(irpAction==='keep') return false;
+            // toAccum/liquidate: 이미 bal=0 처리됨
+            return false;
+          }
+          // ISA 이전 타이밍이 아직 안 됐으면 드로다운 제외 (보호)
+          if((AMETA[a.type]||{}).cat==='ISA'){
+            const t=a.isaTransferTiming;
+            if(t==='age65'&&age<65)return false;       // 65세 이전 보호
+            if(t==='manual'&&age<(a.isaManualAge||60))return false; // 지정나이 이전 보호
+            if(t==='never')return false;               // 이전 안 함 보호
+            // 'retire'(이미 지남), 'maturity'(이미 처리됨) → 드로다운 허용
+          }
+          return true;
+        })
+        .sort((a,b)=>{const o={FREE:0,STOCK:1,SUB:2,ISA:3,PENSION:4,IRP:5};return(o[(AMETA[a.type]||{}).cat]||9)-(o[(AMETA[b.type]||{}).cat]||9);});
+      for(const a of dOrder){if(need<=0)break;const d=Math.min(bal[a.id]||0,need);bal[a.id]-=d;need-=d;}
+    }
+    
+    if(age===retA)events.push({label:'🎉 은퇴',color:''});
+    if(age===npA)events.push({label:`국민연금 시작 (${wf(Math.round(npMo))}원/월)`,color:'g'});
+    
+    const totA=active.reduce((s,a)=>s+(bal[a.id]||0),0);
+    const dcYearContrib=(sevTypeNow==='DC'&&!isRet&&salY>0)?(Math.round(salY/12)):0;
+    yearly.push({year,age,isRet,totInc,netSal,npInc,othr:othInc,divGross:totalDivGross,divNet:totalDivNet,
+      totExp,livExp,lnPay,insPay,surplus,dcContrib:dcYearContrib,hpInc:hpMon,
+      yC:{...yC},balances:{...bal},totalAssets:totA,events,
+      startMonth:i===0?curMon:1});
+  }
+  return{yearly,tgt};
+}
+
+function genMonthly(yearly){
+  return yearly.flatMap(yr=>{
+    const startM=yr.startMonth||1; // 첫 해: 현재 월부터, 이후: 1월부터
+    const months=[];
+    for(let mi=startM-1;mi<12;mi++){
+      const m=mi+1,mEv=[];
+      loans.forEach(ln=>{if(!ln.endDate)return;const e=new Date(ln.endDate);if(e.getFullYear()===yr.year&&e.getMonth()+1===m)mEv.push({label:`${ln.name} 완납`,color:'g',freed:ln.monthly});});
+      insurances.forEach(ins=>{if(!ins.endDate)return;const e=new Date(ins.endDate);if(e.getFullYear()===yr.year&&e.getMonth()+1===m)mEv.push({label:`${ins.name} 완납`,color:'b',freed:ins.monthly});});
+      // 해당 연도의 주요 이벤트는 startMonth에 표시
+      if(m===startM)yr.events.filter(e=>!e.label?.includes('완납')).forEach(e=>mEv.push(e));
+      months.push({year:yr.year,month:m,age:yr.age,isRet:yr.isRet,
+        income:Math.round(yr.totInc/12),expense:Math.round(yr.totExp/12),
+        divGross:Math.round(yr.divGross/12),divNet:Math.round(yr.divNet/12),
+        dcContrib:m===startM?(yr.dcContrib||0):0,
+        cf:Math.round((yr.totInc-yr.totExp)/12),totalAssets:yr.totalAssets,events:mEv});
+    }
+    return months;
+  });
+}
+
+// ═══════════ RUN ═══════════
+function runSim(){
+  if(!accounts.filter(a=>a.active).length){alert('활성 계좌가 없습니다.');return;}
+  const{yearly,tgt}=simEngine();
+  simY=yearly;simM=genMonthly(yearly);
+  const retA=parseInt(Gval('retireAge'))||60;
+  renderSimRes(tgt,retA);
+  ST('sim',document.querySelectorAll('.tab')[3]);
+  try{localStorage.setItem('retireSim_v6r',JSON.stringify(getProfile()));}catch(e){}
+}
+
+function renderSimRes(tgt,retA){
+  G('sim-empty').style.display='none';G('sim-res').style.display='block';
+  const rRow=simY.find(r=>r.age===retA),rA=rRow?rRow.totalAssets:0;
+  const last=simY[simY.length-1];
+  const safeTgt=Math.max(tgt,1);
+  const pct=Math.min(300,Math.round(rA/safeTgt*100)),isOK=rA>=safeTgt;
+  const maxA=Math.max(...simY.map(r=>r.totalAssets));
+  const sw=(parseFloat(Gval('sw'))||4)/100;
+  const totalDivAtRetire=rRow?rRow.divNet:0;
+  
+  G('sim-stats').innerHTML=`
+    <div class="sc"><div class="sl">은퇴 시 총자산</div><div class="sv ${isOK?'pos':''}">${ws(rA)}</div><div class="ss">${toKor(rA)}</div></div>
+    <div class="sc"><div class="sl">목표달성률</div><div class="sv ${isOK?'pos':'neg'}">${pct}%</div><div class="ss">목표 ${toKor(safeTgt)}</div></div>
+    <div class="sc"><div class="sl">월 인출가능</div><div class="sv">${ws(Math.round(rA*sw/12))}</div><div class="ss">인출률 ${(sw*100).toFixed(1)}%</div></div>
+    <div class="sc"><div class="sl" style="color:var(--teal)">은퇴 시 연배당(세후)</div><div class="sv divcol">${ws(totalDivAtRetire)}</div><div class="ss">월 ${ws(Math.round(totalDivAtRetire/12))}</div></div>
+    <div class="sc"><div class="sl">기대수명 잔여</div><div class="sv ${last.totalAssets>0?'pos':'neg'}">${ws(last.totalAssets)}</div><div class="ss">${last.age}세</div></div>
+    <div class="sc"><div class="sl">퇴직금</div><div class="sv">${ws(getSev())}</div><div class="ss">${Gval('sevType')}형</div></div>
+    ${(G('hpOn')?.checked&&window._hpMonthly>0)?`<div class="sc"><div class="sl" style="color:var(--purple)">주택연금</div><div class="sv" style="color:var(--purple)">${wf(window._hpMonthly)}원/월</div><div class="ss">${window._hpStartAge}세 개시</div></div>`:''}`;
+  
+  G('pg-bar').style.width=Math.min(100,pct)+'%';G('pg-lbl').textContent=pct+'%';
+  G('pg-desc').textContent=isOK?`🎉 목표 달성! 여유 ${toKor(rA-safeTgt)}`:`⚠ ${toKor(safeTgt-rA)} 부족`;
+  
+  const curMC=accounts.filter(a=>a.active&&(AMETA[a.type]||{}).cat!=='IRP_RET').reduce((s,a)=>s+a.monthlyContrib,0);
+  const rc=G('rev-cur');if(rc){rc.value=curMC;rc.style.background='';}
+  const fa=G('fin-asset');if(fa&&rRow)fa.textContent=wf(rRow.totalAssets)+'원';
+  calcHealth();
+  renderMainChart(simY,retA);renderTable(viewMode);
+}
+
+// ═══════════ REVERSE CALC ═══════════
+function calcReverse(){
+  const tgt=parseFloat(Gval('rev-target'))||500000000;
+  if(!simY.length){alert('시뮬레이션을 먼저 실행하세요');return;}
+  const retA=parseInt(Gval('retireAge'))||60;
+  const revRR=parseFloat(Gval('rev-rr'))||0;
+  const origRates=accounts.map(a=>a.returnRate);
+  if(revRR>0) accounts.filter(a=>a.active).forEach(a=>a.returnRate=revRR);
+  const origContribs=accounts.map(a=>a.monthlyContrib);
+  const freeIds=accounts.filter(a=>a.active&&['FREE','STOCK'].includes((AMETA[a.type]||{}).cat)).map(a=>a.id);
+  const targetAccts=freeIds.length>0?freeIds:accounts.filter(a=>a.active&&(AMETA[a.type]||{}).cat!=='IRP_RET').map(a=>a.id).slice(0,2);
+  let lo=0,hi=20000000,found=null;
+  for(let iter=0;iter<28;iter++){
+    const mid=Math.round((lo+hi)/2);
+    accounts.forEach((a,i)=>a.monthlyContrib=origContribs[i]);
+    if(targetAccts.length>0){const share=Math.round(mid/targetAccts.length);targetAccts.forEach(id=>{const a=accounts.find(x=>x.id===id);if(a)a.monthlyContrib+=share;});}
+    const{yearly}=simEngine();
+    const rRow=yearly.find(r=>r.age===retA);
+    if(rRow&&rRow.totalAssets>=tgt){hi=mid;found=mid;}else lo=mid;
+    if(hi-lo<10000)break;
+  }
+  accounts.forEach((a,i)=>{a.monthlyContrib=origContribs[i];if(revRR>0)a.returnRate=origRates[i];});
+  const curM=parseInt(Gval('rev-cur'))||accounts.filter(a=>a.active&&(AMETA[a.type]||{}).cat!=='IRP_RET').reduce((s,a)=>s+a.monthlyContrib,0);
+  const res=G('rev-result');if(!res)return;
+  res.style.display='block';
+  const yrsLeft2=Math.max(0,(parseInt(Gval('retireAge'))||60)-(parseInt(Gval('curAge'))||47));
+  res.innerHTML=found!==null
+    ?`<div style="font-size:12px;line-height:2;">
+        ✅ 목표 <b style="color:var(--goldl)">${toKor(tgt)}</b> 달성${revRR>0?' <span style="color:var(--teal)">(수익률 '+revRR+'% 가정)</span>':''}<br>
+        현재 월납입: <b>${wf(curM)}원</b> &nbsp;→&nbsp; 목표 월납입: <b style="color:var(--goldl);font-size:14px;">${wf(curM+found)}원</b><br>
+        추가 필요: <b style="color:var(--green)">월 +${wf(found)}원</b> &nbsp;·&nbsp; 은퇴까지 <b>${yrsLeft2}년</b> 납입
+      </div>`
+    :`❌ 현실적 납입 범위(2천만원/월)에서 달성 어려움. 목표 하향 또는 수익률을 조정하세요.`;
+}
+
+// ═══════════ HEALTH INSURANCE ═══════════
+function calcHealth(){
+  const reStr=G('fin-asset')?.textContent||'0';
+  const finAsset=parseFloat(reStr.replace(/[^0-9]/g,''))||0;
+  const realEstate=parseFloat(Gval('realEstate'))||0;
+  const annualInc=parseFloat(Gval('healthInc'))||0;
+  const score_unit=208.4;
+  const incScore=Math.max(0,annualInc/1000000*2.5);
+  const totalAsset=finAsset+realEstate;
+  const taxable=Math.max(0,totalAsset-50000000);
+  let aScore=0;
+  if(taxable<=10000000)aScore=taxable/1000000*5;
+  else if(taxable<=30000000)aScore=50+(taxable-10000000)/1000000*3;
+  else if(taxable<=100000000)aScore=110+(taxable-30000000)/1000000*2;
+  else if(taxable<=500000000)aScore=250+(taxable-100000000)/1000000*0.8;
+  else aScore=570+(taxable-500000000)/1000000*0.4;
+  const monthly=Math.round((incScore+aScore)*score_unit);
+  const npA=parseInt(Gval('npAge'))||65;
+  const npR=npA<65?1+(npA-65)*0.06:1+(npA-65)*0.072;
+  const npInc=(parseFloat(Gval('npBase'))||1200000)*npR;
+  const otherInc=parseFloat(Gval('retireOther'))||0;
+  const expOn=G('expOn')?.checked===true;
+  const rExp=expOn?(parseFloat(Gval('rExp'))||0):0;
+  const disposable=Math.max(0,npInc+otherInc-monthly-rExp);
+  const res=G('health-res');
+  if(res)res.innerHTML=`예상 건강보험료: <b style="color:var(--goldl)">${wf(monthly)}원/월</b> (연 ${wf(monthly*12)}원) | 재산점수 ${aScore.toFixed(0)}점 + 소득점수 ${incScore.toFixed(0)}점<br>🏠 실질 가처분소득: <b style="color:var(--green)">${wf(Math.round(disposable))}원/월</b> (연금+기타 - 건보료 - 생활비)`;
+}
+
+// ═══════════ CHARTS & TABLE ═══════════
+function renderMainChart(yearly,retA){
+  const ctx=G('mainChart');if(!ctx)return;
+  if(simChartObj){simChartObj.destroy();simChartObj=null;}
+  const active=accounts.filter(a=>a.active);
+  const retireIdx=yearly.findIndex(r=>r.age===retA);
+  const isDC=Gval('sevType')==='DC';
+
+  // Build DC cumulative line
+  let dcCum=0;
+  const dcCumData=yearly.map(r=>{dcCum+=r.dcContrib||0;return dcCum;});
+
+  // Per-account datasets (top 4 only for clarity)
+  const topAccts=active.slice(0,4);
+  const acctDatasets=topAccts.map(a=>({
+    label:a.label,
+    data:yearly.map(r=>r.balances[a.id]||0),
+    borderColor:a.color,
+    borderWidth:1.2,
+    fill:false,
+    pointRadius:0,
+    tension:.35,
+    borderDash:[4,2],
+  }));
+
+  // Annotation for retirement
+  const retireYear=retireIdx>=0?yearly[retireIdx].year:null;
+
+  simChartObj=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:yearly.map(r=>r.year+'('+r.age+'세)'),
+      datasets:[
+        {label:'📊 총자산',data:yearly.map(r=>r.totalAssets),borderColor:'#e8c96a',borderWidth:3,fill:{target:'origin',above:'rgba(200,168,75,0.04)'},pointRadius:0,tension:.35},
+        {label:'💰 연배당(세후)',data:yearly.map(r=>r.divNet),borderColor:'#2bbfb0',borderWidth:1.5,fill:false,pointRadius:0,tension:.35,borderDash:[4,3]},
+        ...(isDC&&dcCum>0?[{label:'🏦 DC형 누적적립',data:dcCumData,borderColor:'#e8873b',borderWidth:1.5,fill:false,pointRadius:0,tension:.35,borderDash:[6,3]}]:[]),
+        ...acctDatasets,
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{labels:{color:'#7a8fa8',font:{size:11},boxWidth:14,padding:10},position:'bottom'},
+        tooltip:{
+          callbacks:{
+            label:c=>`${c.dataset.label}: ${toKor(c.raw)}`,
+            afterBody:(items)=>{
+              const yr=yearly[items[0]?.dataIndex];
+              if(!yr)return[];
+              const lines=[];
+              if(yr.dcContrib>0)lines.push(`  DC 당해년 적립: ${toKor(yr.dcContrib)}`);
+              if(yr.events?.length)lines.push('  📌 '+yr.events.map(e=>e.label).join(' · '));
+              return lines;
+            }
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#3a5070',maxTicksLimit:12,font:{size:10},
+          callback:(val,idx)=>{
+            const yr=yearly[idx];
+            if(!yr)return val;
+            // Mark retirement year
+            if(yr.age===retA)return '🎉'+yr.year;
+            // Mark NP start
+            const npA2=parseInt(Gval('npAge'))||65;
+            if(yr.age===npA2)return '🏛'+yr.year;
+            return yr.year;
+          }
+        },grid:{color:'rgba(22,34,54,.3)',
+          color:(ctx)=>{
+            const yr=yearly[ctx.index];
+            if(yr?.age===retA)return 'rgba(200,168,75,0.4)';
+            return 'rgba(22,34,54,.3)';
+          },
+          lineWidth:(ctx)=>{const yr=yearly[ctx.index];return yr?.age===retA?2:1;}
+        }},
+        y:{ticks:{color:'#3a5070',font:{size:11},callback:v=>ws(v)},grid:{color:'rgba(22,34,54,.3)'}}
+      }
+    }
+  });
+}
+
+function renderTable(mode){
+  viewMode=mode;
+  const th=G('sim-th'),tb=G('sim-tb');if(!th||!tb)return;
+  const active=accounts.filter(a=>a.active);
+  const retA=parseInt(Gval('retireAge'))||60;
+  if(mode==='year'){
+    const showDC=Gval('sevType')=='DC';
+    const showHP=G('hpOn')?.checked===true;
+    th.innerHTML=`<tr><th class="tc">연도</th><th class="tc">나이</th>${active.map(a=>`<th style="color:${a.color}">${a.label}</th>`).join('')}<th class="tcol">총자산</th><th>연소득</th><th>연지출</th><th class="divcol">배당(세후)</th>${showDC?'<th style="color:var(--orange)">DC적립</th>':''}${showHP?'<th style="color:var(--purple)">주택연금</th>':''}<th>현금흐름</th><th class="tl">이벤트</th></tr>`;
+    tb.innerHTML=simY.map(r=>{
+      const cf=r.totInc-r.totExp;
+      const rc=r.age===retA?'ev-r':r.events.length?'ev-e':r.isRet?'retired':'';
+      const notes=r.events.map(e=>`<span class="ev-tag${e.color?' '+e.color:''}">${e.label}</span>`).join(' ');
+      return `<tr class="${rc}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td>${active.map(a=>`<td class="dim">${ws(r.balances[a.id]||0)}</td>`).join('')}<td class="tcol">${ws(r.totalAssets)}</td><td class="${r.totInc>0?'pos':'dim'}">${ws(r.totInc)}</td><td class="neg">${ws(r.totExp)}</td><td class="divcol">${ws(r.divNet)}</td>${showDC?`<td style="color:var(--orange);font-family:monospace">${r.dcContrib>0?ws(r.dcContrib):'—'}</td>`:''}${showHP?`<td style="color:var(--purple);font-family:monospace">${(r.hpInc||0)>0?ws(r.hpInc/12)+'원/월':'—'}</td>`:''}<td class="${cf>=0?'pos':'neg'}">${ws(cf)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
+    }).join('');
+  }else{
+    const showDCm=Gval('sevType')==='DC';
+    const showHPm=G('hpOn')?.checked===true;
+    const dcThM=showDCm?'<th style="color:var(--orange)">DC적립</th>':'';
+    const hpThM=showHPm?'<th style="color:var(--purple)">주택연금</th>':'';
+    th.innerHTML=`<tr><th class="tc">년/월</th><th class="tc">나이</th><th>월소득</th><th>월지출</th><th class="divcol">월배당</th>${dcThM}${hpThM}<th>현금흐름</th><th class="tcol">총자산</th><th class="tl">이벤트</th></tr>`;
+    tb.innerHTML=simM.map(r=>{
+      const isRetM=r.events.some(e=>e.label?.includes('은퇴'));
+      const rc=isRetM?'ev-r':r.events.length?'ev-e':r.isRet?'retired':'';
+      const notes=r.events.map(e=>`<span class="ev-tag${e.color?' '+e.color:''}">${e.label}${e.freed?` → 월${ws(e.freed)}재투자`:''}</span>`).join(' ');
+      const dcCellM=showDCm?('<td style="color:var(--orange);font-family:monospace">'+(r.dcContrib>0?ws(r.dcContrib):'—')+'</td>'):'';
+      const hpCellM=showHPm?('<td style="color:var(--purple);font-family:monospace">'+((r.hpInc||0)>0?ws(r.hpInc)+'원':'—')+'</td>'):'';
+      return `<tr class="${rc}"><td class="tc">${r.year}.${String(r.month).padStart(2,'0')}</td><td class="tc">${r.age}세</td><td class="${r.income>0?'pos':'dim'}">${ws(r.income)}</td><td class="neg">${ws(r.expense)}</td><td class="divcol">${ws(r.divNet)}</td>${dcCellM}${hpCellM}<td class="${r.cf>=0?'pos':'neg'}">${ws(r.cf)}</td><td class="tcol">${ws(r.totalAssets)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
+    }).join('');
+  }
+}
+function setView(m,btn){document.querySelectorAll('.vtog button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderTable(m);}
+function toggleFS(){const w=G('simWrap');w.classList.toggle('fs');const b=document.querySelector('[onclick="toggleFS()"]');b.textContent=w.classList.contains('fs')?'✕ 닫기':'⛶ 전체화면';if(w.classList.contains('fs'))document.addEventListener('keydown',function esc(k){if(k.key==='Escape'){w.classList.remove('fs');b.textContent='⛶ 전체화면';document.removeEventListener('keydown',esc);}});}
+
+// ═══════════ SCENARIO ═══════════
+function runScenario(){
+  if(!simY.length){alert('시뮬레이션을 먼저 실행하세요');return;}
+  const opt=parseFloat(Gval('sc-opt'))||10;
+  const avg=parseFloat(Gval('sc-avg'))||7;
+  const pes=parseFloat(Gval('sc-pes'))||3;
+  const divR=parseFloat(Gval('sc-div'))||6; // ISA 만기 후 배당형 전환 시
+  const retA=parseInt(Gval('retireAge'))||60;
+  const scO=simEngine(opt,null).yearly;
+  const scA=simEngine(avg,null).yearly;
+  const scP=simEngine(pes,null).yearly;
+  // ISA 배당형: 평균 수익률 유지하되 배당성장률 높게
+  const scD=simEngine(avg,null,divR).yearly;
+  G('sc-empty').style.display='none';G('sc-res').style.display='block';
+  const ctx=G('scChart');if(!ctx)return;
+  if(scChartObj){scChartObj.destroy();scChartObj=null;}
+  scChartObj=new Chart(ctx,{
+    type:'line',
+    data:{labels:scO.map(r=>r.year),datasets:[
+      {label:`낙관(${opt}%)`,data:scO.map(r=>r.totalAssets),borderColor:'#2dbe74',borderWidth:2,fill:false,pointRadius:0,tension:.3},
+      {label:`평균(${avg}%)`,data:scA.map(r=>r.totalAssets),borderColor:'#c9a84c',borderWidth:2.5,fill:false,pointRadius:0,tension:.3},
+      {label:`비관(${pes}%)`,data:scP.map(r=>r.totalAssets),borderColor:'#e05555',borderWidth:2,fill:false,pointRadius:0,tension:.3},
+      {label:`ISA→배당형(배당성장${divR}%)`,data:scD.map(r=>r.totalAssets),borderColor:'#2bbfb0',borderWidth:2,borderDash:[5,3],fill:false,pointRadius:0,tension:.3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#7a8fa8',font:{size:11},boxWidth:16}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${toKor(c.raw)}`}}},
+      scales:{x:{ticks:{color:'#3a5070',maxTicksLimit:15,font:{size:11}},grid:{color:'rgba(22,34,54,.4)'}},y:{ticks:{color:'#3a5070',font:{size:11},callback:v=>ws(v)},grid:{color:'rgba(22,34,54,.4)'}}}}
+  });
+  const sw=(parseFloat(Gval('sw'))||4)/100;
+  const show=(sc,lbl,col)=>{const rR=sc.find(r=>r.age===retA)||{totalAssets:0,divNet:0};return `<div class="sc" style="border-color:${col}30"><div class="sl" style="color:${col}">${lbl}</div><div class="sv" style="color:${col};font-size:13px;">${ws(rR.totalAssets)}</div><div class="ss">연배당 ${ws(rR.divNet)}</div></div>`;};
+  G('sc-stats').innerHTML=show(scO,`낙관(${opt}%)`,'var(--green)')+show(scA,`평균(${avg}%)`,'var(--goldl)')+show(scP,`비관(${pes}%)`,'var(--red)')+show(scD,`ISA배당형`,'var(--teal)');
+  G('sc-th').innerHTML=`<tr><th class="tc">연도</th><th class="tc">나이</th><th style="color:var(--green)">낙관</th><th style="color:var(--goldl)">평균</th><th style="color:var(--red)">비관</th><th style="color:var(--teal)">ISA배당형</th><th>낙관-비관</th></tr>`;
+  G('sc-tb').innerHTML=scO.map((r,i)=>{const d=r.totalAssets-(scP[i]?.totalAssets||0);return `<tr class="${r.age===retA?'ev-r':r.isRet?'retired':''}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td><td class="pos">${ws(r.totalAssets)}</td><td class="tcol">${ws(scA[i]?.totalAssets||0)}</td><td class="neg">${ws(scP[i]?.totalAssets||0)}</td><td class="divcol">${ws(scD[i]?.totalAssets||0)}</td><td class="${d>=0?'pos':'neg'}">${ws(d)}</td></tr>`;}).join('');
+}
+
+// ═══════════ EXCEL ═══════════
+function doExcel(){
+  if(!simY.length){alert('시뮬레이션을 먼저 실행하세요');return;}
+  const wb=XLSX.utils.book_new();
+  const active=accounts.filter(a=>a.active);
+  const h1=['연도','나이','구분',...active.map(a=>a.label),'총자산(원)','연소득','연지출','배당수입(세후)','현금흐름','이벤트'];
+  const r1=[h1];
+  simY.forEach(yr=>r1.push([yr.year,yr.age,yr.isRet?'은퇴후':'은퇴전',...active.map(a=>Math.round(yr.balances[a.id]||0)),Math.round(yr.totalAssets),Math.round(yr.totInc),Math.round(yr.totExp),Math.round(yr.divNet),Math.round(yr.totInc-yr.totExp),yr.events.map(e=>e.label).join('; ')]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(r1),'연도별');
+  const r2=[['년월','나이','구분','월소득','월지출','월배당','현금흐름','총자산','이벤트']];
+  simM.forEach(m=>r2.push([`${m.year}-${String(m.month).padStart(2,'0')}`,m.age,m.isRet?'은퇴후':'은퇴전',m.income,m.expense,m.divNet,m.cf,m.totalAssets,m.events.map(e=>e.label).join('; ')]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(r2),'월별');
+  const r3=[['계좌','유형','잔액','월납입','수익률'],
+    ...accounts.map(a=>[a.label,a.type,a.balance,a.monthlyContrib,a.returnRate]),
+    [],['== DC형 보유종목 =='],['코드','종목명','수량','평단(원)','현재가(원)','평가금액','배당률%','10년CAGR'],
+    ...dcHoldings.map(h=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0&&h.qty>0?h.qty*cp:0;return [h.ticker,h.name,h.qty,h.avg,h.cp||0,Math.round(ev),h.divYield||0,h.cagr||'—'];})];
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(r3),'계좌종목');
+  XLSX.writeFile(wb,`은퇴시뮬레이터_${Gval('curAge')}세_${new Date().getFullYear()}.xlsx`);
+}
+
+// ═══════════ AI ═══════════
+function buildPrompt(){
+  const retA=parseInt(Gval('retireAge'))||60,rRow=simY.find(r=>r.age===retA);
+  const tgt=parseFloat(Gval('target'))||0,sw=(parseFloat(Gval('sw'))||4)/100;
+  const pct=rRow&&tgt>0?Math.round(rRow.totalAssets/tgt*100):0;
+  const last=simY[simY.length-1];
+  const focMap={overall:'종합분석',tax:'세금최적화',div:'배당전략',retire:'은퇴가능성',isa:'ISA전략',loan:'대출보험'};
+  const divAtRetire=rRow?.divNet||0;
+  return `당신은 한국 CFP(공인재무설계사)입니다. 분석: ${focMap[Gval('aiFocus')]||'종합'}
+
+▶ 개인정보
+나이:${Gval('curAge')}세 | 은퇴목표:${retA}세 | 기대수명:${Gval('lifeExp')}세
+연봉:${toKor(parseFloat(Gval('salary'))||0)} | 퇴직금:${Gval('sevType')}형 ${toKor(getSev())}
+지출활성:${G('expOn')?.checked?'YES':'NO'} | 월생활비:${toKor(parseFloat(Gval('mExp'))||0)} | 은퇴후:${toKor(parseFloat(Gval('rExp'))||0)}
+
+▶ 시뮬레이션 결과
+현재총자산:${toKor(simY[0]?.totalAssets||0)}
+은퇴시 총자산:${toKor(rRow?.totalAssets||0)} (목표달성률 ${pct}%)
+목표자산:${toKor(tgt)}
+은퇴 시 연배당(세후):${toKor(divAtRetire)}원 (월 ${toKor(Math.round(divAtRetire/12))})
+기대수명 잔여:${last?.totalAssets>0?toKor(last.totalAssets):'자산고갈'}
+
+▶ 계좌별 현황
+${accounts.filter(a=>a.active).map(a=>`- ${a.label}: ${toKor(a.balance)} | 월${wf(a.monthlyContrib)}원 | ${a.returnRate}%/년`).join('\n')}
+
+▶ DC형 보유종목
+${dcHoldings.length?dcHoldings.map(h=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0&&h.qty>0?h.qty*cp:0;return `- ${h.name||h.ticker}: ${toKor(ev)} | 배당 ${h.divYield||0}% | CAGR ${h.cagr||'미조회'}%`;}).join('\n'):'없음'}
+
+▶ 대출: ${loans.map(l=>`${l.name} ${toKor(l.balance)} 만기${l.endDate}`).join('; ')||'없음'}
+▶ 보험: ${insurances.map(i=>`${i.name} 월${wf(i.monthly)}원 완납${i.endDate}`).join('; ')||'없음'}
+
+━━━ 분석 요청 ━━━
+1. 📊 포트폴리오 등급(A~F) + 종합평가
+2. ⚠️ 핵심 위험 요소
+3. 💡 개선 제안 3~5가지
+4. 🎯 은퇴 달성 가능성
+5. 💰 배당전략 최적화 (계좌별 세금 차이 고려, 비과세 계좌 활용)
+6. 📋 세액공제 최적화
+7. 🔄 대출·보험 완납 후 잉여자금 전략
+
+마지막에 반드시 JSON 포함:
+\`\`\`json
+{"isa_monthly":숫자,"pension_monthly":숫자,"irp_monthly":숫자,"cma_monthly":숫자,"retire_age":숫자}
+\`\`\``;
+}
+
+async function callAI(prompt){
+  const prov=Gval('aiProv')||'gemini';
+  const key=(G('aiKey')?.value||'').trim();
+  if(!key)return null;
+
+  // Safe fetch wrapper — no AbortSignal.timeout (not supported everywhere)
+  async function safeFetch(url, opts){
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),50000);
+    try{
+      // Try direct fetch first
+      const r=await fetch(url,{...opts,signal:ctrl.signal,mode:'cors'});
+      return r;
+    }catch(directErr){
+      // If direct fetch fails (CORS/network), try via proxy
+      clearTimeout(tid);
+      const proxies=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
+      for(const proxy of proxies){
+        try{
+          const ctrl2=new AbortController();
+          const tid2=setTimeout(()=>ctrl2.abort(),50000);
+          try{
+            const r2=await fetch(proxy+encodeURIComponent(url),{...opts,signal:ctrl2.signal});
+            return r2;
+          }finally{clearTimeout(tid2);}
+        }catch(e){}
+      }
+      throw directErr; // re-throw original error if all proxies fail
+    }
+  }
+
+  const errEl=G('ai-resp');
+  function showErr(msg){if(errEl)errEl.innerHTML=`<span style="color:var(--red)">${msg}</span>`;}
+
+  if(prov==='gemini'){
+    // All current Gemini model IDs (as of 2026)
+    // 2026년 현재 작동 모델 목록
+    const models=[
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-2.0-flash-thinking-exp',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-8b',
+    ];
+
+    let lastErr='';
+    for(const model of models){
+      try{
+        const resp=await safeFetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+          {method:'POST',headers:{'Content-Type':'application/json'},
+           body:JSON.stringify({
+             contents:[{role:'user',parts:[{text:prompt}]}],
+             generationConfig:{maxOutputTokens:2500,temperature:0.7}
+           })}
+        );
+
+        let d;
+        try{d=await resp.json();}
+        catch(je){
+          lastErr=`${model}: HTTP ${resp.status} JSON 파싱 실패`;
+          continue; // 다음 모델 시도
+        }
+
+        if(d.error){
+          const code=d.error.code||resp.status||0;
+          const msg=d.error.message||'';
+          const status=d.error.status||'';
+          // Auth/quota errors → stop immediately
+          if(code===400&&msg.includes('API key'))  {showErr(`❌ 잘못된 API Key\n키 형식: AIza... (Google AI Studio에서 발급)\n\n${msg}`);return null;}
+          if(code===401||code===403)               {showErr(`❌ API Key 인증 실패 (${code})\n${msg}`);return null;}
+          if(code===429)                           {showErr(`❌ 할당량 초과 (429)\n잠시 후 다시 시도하세요\n${msg}`);return null;}
+          // Model-not-found → try next
+          if(code===404||status==='NOT_FOUND'||msg.toLowerCase().includes('not found')||msg.includes('deprecated')){
+            lastErr=`${model}: 모델 없음(${code})`;
+            continue;
+          }
+          // Other errors → show and stop
+          showErr(`❌ Gemini 오류 [${model}] (${code})\n${msg}`);
+          return null;
+        }
+
+        // Check for blocked content
+        const candidate=d.candidates?.[0];
+        if(candidate?.finishReason==='SAFETY'){lastErr=`${model}: 안전 필터 차단`;continue;}
+        const text=candidate?.content?.parts?.[0]?.text;
+        if(text)return text;
+        lastErr=`${model}: 빈 응답`;
+
+      }catch(e){
+        if(e.name==='AbortError'){lastErr=`${model}: 타임아웃`;continue;}
+        // Network/CORS error — try next model instead of stopping
+        lastErr=`${model}: 네트워크오류`;
+        continue;
+      }
+    }
+
+    // All models failed
+    showErr(`❌ Gemini API 연결 실패\n\n마지막 오류: ${lastErr}\n\n【해결방법】\n① HTML 파일을 컴퓨터에 저장 후 Chrome/Edge에서 직접 열기\n  (Netlify/claude.ai 환경에서는 CORS로 외부 API 차단됨)\n② aistudio.google.com/app/apikey 에서 최신 키 재발급\n③ 키 형식 확인: AIza... 로 시작해야 함`);
+    return null;
+
+  } else {
+    // ChatGPT
+    try{
+      const resp=await safeFetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+        body:JSON.stringify({model:'gpt-3.5-turbo',messages:[{role:'user',content:prompt}],max_tokens:2500})
+      });
+      let d;
+      try{d=await resp.json();}catch(je){showErr(`❌ ChatGPT: 응답 파싱 실패 (HTTP ${resp.status})`);return null;}
+      if(d.error){showErr(`❌ ChatGPT 오류: ${d.error.message}`);return null;}
+      return d.choices?.[0]?.message?.content||'응답 없음';
+    }catch(e){
+      if(e.name==='AbortError'){showErr('❌ ChatGPT: 타임아웃');return null;}
+      showErr(`❌ ChatGPT 네트워크 오류: ${e.message}\n\nHTML 파일을 로컬에 저장 후 실행하세요.`);
+      return null;
+    }
+  }
+}
+
+async function runAI(){
+  const key=(G('aiKey')?.value||'').trim();
+  if(!key){G('ai-resp').innerHTML=`<span style="color:var(--orange)">⚠ 상단에 AI API Key를 입력하세요.\nGemini 무료: aistudio.google.com/app/apikey (AIza...)</span>`;return;}
+  if(!simY.length){G('ai-resp').innerHTML='<span style="color:var(--orange)">⚠ 시뮬레이션을 먼저 실행하세요.</span>';return;}
+  const btn=G('ai-btn');btn.disabled=true;btn.innerHTML='<span class="spin">⟳</span> 분석중...';
+  G('ai-resp').innerHTML='<span class="blink">🤖 AI가 포트폴리오를 분석하고 있습니다...\n배당 전략, ISA 최적화, 세금 효율화를 종합적으로 검토 중...</span>';
+  const text=await callAI(buildPrompt());
+  if(text){G('ai-resp').textContent=text;parseAIPlan(text);buildSuggs();}
+  btn.disabled=false;btn.innerHTML='🤖 AI 분석 시작';
+}
+function parseAIPlan(text){try{const m=text.match(/```json\s*([\s\S]*?)\s*```/);if(!m)return;aiPlan=JSON.parse(m[1]);}catch(e){aiPlan=null;}}
+async function runAICompare(){
+  if(!simY.length){alert('시뮬레이션을 먼저 실행하세요');return;}
+  if(!aiPlan){const key=(G('aiKey')?.value||'').trim();if(!key){alert('API Key를 입력하세요');return;}await runAI();if(!aiPlan){toast('⚠ AI 추천값 파싱 실패');return;}}
+  const origC=accounts.map(a=>a.monthlyContrib);
+  const retA=parseInt(Gval('retireAge'))||60;
+  if(aiPlan.isa_monthly)accounts.filter(a=>(AMETA[a.type]||{}).cat==='ISA').forEach(a=>a.monthlyContrib=aiPlan.isa_monthly);
+  if(aiPlan.pension_monthly)accounts.filter(a=>(AMETA[a.type]||{}).cat==='PENSION').forEach(a=>a.monthlyContrib=aiPlan.pension_monthly);
+  if(aiPlan.irp_monthly)accounts.filter(a=>(AMETA[a.type]||{}).cat==='IRP').forEach(a=>a.monthlyContrib=aiPlan.irp_monthly);
+  if(aiPlan.cma_monthly)accounts.filter(a=>a.type==='CMA').forEach(a=>a.monthlyContrib=aiPlan.cma_monthly);
+  const aiRetA=aiPlan.retire_age||retA;
+  const aiResult=simEngine(null,aiRetA).yearly;
+  accounts.forEach((a,i)=>a.monthlyContrib=origC[i]);
+  const mineRow=simY.find(r=>r.age===retA),mineA=mineRow?.totalAssets||0;
+  const aiRow=aiResult.find(r=>r.age===aiRetA),aiA=aiRow?.totalAssets||0;
+  const diff=aiA-mineA;
+  G('ai-cmp-card').style.display='block';
+  const ctx=G('cmpChart');if(!ctx)return;
+  if(cmpChartObj){cmpChartObj.destroy();cmpChartObj=null;}
+  cmpChartObj=new Chart(ctx,{
+    type:'line',
+    data:{labels:simY.map(r=>r.year),datasets:[
+      {label:'내 계획',data:simY.map(r=>r.totalAssets),borderColor:'#c9a84c',borderWidth:2.5,fill:false,pointRadius:0,tension:.3},
+      {label:'AI 추천',data:aiResult.map(r=>r.totalAssets),borderColor:'#9b6fe0',borderWidth:2.5,borderDash:[5,3],fill:false,pointRadius:0,tension:.3},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#7a8fa8',font:{size:11},boxWidth:16}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${toKor(c.raw)}`}}},
+      scales:{x:{ticks:{color:'#3a5070',maxTicksLimit:15,font:{size:11}},grid:{color:'rgba(22,34,54,.4)'}},y:{ticks:{color:'#3a5070',font:{size:11},callback:v=>ws(v)},grid:{color:'rgba(22,34,54,.4)'}}}}
+  });
+  G('cmp-stats').innerHTML=`
+    <div class="sc"><div class="sl">내 계획 은퇴자산</div><div class="sv">${ws(mineA)}</div><div class="ss">${toKor(mineA)}</div></div>
+    <div class="sc" style="border-color:rgba(155,111,224,.3)"><div class="sl" style="color:var(--purple)">AI 추천 은퇴자산</div><div class="sv" style="color:var(--purple)">${ws(aiA)}</div><div class="ss">${diff>=0?'+':''}${toKor(Math.abs(diff))} ${diff>=0?'증가':'감소'}</div></div>`;
+  toast(diff>0?`🤖 AI 추천으로 ${toKor(diff)} 더 모을 수 있습니다!`:'현재 계획이 AI 추천과 유사합니다');
+}
+function buildSuggs(){
+  const suggs=[
+    {t:'연금저축 월 50만원',d:'연 600만원 세액공제 최대 활용',f(){accounts.filter(a=>(AMETA[a.type]||{}).cat==='PENSION').forEach(a=>a.monthlyContrib=500000);renderAccts();runSim();}},
+    {t:'IRP 월 25만원 추가',d:'연 300만원 추가 세액공제',f(){accounts.filter(a=>(AMETA[a.type]||{}).cat==='IRP').forEach(a=>a.monthlyContrib=250000);renderAccts();runSim();}},
+    {t:'ISA 월 최대(166만원)',d:'연 2천만원 비과세 한도 활용',f(){accounts.filter(a=>(AMETA[a.type]||{}).cat==='ISA').forEach(a=>a.monthlyContrib=1666000);renderAccts();runSim();}},
+  ];
+  G('ai-suggs').style.display='block';
+  G('ai-sugg-list').innerHTML=suggs.map((s,i)=>`<div class="sugg-card" onclick="window._sg[${i}].f();toast('✅ 적용 완료!')"><div style="font-weight:700;color:var(--goldl);font-size:13px;margin-bottom:3px;">✨ ${s.t}</div><div style="font-size:12px;color:var(--t2)">${s.d}</div></div>`).join('');
+  window._sg=suggs;
+}
+function clearAI(){G('ai-resp').innerHTML='<span style="color:var(--t3)">AI 분석 결과가 여기 표시됩니다.</span>';G('ai-suggs').style.display='none';G('ai-cmp-card').style.display='none';if(cmpChartObj){cmpChartObj.destroy();cmpChartObj=null;}}
+
+// ═══════════ RESET ═══════════
+function resetAll(){
+  if(!confirm('모든 데이터를 초기화하시겠습니까?'))return;
+  // 1. localStorage 먼저 완전 삭제 (복원 방지)
+  // 모든 버전 키 삭제
+  ['retireSim_v6','retireSim_v6r','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
+  // 2. 상태 완전 초기화
+  accounts=[];loans=[];insurances=[];dcHoldings=[];DCctr=0;
+  simY=[];simM=[];aiPlan=null;
+  try{[simChartObj,scChartObj,cmpChartObj].forEach(c=>{if(c)c.destroy();});}catch(e){}
+  simChartObj=scChartObj=cmpChartObj=null;
+  CTR={a:0,l:0,i:0,c:0};
+  // 3. 기본정보 탭으로 이동
+  ST('basic', document.querySelector('.tab'));
+  // 3. UI 리셋
+  const se=G('sim-empty');if(se){se.style.display='';se.className='al al-w';se.innerHTML='▶ 기본정보·계좌설정 입력 후 상단 <b>시뮬레이션</b> 버튼을 누르세요.';}
+  const sr=G('sim-res');if(sr)sr.style.display='none';
+  const sce=G('sc-empty');if(sce)sce.style.display='';
+  const scr=G('sc-res');if(scr)scr.style.display='none';
+  const ais=G('ai-suggs');if(ais)ais.style.display='none';
+  const aic=G('ai-cmp-card');if(aic)aic.style.display='none';
+  // 4. 폼 기본값 복원
+  Gv('curAge',47);Gv('birthDate','1978-02-25');Gv('retireAge',60);Gv('lifeExp',90);
+  Gv('salary',70000000);Gv('salGrowth',3);Gv('npBase',1200000);Gv('npAge',65);
+  Gv('mExp',2500000);Gv('rExp',2000000);Gv('inf',2.5);Gv('sw',4);Gv('target',0);
+  Gv('budget',1000000);Gv('workYrs',15);Gv('sevType','DC');
+  // 5. initDef로 기본 데이터 로드 (계좌 없이 시작)
+  initDef();
+  toast('🔄 초기화 완료');
+}
+
+// ═══════════ SAVE / LOAD ═══════════
+function getProfile(){
+  return{ver:6,
+    b:{birthDate:Gval('birthDate'),curAge:Gval('curAge'),retireAge:Gval('retireAge'),
+      lifeExp:Gval('lifeExp'),salary:Gval('salary'),salGrowth:Gval('salGrowth'),
+      retireOther:Gval('retireOther'),expOn:G('expOn')?.checked,
+      mExp:Gval('mExp'),rExp:Gval('rExp'),inf:Gval('inf'),sw:Gval('sw'),target:Gval('target'),
+      npBase:Gval('npBase'),npAge:Gval('npAge'),divGrowthRate:Gval('divGrowthRate'),
+      sevType:Gval('sevType'),workYrs:Gval('workYrs'),dbSal:Gval('dbSal'),
+      manSev:Gval('manSev'),sevTarget:Gval('sevTarget'),
+      taxBracket:Gval('taxBracket'),taxReinvest:G('taxReinvest')?.checked,
+      taxReinvestTgt:Gval('taxReinvestTgt'),budget:Gval('budget'),
+      aiProv:Gval('aiProv'),aiKey:G('aiKey')?.value||'',
+      scOpt:Gval('sc-opt'),scAvg:Gval('sc-avg'),scPes:Gval('sc-pes'),scDiv:Gval('sc-div'),
+      realEstate:Gval('realEstate'),healthInc:Gval('healthInc'),revTarget:Gval('rev-target'),
+      dcDirectBal:Gval('dc-direct-bal'),dcRROverride:Gval('dc-rr-override'),salaryDay:Gval('salaryDay'),hpOn:G('hpOn')?.checked,hpPrice:Gval('hpPrice'),hpStartAge:Gval('hpStartAge'),hpMode:Gval('hpMode')},
+    dcHoldings,accounts,loans,insurances};
+}
+function saveProfile(){
+  const p=getProfile();
+  try{localStorage.setItem('retireSim_v6r',JSON.stringify(p));}catch(e){}
+  try{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));
+    a.download=`은퇴시뮬레이터_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    toast('💾 저장 완료!');
+  }catch(e){toast('저장 오류: '+e.message);}
+}
+function loadFile(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{const p=JSON.parse(e.target.result);if(!p||p.ver!==6){alert('v6 형식이 아닙니다.');return;}applyProfile(p);toast('📂 불러오기 완료!');}
+    catch(err){alert('파일 오류: '+err.message);}
+  };
+  r.readAsText(f);G('fin').value='';
+}
+function applyProfile(p){
+  if(!p||p.ver!==6)return;
+  const b=p.b||{};
+  Object.entries(b).forEach(([k,v])=>{const el=G(k);if(!el)return;if(el.type==='checkbox')el.checked=!!v;else el.value=(v===null||v===undefined)?'':v;});
+  dcHoldings=(p.dcHoldings||[]).map(h=>({...h,pb:null}));
+  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
+  loans=p.loans||[];insurances=p.insurances||[];
+  // 퇴직IRP 없으면 자동 추가
+  if(!accounts.some(a=>a.type==='IRP_RETIRE')){
+    addAcctD('IRP_RETIRE',0,0,5,true);
+  }
+  renderDCTable();updateDCSummary();renderAccts();renderLoans();renderIns();
+  toggleSev();  // 저장된 sevType에 따라 DC카드 표시/숨김 복원
+  updateTax();updateBudBar();renderNP();onSalary();calcDB();calcTarget();
+  if(G('expOn'))G('exp-sec')?.classList.toggle('sec-off',!G('expOn').checked);
+}
+
+function ST(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  G(`tab-${id}`)?.classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(id==='accts'){updateTax();updateBudBar();}
+}
+</script>
+</body>
+</html>
