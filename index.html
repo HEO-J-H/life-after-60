@@ -368,7 +368,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
           <div class="frow">
             <label class="fl">현재 DC 잔액 (원)</label>
             <input class="fi mono" id="dc-direct-bal" type="number" value="0" placeholder="0"
-              oninput="G('ka-dc-bal').textContent=toKor(+this.value);calcDB()">
+              oninput="G('ka-dc-bal').textContent=toKor(+this.value);syncDCBalToIRP(+this.value);calcDB()">
             <div class="ka" id="ka-dc-bal">0원</div>
             <div class="hint">지금까지 쌓인 퇴직금 누적액</div>
           </div>
@@ -1370,6 +1370,13 @@ function calcDB(){
     const dbEl=G('dc-direct-bal');
     const kbEl=G('ka-dc-bal');
     if(dbEl&&kbEl)kbEl.textContent=toKor(parseFloat(dbEl.value)||0);
+    const irpAcctBal=(accounts.find(a=>a.type==='IRP_RETIRE'&&a.active)||{}).balance||0;
+    const directBal=parseFloat(Gval('dc-direct-bal'))||0;
+    // dc-direct-bal 자동 동기화: 비어 있으면 IRP 계좌 잔액으로 채움
+    if(!directBal&&irpAcctBal>0){
+      Gv('dc-direct-bal',irpAcctBal);
+      const kaDcBal=G('ka-dc-bal');if(kaDcBal)kaDcBal.textContent=toKor(irpAcctBal);
+    }
     const now=getDCTotal();
     const{proj,totalContrib,rr,yl,sal,sg}=calcDCProjection();
     const firstSal=sal;
@@ -1422,14 +1429,27 @@ function calcDB(){
 let dcHoldings=[];  // [{ticker,name,qty,avg,cp,cagr,divYield,pb}]
 let DCctr=0;
 
+function syncDCBalToIRP(val){
+  // dc-direct-bal 변경 시 퇴직IRP 계좌 balance도 동기화
+  const irp=accounts.find(a=>a.type==='IRP_RETIRE'&&a.active);
+  if(irp){
+    irp.balance=val;
+    const balEl=G('bal-'+irp.id);if(balEl)balEl.value=val;
+    const kaBal=G('ka-bal-'+irp.id);if(kaBal)kaBal.textContent=toKor(val);
+  }
+}
 function getDCTotal(){
   const fromHoldings=dcHoldings.reduce((s,h)=>{
     const cp=h.cp>0?h.cp:h.avg;
     return s+(cp>0&&h.qty>0?h.qty*cp:0);
   },0);
   if(fromHoldings>0) return fromHoldings;
-  // 종목 없으면 직접 입력 잔액 사용
-  return parseFloat(Gval('dc-direct-bal'))||0;
+  // 직접 입력 잔액
+  const direct=parseFloat(Gval('dc-direct-bal'))||0;
+  if(direct>0) return direct;
+  // 최후 fallback: 퇴직IRP 계좌 balance
+  const irpAcct=accounts.find(a=>a.type==='IRP_RETIRE'&&a.active);
+  return irpAcct?.balance||0;
 }
 function updateDCSummary(){
   const tot=getDCTotal();
@@ -2022,7 +2042,7 @@ function renderAccts(){
       <div class="abody" id="ab-${a.id}">
         <div class="g4" style="margin-bottom:10px;">
           <div class="frow"><label class="fl">현재 잔액(원)</label>
-            <input class="fi mono" id="bal-${a.id}" type="number" value="${Math.round(a.balance)}" oninput="AP('${a.id}','balance',+this.value);updateBudBar();G('ka-bal-${a.id}').textContent=toKor(+this.value)">
+            <input class="fi mono" id="bal-${a.id}" type="number" value="${Math.round(a.balance)}" oninput="AP('${a.id}','balance',+this.value);updateBudBar();G('ka-bal-${a.id}').textContent=toKor(+this.value);${a.type==='IRP_RETIRE'&&Gval('sevType')==='DC'?"const dbi=G('dc-direct-bal');if(dbi&&!parseFloat(dbi.value)){dbi.value=this.value;G('ka-dc-bal').textContent=toKor(+this.value);}":''}">
             <div class="ka" id="ka-bal-${a.id}">${toKor(a.balance)}</div></div>
           <div class="frow"><label class="fl">월 납입액(원)</label>
             ${isIRPR?`<div class="fi mono" style="background:var(--bg2);cursor:default;color:var(--t2);font-size:12px;">퇴직금 이전 전용</div>`:
@@ -2661,8 +2681,9 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
   active.forEach(a=>{
     // DC형 퇴직IRP: dc-direct-bal 또는 종목 평가금액을 초기 잔액으로 사용
     if(sevTypeForInit==='DC'&&a.type==='IRP_RETIRE'){
+      // DC형: 종목평가금액 > dc-direct-bal > 계좌balance 순으로 초기잔액 결정
       const dcBal=getDCTotal();
-      bal[a.id]=dcBal>0?dcBal:a.balance;
+      bal[a.id]=dcBal>0?dcBal:(a.balance||0);
     }else{
       bal[a.id]=a.balance;
     }
@@ -3249,7 +3270,7 @@ function renderTable(mode){
       const cf=r.totInc-r.totExp;
       const rc=r.age===retA?'ev-r':r.events.length?'ev-e':r.isRet?'retired':'';
       const notes=r.events.map(e=>`<span class="ev-tag${e.color?' '+e.color:''}">${e.label}</span>`).join(' ');
-      return `<tr class="${rc}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td>${active.map(a=>`<td class="dim">${ws(r.balances[a.id]||0)}</td>`).join('')}<td class="tcol">${ws(r.totalAssets)}</td><td class="${r.totInc>0?'pos':'dim'}">${ws(r.totInc)}</td><td class="neg">${ws(r.totExp)}</td><td class="divcol">${ws(r.divNet)}</td>${showDC?`<td style="color:var(--orange);font-family:monospace">${r.dcContrib>0?ws(r.dcContrib):'—'}</td>`:''}${showHP?`<td style="color:var(--purple);font-family:monospace">${(r.hpInc||0)>0?ws(r.hpInc/12)+'원/월':'—'}</td>`:''}<td class="${cf>=0?'pos':'neg'}">${ws(cf)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
+      return `<tr class="${rc}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td>${active.map(a=>`<td class="dim">${ws(r.balances[a.id]||0)}</td>`).join('')}<td class="tcol">${ws(r.totalAssets)}</td><td class="${r.totInc>0?'pos':'dim'}">${ws(r.totInc)}</td><td class="neg">${ws(r.totExp)}</td><td class="divcol">${ws(r.divNet)}</td>${showDC?`<td style="color:var(--orange);font-family:monospace" title="법정DC 연봉÷12 적립액">${r.dcContrib>0?ws(r.dcContrib):'—'}</td>`:''}${showHP?`<td style="color:var(--purple);font-family:monospace">${(r.hpInc||0)>0?ws(r.hpInc/12)+'원/월':'—'}</td>`:''}<td class="${cf>=0?'pos':'neg'}">${ws(cf)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
     }).join('');
   }else{
     const showDCm=Gval('sevType')==='DC';
@@ -3630,6 +3651,12 @@ function applyProfile(p){
   }
   renderDCTable();updateDCSummary();renderAccts();renderLoans();renderIns();
   toggleSev();  // 저장된 sevType에 따라 DC카드 표시/숨김 복원
+  // DC 잔액 한글 표시 갱신
+  setTimeout(()=>{
+    const dcBal=parseFloat(Gval('dc-direct-bal'))||0;
+    const kaDcBal=G('ka-dc-bal');if(kaDcBal)kaDcBal.textContent=toKor(dcBal);
+    calcDB();
+  },50);
   updateTax();updateBudBar();renderNP();onSalary();calcDB();calcTarget();
   if(G('expOn'))G('exp-sec')?.classList.toggle('sec-off',!G('expOn').checked);
 }
