@@ -942,6 +942,12 @@ function onSalaryDay(){
   window._simStartYear  = paidThisMonth ? todayYear  : (todayMonth===12?todayYear+1:todayYear);
 }
 function showISATransferBenefit(acctId, postEvent, bal){
+  const tgtRow=G('isa-tgt-row-'+acctId);
+  const keepH=G('isa-keep-hint-'+acctId);
+  const liqH=G('isa-liq-hint-'+acctId);
+  if(tgtRow)tgtRow.style.display=(postEvent==='transfer'||postEvent==='transfer300')?'':'none';
+  if(keepH)keepH.style.display=postEvent==='keep'?'':'none';
+  if(liqH)liqH.style.display=postEvent==='liquidate'?'':'none';
   const el=G('isa-benefit-'+acctId);
   if(!el)return;
   const isTransfer=postEvent==='transfer'||postEvent==='transfer300';
@@ -1783,7 +1789,16 @@ function renderAccts(){
           이전 금액의 10%를 세액공제 대상에 추가 산입 <b style="color:var(--goldl)">(최대 300만원)</b><br>
           예: 이전금액 3,000만원 → 추가 세액공제 <b style="color:var(--goldl)">300만원</b> (환급 약 ${wf(Math.round(Math.min((a.balance||0)*0.10,3000000)*(Gval('taxBracket')==='low'?0.165:0.132)))}원)
         </div></div>
-        <div class="frow"><label class="fl">이전 대상 계좌 <span style="font-size:10px;color:var(--teal)">(연금/IRP)</span></label><select class="fs" onchange="AP('${a.id}','isaTransferTarget',this.value)"><option value="">없음</option>${penIRPOpts}</select></div>
+        <div class="frow" id="isa-tgt-row-${a.id}" style="${(a.isaPostEvent==='transfer'||a.isaPostEvent==='transfer300')?'':'display:none'}">
+          <label class="fl">이전 대상 계좌 <span style="font-size:10px;color:var(--teal)">(연금/IRP)</span></label>
+          <select class="fs" onchange="AP('${a.id}','isaTransferTarget',this.value)"><option value="">없음</option>${penIRPOpts}</select>
+        </div>
+        <div id="isa-keep-hint-${a.id}" style="${a.isaPostEvent==='keep'?'':'display:none'}">
+          <div class="al al-i" style="font-size:11px;padding:5px;">♻ 만기 후 재납입 — 비과세 혜택 계속</div>
+        </div>
+        <div id="isa-liq-hint-${a.id}" style="${a.isaPostEvent==='liquidate'?'':'display:none'}">
+          <div class="al al-e" style="font-size:11px;padding:5px;">💸 해지 현금 — 비과세 한도 내 세금 없음</div>
+        </div>
         <div class="frow" style="${a.isaTransferTiming==='manual'?'':'display:none'}" id="isa-manual-age-${a.id}">
           <label class="fl">지정 나이</label>
           <input class="fi mono" type="number" value="${a.isaManualAge||60}" oninput="AP('${a.id}','isaManualAge',+this.value)">
@@ -1818,16 +1833,21 @@ function renderAccts(){
             <option value="liquidate"${a.irpOnRetire==='liquidate'?'selected':''}>해지 (기타소득세 16.5%)</option>
           </select>
         </div>
-        <div id="irp-toaccum-${a.id}" style="${a.irpOnRetire==='toAccum'?'':'display:none'}">
+     <div id="irp-toaccum-${a.id}" style="${a.irpOnRetire==='toAccum'?'':'display:none'}">
           <div class="g2">
-            <div class="frow"><label class="fl">이전 대상 <span style="color:var(--green);font-size:10px">연금저축만 가능</span></label>
-              <select class="fs" onchange="AP('${a.id}','irpAccumTarget',this.value)"><option value="">없음</option>${irpToOpts}</select>
-            </div>
-            <div class="frow"><label class="fl">이전 나이</label>
-              <select class="fs" onchange="AP('${a.id}','irpTransferAge',+this.value)">
-                ${[55,57,60,62,65,67,70].map(age=>`<option value="${age}" ${(a.irpTransferAge||55)===age?'selected':''}>${age}세</option>`).join('')}
+            <div class="frow">
+              <label class="fl">이전 대상 <span style="color:var(--green);font-size:10px">연금저축만 가능</span></label>
+              <select class="fs" onchange="AP('${a.id}','irpAccumTarget',this.value)">
+                <option value="">없음</option>
+                ${accounts.filter(x=>(AMETA[x.type]||{}).cat==='PENSION'&&x.id!==a.id).map(x=>`<option value="${x.id}" ${x.id===a.irpAccumTarget?'selected':''}>${x.label}</option>`).join('')}
               </select>
-              <div class="hint">이 나이가 되면 연금저축으로 이전 실행</div>
+              <div class="hint">연금저축펀드·보험만 이전 가능</div>
+            </div>
+            <div class="frow">
+              <label class="fl">이전 나이 (세, 직접입력)</label>
+              <input class="fi mono" type="number" value="${a.irpTransferAge||55}" min="55" max="80"
+                placeholder="55~80" oninput="AP('${a.id}','irpTransferAge',+this.value)">
+              <div class="hint">최소 55세 이상 · 이 나이가 되면 이전 실행</div>
             </div>
           </div>
         </div>
@@ -2396,7 +2416,8 @@ function updateIRPActionUI(acctId, action){
   const liquidateEl=G('irp-liquidate-'+acctId);
   if(toaccumEl)toaccumEl.style.display=action==='toAccum'?'':'none';
   if(liquidateEl)liquidateEl.style.display=action==='liquidate'?'':'none';
-  renderAccts(); // 연금수령 계획 섹션 show/hide
+  const ppEl=G('pension-plan-'+acctId);
+  if(ppEl)ppEl.style.display=(action==='toAccum'||action==='liquidate')?'none':'';
 }
 function checkPensionAge(acctId, age){
   const el=G('pension-age-hint-'+acctId);if(!el)return;
@@ -2927,11 +2948,17 @@ function renderSimRes(tgt,retA){
   const totalDivShow=Math.max(totalDivAtRetire,retireDivSlots);
   
   G('sim-stats').innerHTML=`
-    <div class="sc"><div class="sl">은퇴 시 총자산</div><div class="sv ${isOK?'pos':''}">${ws(rA)}</div><div class="ss">${toKor(rA)}</div></div>
+    <div class="sc"><div class="sl">은퇴 시 총자산</div><div class="sv ${isOK?'pos':''}">${ws(rA)}</div><div class="ss">${retA}세 기준 · ${toKor(rA)}</div></div>
     <div class="sc"><div class="sl">목표달성률</div><div class="sv ${isOK?'pos':'neg'}">${pct}%</div><div class="ss">목표 ${toKor(safeTgt)}</div></div>
-    <div class="sc"><div class="sl">월 인출가능</div><div class="sv">${ws(Math.round(rA*sw/12))}</div><div class="ss">인출률 ${(sw*100).toFixed(1)}%</div></div>
-    <div class="sc" style="border-color:rgba(43,191,176,.3)"><div class="sl" style="color:var(--teal)">은퇴 시 연배당(세후)</div><div class="sv" style="color:var(--teal)">${totalDivShow>0?wf(totalDivShow)+'원':'미설정'}</div><div class="ss">${totalDivShow>0?'월 '+wf(Math.round(totalDivShow/12))+'원 · '+(totalDivShow>15000000?'⚠종합과세주의':'비과세/분리과세'):'계좌 보유종목 또는 배당 설정 필요'}</div></div>
-    <div class="sc"><div class="sl">기대수명 잔여</div><div class="sv ${last.totalAssets>0?'pos':'neg'}">${ws(last.totalAssets)}</div><div class="ss">${last.age}세</div></div>
+    <div class="sc"><div class="sl">월 인출가능</div><div class="sv">${ws(Math.round(rA*sw/12))}</div><div class="ss">${retA}세~ · 인출률 ${(sw*100).toFixed(1)}%</div></div>
+    <div class="sc" style="border-color:rgba(43,191,176,.3)"><div class="sl" style="color:var(--teal)">연배당 세후</div><div class="sv" style="color:var(--teal)">${totalDivShow>0?wf(totalDivShow)+'원':'미설정'}</div><div class="ss">${totalDivShow>0?retA+'세~ · 월 '+wf(Math.round(totalDivShow/12))+'원':'배당 설정 필요'}</div></div>
+    <div class="sc" style="border-color:${(()=>{for(const r of simY){if(r.isRet&&r.totalAssets<=0)return 'rgba(224,85,85,.3)';}return 'rgba(45,190,116,.3)'})()}">
+      <div class="sl">${(()=>{for(const r of simY){if(r.isRet&&r.totalAssets<=0)return '⚠ 자산 고갈';} return '✅ 자산 유지'})()}</div>
+      <div class="sv" style="color:${(()=>{for(const r of simY){if(r.isRet&&r.totalAssets<=0)return 'var(--red)';}return 'var(--green)'})()}">
+        ${(()=>{for(const r of simY){if(r.isRet&&r.totalAssets<=0)return r.age+'세';}return (parseInt(Gval('lifeExp'))||90)+'세까지'})()}
+      </div>
+      <div class="ss">${(()=>{const dep=simY.find(r=>r.isRet&&r.totalAssets<=0);return dep?`기대수명 ${(parseInt(Gval('lifeExp'))||90)-dep.age}년 부족`:'기대수명까지 유지';})()}</div>
+    </div>
     <div class="sc"><div class="sl">퇴직금</div><div class="sv">${ws(getSev())}</div><div class="ss">${Gval('sevType')}형</div></div>
     ${(G('hpOn')?.checked&&window._hpMonthly>0)?`<div class="sc"><div class="sl" style="color:var(--purple)">주택연금</div><div class="sv" style="color:var(--purple)">${wf(window._hpMonthly)}원/월</div><div class="ss">${window._hpStartAge}세 개시</div></div>`:''}`;
   
