@@ -11,7 +11,8 @@
 :root{--bg:#05080f;--bg2:#090e18;--bgc:#0c1220;--bgh:#111828;--gold:#c9a84c;--goldl:#e8c96a;--goldd:#7a5c18;--t1:#dde4f0;--t2:#7a8fa8;--t3:#3a5070;--bd:#162236;--bdl:#1e3050;--green:#2dbe74;--red:#e05555;--blue:#3b8fe8;--orange:#e8873b;--purple:#9b6fe0;--teal:#2bbfb0;--ibg:#060a12;--ibd:#1a2e48;--ifocus:#2a4060;}
 *{margin:0;padding:0;box-sizing:border-box;}html{font-size:15px;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.55;}
-::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bdl);border-radius:3px;}
+::-webkit-scrollbar{width:5px;height:5px;}
+.etf-ac-item:hover{background:var(--bgh);}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bdl);border-radius:3px;}
 .hdr{background:linear-gradient(135deg,#0a1522,#0f1e35,#0a1522);border-bottom:1px solid var(--goldd);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:300;box-shadow:0 2px 20px #000a;flex-wrap:wrap;}
 .hdr-logo{font-size:18px;font-weight:800;color:var(--goldl);}
 .hdr-sub{color:var(--t2);font-size:11px;}
@@ -440,28 +441,29 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
       <div class="hint" id="tax-hint" style="flex-basis:100%"></div>
     </div>
   </div>
-  <!-- 자동배분 카드 -->
   <div class="card" style="border-color:rgba(155,111,224,.3);">
-    <div class="ctitle">🎯 절세 최적 자동배분 <span class="badge" style="background:rgba(155,111,224,.2);color:var(--purple)">추천</span></div>
-    <div class="al al-i" style="font-size:12px;margin-bottom:10px;">
-      💡 <b>세금을 가장 효율적으로 줄이는 납입 비율</b>: ISA 25% → 연금저축 50% → 적립IRP 25%<br>
-      이 순서대로 채우면 <b>비과세 + 세액공제 + 추가공제</b> 혜택을 모두 받을 수 있습니다.
+    <div class="ctitle">🎯 절세 최적 자동배분 <span class="badge" style="background:rgba(155,111,224,.2);color:var(--purple)">추천</span>
+      <div class="ctr"><span style="font-size:11px;color:var(--t2)">계좌 없어도 자동생성</span></div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;">
+    <div class="al al-i" style="font-size:12px;margin-bottom:10px;">
+      💡 <b>절세 최적 비율</b>: ISA 25% → 연금저축 50% → 적립IRP 25%<br>
+      버튼 한 번으로 <b>계좌 자동생성 + 월납입액 배분</b>까지 완료됩니다.
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
       <div>
         <label class="fl">월 투자 예산 (원)</label>
-        <input class="fi mono" id="auto-budget" type="number" value="1000000" placeholder="1,000,000" oninput="previewAutoBudget()">
+        <input class="fi mono" id="auto-budget" type="number" value="1000000" oninput="previewAutoBudget()">
+        <div class="ka" id="ka-auto-budget"></div>
       </div>
       <div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;">
-        <button class="btn btn-purple btn-sm" onclick="applyAutoBudget()">✨ 자동 배분 적용</button>
+        <button class="btn btn-purple" onclick="applyAutoBudgetCreate()">✨ 자동 배분 + 계좌 생성</button>
         <button class="btn btn-sec btn-sm" onclick="previewAutoBudget()">👁 미리보기</button>
       </div>
     </div>
     <div id="auto-budget-preview" style="display:none;background:var(--bg2);border-radius:6px;padding:10px;font-size:12px;"></div>
   </div>
-  <div class="al al-i" style="font-size:12px;">
-    💡 <b>절세 계좌 납입 우선순위</b>: ① ISA(비과세 200만) → ② 연금저축(세액공제 600만) → ③ IRP(추가공제 300만)<br>
-    계좌 추가 후 월납입액을 입력하세요. 보유종목 평가금액은 현재잔액에 자동반영됩니다.
+  <div class="al al-i" style="font-size:12px;margin-bottom:8px;">
+    💡 직접 추가: ① ISA(비과세) → ② 연금저축(세액공제) → ③ IRP(추가공제) 순으로 채우는 게 유리합니다.
   </div>
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
     <select class="fs" id="newAcct" style="max-width:300px;">
@@ -684,6 +686,11 @@ let viewMode='year',CTR={a:0,l:0,i:0,c:0};
 let aiPlan=null;
 
 // ═══════════ INIT ═══════════
+document.addEventListener('click',e=>{
+  document.querySelectorAll('[id^="hqlist-"]').forEach(el=>{
+    if(!el.contains(e.target)&&!e.target.id?.startsWith('hq-slot-'))el.style.display='none';
+  });
+});
 window.onload=()=>{
   // 구버전 키 정리
   ['retireSim_v6','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
@@ -1010,6 +1017,7 @@ function calcHP(){
 function toggleExp(on){const sec=G('exp-sec');if(sec)sec.classList.toggle('sec-off',!on);}
 function previewAutoBudget(){
   const budget=parseFloat(Gval('auto-budget'))||1000000;
+  const kaEl=G('ka-auto-budget');if(kaEl)kaEl.textContent=toKor(budget);
   const ra=parseInt(Gval('retireAge'))||60;
   const ca=parseInt(Gval('curAge'))||47;
   const yl=Math.max(0,ra-ca);
@@ -1069,6 +1077,32 @@ function previewAutoBudget(){
       💰 연간 세액공제 환급 예상: <b style="color:var(--goldl)">${wf(taxSave)}원</b>
       (연금저축 ${wf(Math.round(Math.min(budget*0.5*12,6000000)*rate))}원 + IRP ${wf(Math.round(Math.min(budget*0.25*12,3000000)*rate))}원)
     </div>`;
+}
+function applyAutoBudgetCreate(){
+  const budget=parseFloat(Gval('auto-budget'))||1000000;
+  const sal=parseFloat(Gval('salary'))||70000000;
+  const rate=sal>55000000?0.132:0.165;
+  // 연금 월한도 150만원 (연 1800만)
+  const pensionMoMax=1500000;
+  const isaMo = Math.round(budget*0.25);
+  const penMo  = Math.round(Math.min(budget*0.50, pensionMoMax*2/3));
+  const irpMo  = Math.round(Math.min(budget*0.25, pensionMoMax/3));
+
+  // 없는 계좌 유형만 생성
+  const needed=[
+    {type:'ISA_BRK', mo:isaMo, bal:0, rr:7,   label:'ISA(중개형)'},
+    {type:'PENSION_FUND', mo:penMo, bal:0, rr:7.5, label:'연금저축펀드'},
+    {type:'IRP_ACCUM', mo:irpMo, bal:0, rr:7, label:'적립IRP'},
+  ];
+  let created=0,updated=0;
+  needed.forEach(({type,mo,bal,rr})=>{
+    const existing=accounts.find(a=>a.type===type&&a.active);
+    if(existing){existing.monthlyContrib=mo;updated++;}
+    else{addAcctD(type,bal,mo,rr,true);created++;}
+  });
+  renderAccts();updateBudBar();updateTax();
+  previewAutoBudget();
+  toast(`✅ 생성 ${created}개 · 갱신 ${updated}개 완료!`);
 }
 function applyAutoBudget(){
   const budget=parseFloat(Gval('auto-budget'))||1000000;
@@ -1665,6 +1699,10 @@ function addAcctD(type,bal,mo,rr,active){
     // 연금수령 옵션
     pensionStartAge:55,pensionYears:10,pensionMode:'equal', // 연금수령시작나이/기간/방식
     // 월배당 설정 슬롯 (2개)
+    investSlots:[
+      {mode:'holdings',startAge:0,endAge:0},
+      {mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'},
+    ],
     divSlots:[
       {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},
       {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}
@@ -1791,9 +1829,9 @@ function renderAccts(){
       <div class="frow"><label class="fl">연간납입한도(0=무제한)</label><input class="fi mono" type="number" value="${a.cAnnualLimit||0}" oninput="AP('${a.id}','cAnnualLimit',+this.value)"></div>
     </div>`;
 
-    // ── 월배당 ETF 설정 (ISA/주식/연금계좌) ──
-    const showDivSetting=['ISA','STOCK','PENSION','IRP','IRP_RET'].includes(m.cat);
-    if(showDivSetting){
+    // ── 투자 슬롯 (div+holdings 통합) - renderInvestSlots에서 처리 ──
+    const showDivSetting=false; // 통합됨
+    if(false){
       // 예상 총자산 계산
       const _projBal=getAcctProjectedBal(a);
       // 슬롯별 렌더 함수
@@ -1922,17 +1960,10 @@ function renderAccts(){
         ${ACCT_INFO[a.type]?`<div class="al al-i" style="font-size:11px;margin-bottom:8px;padding:7px 10px;">${ACCT_INFO[a.type]}</div>`:''}
         ${extra}
         <hr class="d">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
-          <div style="font-size:13px;font-weight:600;color:var(--t2);">📌 보유종목</div>
-          <div style="display:flex;gap:5px;align-items:center;">
-            <label style="font-size:12px;color:var(--t2);display:flex;align-items:center;gap:4px;"><input type="checkbox" ${a.useCommonH?'checked':''} onchange="AP('${a.id}','useCommonH',this.checked);refreshHoldingsEl('${a.id}')">공통종목</label>
-            ${!a.useCommonH?`
-              <input id="hqcode-${a.id}" class="fi" placeholder="종목코드/명" style="width:120px;padding:3px 7px;font-size:12px;">
-              <button class="btn btn-blue btn-xs" onclick="quickAddH('${a.id}')">＋ 조회추가</button>
-            `:''}
-          </div>
+        <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px;">📊 투자 슬롯 설정
+          <span style="font-size:11px;font-weight:400;color:var(--t3)">(보유종목 또는 배당설정 선택)</span>
         </div>
-        <div id="hl-${a.id}">${a.useCommonH?`<div class="al al-i" style="font-size:12px;">공통종목 사용 중</div>`:renderHoldings(a)}</div>
+        ${renderInvestSlots(a)}
       </div>`;
     list.appendChild(div);
   }catch(err){
@@ -2068,6 +2099,171 @@ function refH(id){
   const el=G(`hl-${id}`);if(el)el.innerHTML=renderHoldings(a);
   syncHoldingsToBalance(id);
 }
+// ─── ETF 검색 캐시 ───
+const ETF_CACHE=[];
+const ETF_NAVER_LOADED={done:false};
+
+async function loadNaverETF(){
+  if(ETF_NAVER_LOADED.done)return;
+  try{
+    const url='https://finance.naver.com/api/sise/etfItemList.nhn';
+    const resp=await fetchFromProxy(url);
+    if(resp&&resp.result&&resp.result.etfItemList){
+      resp.result.etfItemList.forEach(e=>{
+        ETF_CACHE.push({code:e.itemcode,name:e.itemname,price:e.nowVal,change:e.changeVal,changePct:e.changeRate});
+      });
+      ETF_NAVER_LOADED.done=true;
+    }
+  }catch(e){
+    // fallback: TMAP 정적 목록
+    Object.entries(TMAP).forEach(([code,name])=>ETF_CACHE.push({code,name,price:0,change:0,changePct:0}));
+    ETF_NAVER_LOADED.done=true;
+  }
+}
+
+function etfAutocomplete(inputId, listId){
+  const inp=G(inputId);const list=G(listId);if(!inp||!list)return;
+  const q=inp.value.toLowerCase().trim();
+  if(!q){list.style.display='none';return;}
+  // Load ETF list if not loaded
+  if(!ETF_NAVER_LOADED.done) loadNaverETF();
+  // Filter from TMAP (immediate) + ETF_CACHE (async)
+  const staticMatches=Object.entries(TMAP)
+    .filter(([code,name])=>name.toLowerCase().includes(q)||code.includes(q))
+    .map(([code,name])=>({code,name,price:0,live:false}));
+  const cacheMatches=ETF_CACHE
+    .filter(e=>e.name.toLowerCase().includes(q)||e.code.includes(q))
+    .map(e=>({code:e.code,name:e.name,price:e.price,change:e.changePct,live:true}));
+  const all=[...staticMatches,...cacheMatches.filter(c=>!staticMatches.find(s=>s.code===c.code))].slice(0,8);
+  if(!all.length){list.style.display='none';return;}
+  list.innerHTML=all.map(e=>`<div class="etf-ac-item" onclick="selectETF('${inputId}','${listId}','${e.code}','${e.name.replace(/'/g,"\'")}')"
+    style="padding:5px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--bd);">
+    <span style="font-family:monospace;color:var(--teal);margin-right:6px;">${e.code}</span>
+    <b>${e.name}</b>
+    ${e.price>0?`<span style="color:var(--t3);margin-left:6px;">${wf(e.price)}원 <span style="${e.change>=0?'color:var(--green)':'color:var(--red)'}">${e.change>=0?'+':''}${e.change}%</span></span>`:''}
+  </div>`).join('');
+  list.style.display='';
+  list.style.cssText='display:block;position:absolute;z-index:999;background:var(--bgc);border:1px solid var(--bdl);border-radius:6px;min-width:300px;box-shadow:0 4px 20px #0006;max-height:280px;overflow-y:auto;';
+}
+
+function selectETF(inputId, listId, code, name){
+  const inp=G(inputId);if(inp){inp.value=name;inp.dataset.code=code;}
+  const list=G(listId);if(list)list.style.display='none';
+}
+
+function renderInvestSlots(a){
+  const projBal=getAcctProjectedBal(a);
+  const cat=(AMETA[a.type]||{}).cat;
+  const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(cat);
+  const slots=a.investSlots||[
+    {mode:'holdings',startAge:0,endAge:0},
+    {mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'},
+  ];
+
+  function renderSlot(si){
+    const sl=slots[si]||{mode:'holdings',startAge:0,endAge:0};
+    const isDiv=sl.mode==='div';
+    const divBal=isDiv?Math.round(projBal*(sl.allocPct||0)/100):0;
+    const annRate=isDiv?((sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0)):0;
+    const monthlyDiv=divBal>0&&annRate>0?Math.round(divBal*annRate/100/12):0;
+    const afterTax=isTaxFree?monthlyDiv:Math.round(monthlyDiv*0.846);
+    const hqId=`hq-slot-${a.id}-${si}`, hqListId=`hqlist-${a.id}-${si}`;
+    return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:6px;padding:10px;margin-bottom:8px;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:700;color:var(--t2)">슬롯 ${si+1}</span>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <span style="font-size:11px;color:var(--t3)">운용나이:</span>
+          <input class="fi mono" type="number" value="${sl.startAge||0}" placeholder="시작" style="width:55px;padding:3px 6px;font-size:12px;"
+            oninput="APInvest('${a.id}',${si},'startAge',+this.value)">
+          <span style="color:var(--t3)">~</span>
+          <input class="fi mono" type="number" value="${sl.endAge||0}" placeholder="종료" style="width:55px;padding:3px 6px;font-size:12px;"
+            oninput="APInvest('${a.id}',${si},'endAge',+this.value)">
+          <span style="font-size:11px;color:var(--t3)">세 (0=제한없음)</span>
+        </div>
+        <select class="fi" style="max-width:120px;padding:3px 7px;font-size:12px;" onchange="APInvest('${a.id}',${si},'mode',this.value);renderAccts()">
+          <option value="holdings" ${sl.mode!=='div'?'selected':''}>📈 보유종목</option>
+          <option value="div"      ${sl.mode==='div'?'selected':''}>💰 배당설정</option>
+        </select>
+      </div>
+      ${isDiv?`
+        <div class="g3" style="font-size:12px;">
+          <div class="frow"><label class="fl">배당 비중(%)</label>
+            <input class="fi mono" type="number" value="${sl.allocPct||0}" min="0" max="100" step="5" style="max-width:80px;"
+              oninput="APInvest('${a.id}',${si},'allocPct',+this.value);calcDivPreview('${a.id}')">
+            <div class="ka" style="color:var(--goldl);font-size:11px;">${divBal>0?wf(divBal)+'원':''}</div>
+          </div>
+          <div class="frow"><label class="fl">배당률</label>
+            <div style="display:flex;gap:4px;">
+              <input class="fi mono" type="number" value="${sl.rate||0}" step="0.1" style="width:65px;"
+                oninput="APInvest('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
+              <select class="fi" style="max-width:60px;" onchange="APInvest('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
+                <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>연%</option>
+                <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>월%</option>
+              </select>
+            </div>
+          </div>
+          <div class="frow"><label class="fl">배당주기</label>
+            <select class="fi" style="max-width:100px;" onchange="APInvest('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
+              <option value="monthly" ${(sl.freq||'monthly')==='monthly'?'selected':''}>월배당</option>
+              <option value="quarterly" ${sl.freq==='quarterly'?'selected':''}>분기배당</option>
+              <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
+              <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
+            </select>
+            <div class="ka" style="color:var(--teal);font-size:11px;">${afterTax>0?wf(afterTax)+'원/월':''}</div>
+          </div>
+        </div>
+      `:`
+        <div style="position:relative;">
+          <div style="display:flex;gap:5px;align-items:center;margin-bottom:6px;">
+            <input id="${hqId}" class="fi" placeholder="종목명 검색 (예: 나스닥, S&P500)" style="flex:1;padding:4px 9px;font-size:12px;"
+              oninput="etfAutocomplete('${hqId}','${hqListId}')" autocomplete="off">
+            <button class="btn btn-blue btn-xs" onclick="quickAddHFromInput('${a.id}','${hqId}')">＋ 추가</button>
+            <button class="btn btn-sec btn-xs" onclick="quickAddH('${a.id}')">📡조회추가</button>
+          </div>
+          <div id="${hqListId}" style="display:none;"></div>
+        </div>
+        <div id="hl-${a.id}-${si}">${renderHoldings(a,si)}</div>
+      `}
+    </div>`;
+  }
+  const totalDiv=isTaxFree?calcSlotsDivPreview(a,projBal):Math.round(calcSlotsDivPreview(a,projBal)*0.846);
+  return `<div style="font-size:11px;color:var(--t2);margin-bottom:6px;">📊 은퇴 예상 총자산: <b style="color:var(--goldl)">${wf(projBal)}원</b>${totalDiv>0?` · 월배당(합산): <b style="color:var(--teal)">${wf(totalDiv)}원/월</b>`:''}</div>`+
+    renderSlot(0)+renderSlot(1)+
+    `<div id="div-preview-${a.id}" style="margin-top:6px;font-size:12px;display:none;"></div>`;
+}
+
+function calcSlotsDivPreview(a, projBal){
+  if(!a.investSlots)return 0;
+  return a.investSlots.filter(sl=>sl.mode==='div'&&sl.allocPct&&sl.rate).reduce((sum,sl)=>{
+    const divBal=Math.round(projBal*sl.allocPct/100);
+    const annRate=(sl.rateMode||'annual')==='monthly'?sl.rate*12:sl.rate;
+    return sum+Math.round(divBal*annRate/100/12);
+  },0);
+}
+
+function APInvest(acctId,si,field,val){
+  const a=accounts.find(x=>x.id===acctId);if(!a)return;
+  if(!a.investSlots)a.investSlots=[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}];
+  if(!a.investSlots[si])a.investSlots[si]={mode:'holdings',startAge:0,endAge:0};
+  a.investSlots[si][field]=val;
+  // divSlots 동기화 (backward compat)
+  a.divSlots=a.investSlots.filter(s=>s.mode==='div').map(s=>({allocPct:s.allocPct||0,rate:s.rate||0,rateMode:s.rateMode||'annual',freq:s.freq||'monthly',startAge:s.startAge||0,endAge:s.endAge||0}));
+}
+
+function quickAddHFromInput(acctId, inputId){
+  const inp=G(inputId);if(!inp)return;
+  const code=inp.dataset.code||(NMAP[inp.value.trim()]||inp.value.trim());
+  const name=TMAP[code]||inp.value.trim();
+  // Use existing quickAddH but with specific ticker
+  const orig=G('hqcode-'+acctId);
+  if(orig){orig.value=code;quickAddH(acctId);}
+  else{
+    const a=accounts.find(x=>x.id===acctId);if(!a)return;
+    addH(acctId,code,name);
+    if(inp)inp.value='';
+  }
+}
+
 function APSlot(acctId,slotIdx,field,val){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   if(!a.divSlots)a.divSlots=[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}];
@@ -3161,7 +3357,7 @@ function applyProfile(p){
   const b=p.b||{};
   Object.entries(b).forEach(([k,v])=>{const el=G(k);if(!el)return;if(el.type==='checkbox')el.checked=!!v;else el.value=(v===null||v===undefined)?'':v;});
   dcHoldings=(p.dcHoldings||[]).map(h=>({...h,pb:null}));
-  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpTransferAge:a.irpTransferAge||55,divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
+  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpTransferAge:a.irpTransferAge||55,investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
   loans=p.loans||[];insurances=p.insurances||[];
   // 퇴직IRP 없으면 자동 추가
   if(!accounts.some(a=>a.type==='IRP_RETIRE')){
