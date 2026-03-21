@@ -732,7 +732,7 @@ document.addEventListener('click',e=>{
 });
 window.onload=()=>{
   // 구버전 키 정리
-  ['retireSim_v6','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
+  ['retireSim_v6r','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
   const s=localStorage.getItem('retireSim_v6r');
   if(s){
     try{
@@ -900,15 +900,11 @@ function onSalary(){
   const dcHint = G('dc-auto-contrib');
   if(dcHint) dcHint.innerHTML = `연봉÷12 = <b style="color:var(--goldl)">${wf(monthSal)}원/월</b>이 매년 자동 적립됩니다 (연봉상승률 반영)`;
   // dc-extra-monthly 자동 기입 (readonly)
-  const dcInp2 = G('dc-extra-monthly');
-  if(dcInp2){ dcInp2.value = wf(monthSal)+'원'; }
-  const dcKa2 = G('ka-dc-extra');
-  if(dcKa2){ dcKa2.textContent = toKor(monthSal); }
   // dc-extra-monthly 자동 기입
-  const dcInp = G('dc-extra-monthly');
-  if(dcInp){ dcInp.value = wf(monthSal)+'원'; }
-  const dcKa = G('ka-dc-extra');
-  if(dcKa){ dcKa.textContent = toKor(monthSal); }
+  const dcInpX = G('dc-extra-monthly');
+  if(dcInpX){ dcInpX.value = wf(monthSal)+'원'; }
+  const dcKaX = G('ka-dc-extra');
+  if(dcKaX){ dcKaX.textContent = toKor(monthSal); }
 
   // 세액공제 구간 자동 설정 (연봉 기준)
   const bracket = sal > 55000000 ? 'high' : 'low';
@@ -1859,7 +1855,7 @@ function renderAccts(){
     // 연금수령 계획: toAccum이면 '이전' 설명, keep이면 '수령 계획'
     const showPensionPlan=(isPension||isIRP||isIRPR)&&(a.irpOnRetire!=='toAccum'&&a.irpOnRetire!=='liquidate');
     if(showPensionPlan)extra+=`<hr class="d">
-      <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px;">🎯 연금수령 계획 <span style="font-weight:400;color:var(--t2);font-size:11px">(55세 & 5년 이상 가입 조건)</span></div>
+      <div id="pension-plan-${a.id}" style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px;">🎯 연금수령 계획 <span style="font-weight:400;color:var(--t2);font-size:11px">(55세 & 5년 이상 가입 조건)</span></div>
       <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
         📌 사적연금 수령 조건: <b>만 55세 이상</b> & <b>가입기간 5년 이상</b><br>
         💰 연금소득세: 70세 미만 5.5% · 70~80세 4.4% · 80세+ 3.3% (분리과세)<br>
@@ -2451,6 +2447,7 @@ function getAcctProjectedBal(a){
 function calcDivPreview(acctId){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   const el=G('div-preview-'+acctId);if(!el)return;
+  if(!a.divSlots||!a.divSlots.length){const el=G('div-preview-'+acctId);if(el){el.style.display='none';el.innerHTML='';}return;}
   const projBal=getAcctProjectedBal(a);
   const totalEl=G('divtotal-'+acctId);if(totalEl)totalEl.textContent=wf(projBal)+'원';
   const cat=(AMETA[a.type]||{}).cat;
@@ -3042,13 +3039,15 @@ function renderSimGuide(retireAssets, retA, annDiv, rRow, lastRow){
   // 분석 항목들
   const issues=[], goods=[];
 
+  // simY는 전역변수 사용
+  const simYRef=typeof simY!=='undefined'?simY:[];
   // 1. 목표 달성 여부
   const tgt=Math.round(rExp/sw)||300000000;
   if(retireAssets>=tgt) goods.push('✅ 은퇴 목표 자산 달성');
   else issues.push(`⚠ 목표 자산 ${toKor(tgt-retireAssets)} 부족 → 월납입 늘리거나 은퇴 늦추기 검토`);
 
   // 2. 자산 고갈 여부
-  const depRow=simY.find(r=>r.isRet&&r.totalAssets<=0);
+  const depRow=simYRef.find(r=>r.isRet&&r.totalAssets<=0);
   if(depRow) issues.push(`🔴 ${depRow.age}세에 자산 고갈 예상 → 지출 줄이기 또는 연금 늘리기 필요`);
   else goods.push(`✅ ${lifeExpN}세까지 자산 유지`);
 
@@ -3064,7 +3063,7 @@ function renderSimGuide(retireAssets, retA, annDiv, rRow, lastRow){
   else issues.push('💡 배당 ETF 설정으로 은퇴 후 고정 현금흐름 만들기 가능');
 
   // 5. 국민연금
-  const npOn=simY.some(r=>r.npInc>0);
+  const npOn=simYRef.some(r=>r.npInc>0);
   if(npOn) goods.push('✅ 국민연금 수령 반영됨');
 
   // 6. 안전인출률
@@ -3554,7 +3553,7 @@ function resetAll(){
   if(!confirm('모든 데이터를 초기화하시겠습니까?'))return;
   // 1. localStorage 먼저 완전 삭제 (복원 방지)
   // 모든 버전 키 삭제
-  ['retireSim_v6','retireSim_v6r','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
+  ['retireSim_v6r','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
   // 2. 상태 완전 초기화
   accounts=[];loans=[];insurances=[];dcHoldings=[];DCctr=0;
   simY=[];simM=[];aiPlan=null;
