@@ -1774,7 +1774,7 @@ function addAcctD(type,bal,mo,rr,active){
   if(type==='IRP_RETIRE')mo=0; // 퇴직IRP: 월납입 없음 (퇴직금 이전 전용)
   accounts.push({id,type,active,label:(m.label||type)+labelSuffix,color:m.color,balance:+(bal||0),monthlyContrib:+(mo||0),returnRate:+(rr||7),
     isaElapsed:0,isaTransferTiming:'maturity',isaPostEvent:'transfer',isaTransferTarget:'',isaManualAge:60,
-    irpOnRetire:'keep',irpAccumTarget:'',irpTransferAge:55,
+    irpOnRetire:'keep',irpAccumTarget:'',irpTransferAge:60,
     // 연금수령 옵션
     pensionStartAge:55,pensionYears:10,pensionMode:'equal', // 연금수령시작나이/기간/방식
     // 월배당 설정 슬롯 (2개)
@@ -1803,43 +1803,54 @@ function renderAccts(){
 
     let extra='';
     if(isISA)extra=`<hr class="d">
-      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:7px;">🔄 ISA 이전·해지</div>
+      <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:7px;">🔄 ISA 만기·해지 설정</div>
+      <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
+        💡 1인 1계좌 · 연 2천만원 한도 · 비과세 ${wf((m.taxFree||2000000)/10000)}만원 혜택<br>
+        만기 후 연금계좌로 이전 시 <b>추가 세액공제 최대 300만원</b> 혜택!
+      </div>
       <div class="g3">
-        <div class="frow"><label class="fl">경과 년수</label><input class="fi mono" type="number" value="${a.isaElapsed||0}" oninput="AP('${a.id}','isaElapsed',+this.value)"></div>
-        <div class="frow"><label class="fl">이전 타이밍</label><select class="fs" onchange="AP('${a.id}','isaTransferTiming',this.value);G('isa-manual-age-'+('${a.id}')).style.display=this.value==='manual'?'':'none'">
-          <option value="maturity" ${a.isaTransferTiming==='maturity'?'selected':''}>3년 만기</option>
-          <option value="retire" ${a.isaTransferTiming==='retire'?'selected':''}>은퇴시점</option>
-          <option value="age65" ${a.isaTransferTiming==='age65'?'selected':''}>65세</option>
-          <option value="manual" ${a.isaTransferTiming==='manual'?'selected':''}>지정나이</option>
-          <option value="never" ${a.isaTransferTiming==='never'?'selected':''}>이전 안 함</option>
-        </select></div>
-        <div class="frow"><label class="fl">이전 후 처리</label><select class="fs" id="isa-post-${a.id}" onchange="AP('${a.id}','isaPostEvent',this.value);showISATransferBenefit('${a.id}',this.value,${a.balance||0})">
-          <option value="transfer" ${a.isaPostEvent==='transfer'?'selected':''}>연금계좌 전액 이전</option>
-          <option value="transfer300" ${a.isaPostEvent==='transfer300'?'selected':''}>연금계좌 3천만원 이전</option>
-          <option value="keep" ${a.isaPostEvent==='keep'?'selected':''}>계속유지 (재납입)</option>
-          <option value="liquidate" ${a.isaPostEvent==='liquidate'?'selected':''}>해지 후 현금</option>
-        </select>
-        <div id="isa-benefit-${a.id}" class="al al-s" style="font-size:12px;margin-top:5px;${(a.isaPostEvent==='transfer'||a.isaPostEvent==='transfer300')?'':'display:none'}">
-          ✅ <b>연금계좌 이전 특별 혜택</b><br>
-          이전 금액의 10%를 세액공제 대상에 추가 산입 <b style="color:var(--goldl)">(최대 300만원)</b><br>
-          예: 이전금액 3,000만원 → 추가 세액공제 <b style="color:var(--goldl)">300만원</b> (환급 약 ${wf(Math.round(Math.min((a.balance||0)*0.10,3000000)*(Gval('taxBracket')==='low'?0.165:0.132)))}원)
-        </div></div>
-        <div class="frow" id="isa-tgt-row-${a.id}" style="${(a.isaPostEvent==='transfer'||a.isaPostEvent==='transfer300')?'':'display:none'}">
-          <label class="fl">이전 대상 계좌 <span style="font-size:10px;color:var(--teal)">(연금/IRP)</span></label>
-          <select class="fs" onchange="AP('${a.id}','isaTransferTarget',this.value)"><option value="">없음</option>${penIRPOpts}</select>
+        <div class="frow"><label class="fl">가입 경과 년수</label>
+          <input class="fi mono" type="number" value="${a.isaElapsed||0}" oninput="AP('${a.id}','isaElapsed',+this.value)">
+          <div class="hint">3년 이상이면 만기 가능</div>
         </div>
-        <div id="isa-keep-hint-${a.id}" style="${a.isaPostEvent==='keep'?'':'display:none'}">
-          <div class="al al-i" style="font-size:11px;padding:5px;">♻ 만기 후 재납입 — 비과세 혜택 계속</div>
+        <div class="frow"><label class="fl">📅 언제 만기?</label>
+          <select class="fs" onchange="AP('${a.id}','isaTransferTiming',this.value);G('isa-manual-age-${a.id}').style.display=this.value==='manual'?'':'none'">
+            <option value="maturity" ${a.isaTransferTiming==='maturity'?'selected':''}>3년 만기</option>
+            <option value="retire"   ${a.isaTransferTiming==='retire'?'selected':''}>은퇴 시점</option>
+            <option value="age65"    ${a.isaTransferTiming==='age65'?'selected':''}>65세</option>
+            <option value="manual"   ${a.isaTransferTiming==='manual'?'selected':''}>내가 정한 나이</option>
+            <option value="never"    ${a.isaTransferTiming==='never'?'selected':''}>만기 없이 유지</option>
+          </select>
         </div>
-        <div id="isa-liq-hint-${a.id}" style="${a.isaPostEvent==='liquidate'?'':'display:none'}">
-          <div class="al al-e" style="font-size:11px;padding:5px;">💸 해지 현금 — 비과세 한도 내 세금 없음</div>
-        </div>
-        <div class="frow" style="${a.isaTransferTiming==='manual'?'':'display:none'}" id="isa-manual-age-${a.id}">
-          <label class="fl">지정 나이</label>
+        <div class="frow" id="isa-manual-age-${a.id}" style="${a.isaTransferTiming==='manual'?'':'display:none'}">
+          <label class="fl">만기 나이</label>
           <input class="fi mono" type="number" value="${a.isaManualAge||60}" oninput="AP('${a.id}','isaManualAge',+this.value)">
         </div>
-        <div class="frow"><label class="fl">비과세 한도</label>
-          <div style="padding:6px 9px;background:var(--ibg);border-radius:6px;font-size:13px;color:var(--teal);">${wf((m.taxFree||2000000)/10000)}만원</div>
+        <div class="frow"><label class="fl">💰 만기 후 어떻게?</label>
+          <select class="fs" id="isa-post-${a.id}" onchange="AP('${a.id}','isaPostEvent',this.value);showISATransferBenefit('${a.id}',this.value,${a.balance||0})">
+            <option value="transfer"    ${a.isaPostEvent==='transfer'?'selected':''}>연금계좌로 전액 이전 ⭐ 추천</option>
+            <option value="transfer300" ${a.isaPostEvent==='transfer300'?'selected':''}>연금계좌로 3천만원 이전</option>
+            <option value="keep"        ${a.isaPostEvent==='keep'?'selected':''}>계속 적립 유지</option>
+            <option value="liquidate"   ${a.isaPostEvent==='liquidate'?'selected':''}>현금으로 인출</option>
+          </select>
+        </div>
+        <div id="isa-tgt-row-${a.id}" style="${(a.isaPostEvent==='transfer'||a.isaPostEvent==='transfer300')?'':'display:none'}">
+          <div class="frow"><label class="fl">어느 연금계좌로?</label>
+            <select class="fs" onchange="AP('${a.id}','isaTransferTarget',this.value)">
+              <option value="">나중에 선택</option>${penIRPOpts}
+            </select>
+            <div class="hint">연금저축 또는 IRP로만 이전 가능 (연금계좌 탭에서 계좌 추가)</div>
+          </div>
+          <div id="isa-benefit-${a.id}" class="al al-s" style="font-size:12px;margin-top:5px;${(a.isaPostEvent==='transfer'||a.isaPostEvent==='transfer300')?'':'display:none'}">
+            ✅ <b>이전 혜택</b>: 이전금액 10% 추가 세액공제 (최대 300만원)<br>
+            지금 잔액 기준 환급 예상: <b style="color:var(--goldl)">${wf(Math.round(Math.min((a.balance||0)*0.10,3000000)*(Gval('taxBracket')==='low'?0.165:0.132)))}원</b>
+          </div>
+        </div>
+        <div id="isa-keep-hint-${a.id}" style="${a.isaPostEvent==='keep'?'':'display:none'}">
+          <div class="al al-i" style="font-size:11px;">♻ 계속 적립 — 비과세 혜택 유지</div>
+        </div>
+        <div id="isa-liq-hint-${a.id}" style="${a.isaPostEvent==='liquidate'?'':'display:none'}">
+          <div class="al al-e" style="font-size:11px;">💸 현금 인출 — 비과세 한도 내 세금 없음</div>
         </div>
       </div>`;
     // ── 연금 이동 제약 정보 ──
@@ -1880,7 +1891,7 @@ function renderAccts(){
             </div>
             <div class="frow">
               <label class="fl">이전 나이 (세, 직접입력)</label>
-              <input class="fi mono" type="number" value="${a.irpTransferAge||55}" min="55" max="80"
+              <input class="fi mono" type="number" value="${a.irpTransferAge||60}" min="55" max="80"
                 placeholder="55~80" oninput="AP('${a.id}','irpTransferAge',+this.value)">
               <div class="hint">최소 55세 이상 · 이 나이가 되면 이전 실행</div>
             </div>
@@ -1995,7 +2006,7 @@ function renderAccts(){
         const afterTaxMon=isTaxFree?monthlyDiv:Math.round(monthlyDiv*(1-0.154));
         return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:6px;padding:10px;margin-bottom:8px;">
           <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;">📌 배당 설정 ${si+1}</div>
-          <div class="g4" style="gap:8px;">
+          <div class="g2" style="gap:6px;">
             <div class="frow">
               <label class="fl">운용 나이</label>
               <div style="display:flex;gap:4px;align-items:center;">
@@ -2057,8 +2068,8 @@ function renderAccts(){
         <div id="div-preview-${a.id}" style="margin-top:8px;padding:10px;background:rgba(43,191,176,.06);border-radius:6px;border:1px solid rgba(43,191,176,.2);font-size:12px;display:none;"></div>
       </div>`;
     }
-    // Account lifecycle - 퇴직IRP는 skip (자체 처리 있음)
-    if(!isIRPR)extra+=`<hr class="d">
+    // Account lifecycle - 퇴직IRP, ISA는 skip (자체 이전 섹션 있음)
+    if(!isIRPR&&!isISA)extra+=`<hr class="d">
       <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;">📅 계좌 종료 설정 <span style="font-weight:400;font-size:11px;color:var(--t3)">(선택 · 특정 나이에 다른 계좌로 이전하거나 해지)</span></div>
       <div class="g3">
         <div class="frow"><label class="fl">종료 나이 <span style="font-size:10px;color:var(--t3)">(0=사용안함)</span></label>
@@ -2072,12 +2083,12 @@ function renderAccts(){
             <option value="liquidate"${a.acctEndAction==='liquidate'?'selected':''}>해지 후 현금</option>
           </select>
         </div>
-        <div class="frow"><label class="fl">이전 계좌</label>
+        <div class="frow"><label class="fl">옮길 계좌</label>
           <select class="fs" onchange="AP('${a.id}','acctEndTarget',this.value)">
             <option value="">없음</option>
             ${accounts.filter(x=>x.id!==a.id).map(x=>`<option value="${x.id}" ${x.id===a.acctEndTarget?'selected':''}>${x.label}</option>`).join('')}
           </select>
-          <div class="hint">💡 예: ISA → 연금저축 / 성장형→배당형 전환시 활용</div>
+          <div class="hint">💡 예: ISA → 연금저축펀드 / 성장형→배당형 전환</div>
         </div>
       </div>`;
 
@@ -2113,6 +2124,11 @@ function renderAccts(){
         <hr class="d">
         <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px;">📊 투자 슬롯 설정
           <span style="font-size:11px;font-weight:400;color:var(--t3)">(보유종목 또는 배당설정 선택)</span>
+          ${a.monthlyContrib>0?`<div class="al al-i" style="font-size:11px;margin-top:6px;margin-bottom:0;">
+            💡 월납입 <b style="color:var(--goldl)">${wf(a.monthlyContrib)}원</b>이 적립됩니다.
+            종목을 추가하고 <b>배분(%)</b>을 입력하면 이 금액이 자동 분산 투자됩니다.<br>
+            예: 나스닥100 60% = 매월 ${wf(Math.round(a.monthlyContrib*0.6))}원 투자
+          </div>`:''}
         </div>
         <div id="invest-slots-${a.id}">${renderInvestSlots(a)}</div>
       </div>`;
@@ -2137,7 +2153,9 @@ function renderHoldings(a){
     <thead><tr>
       <th style="width:80px">코드</th><th>종목명</th>
       <th class="r">수량</th><th class="r">평단(원)</th><th class="r">현재가(원)</th>
-      <th class="r">평가금액</th><th class="r">수익률</th><th class="r">배당률%</th><th class="r">비중</th><th></th>
+      <th class="r">평가금액</th><th class="r">수익률</th><th class="r">배당률%</th>
+      <th class="r" title="월납입액 중 이 종목에 투자할 비율">월투자%</th>
+      <th class="r">비중</th><th></th>
     </tr></thead>
     <tbody>${a.holdings.map((h,hi)=>{
       const cp=h.cp>0?h.cp:h.avg,ev=cp>0?h.qty*cp:0;
@@ -2154,6 +2172,7 @@ function renderHoldings(a){
         <td class="r divcol" style="font-family:monospace;font-size:11px;">${ws(ev)}</td>
         <td class="r ${rc}" style="font-family:monospace;font-size:11px;">${ret}%</td>
         <td class="r"><input class="hi r sm" type="number" value="${h.divYield||0}" step="0.1" oninput="hF('${a.id}',${hi},'divYield',+this.value)" style="width:55px" placeholder="0.00"></td>
+        <td class="r"><input class="hi r sm" type="number" value="${h.allocPct||0}" step="5" min="0" max="100" oninput="hF('${a.id}',${hi},'allocPct',+this.value)" style="width:50px" title="월납입액 배분%">${a.monthlyContrib>0&&h.allocPct>0?`<div style='font-size:9px;color:var(--teal)'>${wf(Math.round(a.monthlyContrib*(h.allocPct||0)/100))}원</div>`:''}</td>
         <td class="r dim" style="font-family:monospace;font-size:11px;">${w}%</td>
         <td><button class="btn btn-red btn-xs" onclick="splH('${a.id}',${hi})">✕</button></td>
       </tr>`;
@@ -2161,7 +2180,8 @@ function renderHoldings(a){
     <tfoot><tr>
       <td colspan="5" style="text-align:right;font-size:11px;color:var(--t2);padding:4px 5px;">합계 평가금액</td>
       <td class="r tcol" style="padding:4px 5px;font-family:monospace;">${ws(tot)}</td>
-      <td colspan="2" style="text-align:right;font-size:11px;color:var(--teal);padding:4px 5px;">연 배당 ${ws(totalDivInc)}</td>
+      <td style="text-align:right;font-size:11px;color:var(--teal);padding:4px 5px;">연배당 ${ws(totalDivInc)}</td>
+      <td class="r" style="font-size:11px;padding:4px 5px;">${(()=>{const tPct=a.holdings.reduce((s,h)=>s+(h.allocPct||0),0);return tPct>0?`<span style="color:${tPct===100?'var(--green)':tPct>100?'var(--red)':'var(--orange)'}">합계 ${tPct}%${tPct===100?' ✅':tPct>100?' ⚠ 초과':' ⚠'}</span>`:'';})()}</td>
       <td colspan="2"></td>
     </tfoot>
   </table></div>`;
@@ -3102,6 +3122,40 @@ function runSim(){
   try{localStorage.setItem('retireSim_v6r',JSON.stringify(getProfile()));}catch(e){}
 }
 
+function renderHoldingsTable(){
+  const th=G('sim-th'),tb=G('sim-tb');if(!th||!tb)return;
+  const retA=parseInt(Gval('retireAge'))||60;
+  const rRow=simY.find(r=>r.age===retA);
+  // 모든 보유종목 집계
+  const allH=[];
+  accounts.filter(a=>a.active).forEach(a=>{
+    const src=a.useCommonH?cHoldings:a.holdings;
+    src.forEach(h=>{
+      if(!h.ticker&&!h.name)return;
+      const cp=(h.currentPrice||h.cp||0)>0?(h.currentPrice||h.cp):(h.avgPrice||h.avg||0);
+      const ev=cp>0&&h.qty>0?h.qty*cp:(h.balance||0);
+      allH.push({acct:a.label,name:h.name||h.ticker,ticker:h.ticker||'',qty:h.qty||0,avg:h.avgPrice||h.avg||0,cp,ev,divY:h.divYield||0,cagr:h.cagr||0,color:a.color});
+    });
+  });
+  const totalEv=allH.reduce((s,h)=>s+h.ev,0);
+  th.innerHTML=`<tr><th>계좌</th><th>종목명</th><th>코드</th><th class="tc">수량</th><th class="tc">평단가</th><th class="tc">현재가</th><th class="tc">평가금액</th><th class="tc">비중</th><th class="tc">배당수익률</th><th class="tc">CAGR</th></tr>`;
+  tb.innerHTML=allH.map(h=>{
+    const pct=totalEv>0?Math.round(h.ev/totalEv*1000)/10:0;
+    const gain=h.avg>0&&h.cp>0?Math.round((h.cp/h.avg-1)*1000)/10:0;
+    return `<tr>
+      <td style="color:${h.color};font-size:11px;">${h.acct}</td>
+      <td><b>${h.name}</b></td>
+      <td style="font-family:monospace;font-size:11px;color:var(--teal)">${h.ticker}</td>
+      <td class="tc">${(h.qty||0).toLocaleString()}</td>
+      <td class="tc" style="font-family:monospace">${wf(h.avg)}원</td>
+      <td class="tc" style="font-family:monospace">${h.cp>0?wf(h.cp)+'원':'미조회'}</td>
+      <td class="tc" style="font-family:monospace;color:var(--goldl)">${ws(h.ev)}</td>
+      <td class="tc"><b>${pct}%</b></td>
+      <td class="tc" style="color:var(--teal)">${h.divY>0?h.divY+'%':'-'}</td>
+      <td class="tc" style="color:${h.cagr>0?'var(--green)':'var(--t2)'}">${h.cagr>0?h.cagr.toFixed(1)+'%':'-'}</td>
+    </tr>`;
+  }).join('')+(allH.length?`<tr style="background:var(--bg2);font-weight:700"><td colspan="6">합계</td><td class="tc" style="font-family:monospace;color:var(--goldl)">${ws(totalEv)}</td><td class="tc">100%</td><td colspan="2"></td></tr>`:'<tr><td colspan="10" class="tc" style="color:var(--t3)">보유종목 없음</td></tr>');
+}
 function renderSimRes(tgt,retA){
   G('sim-empty').style.display='none';G('sim-res').style.display='block';
   const rRow=simY.find(r=>r.age===retA),rA=rRow?rRow.totalAssets:0;
@@ -3422,6 +3476,9 @@ function renderMainChart(yearly,retA){
 
 function renderTable(mode){
   viewMode=mode;
+  // toggle button styles
+  ['view-y','view-m','view-h'].forEach(id=>{const b=G(id);if(b){b.className=b.id==='view-'+mode.charAt(0)?'btn btn-sm':'btn btn-sec btn-sm';b.style=b.id==='view-'+mode.charAt(0)?'background:rgba(200,168,75,.2);color:var(--goldl);border:1px solid var(--goldd)':''}});
+  if(mode==='holdings'){renderHoldingsTable();return;}
   const th=G('sim-th'),tb=G('sim-tb');if(!th||!tb)return;
   const active=accounts.filter(a=>a.active);
   const retA=parseInt(Gval('retireAge'))||60;
@@ -3558,7 +3615,13 @@ ${dcHoldings.length?dcHoldings.map(h=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0&
 async function callAI(prompt){
   const prov=Gval('aiProv')||'gemini';
   const key=(G('aiKey')?.value||'').trim();
-  if(!key)return null;
+  if(!key){
+    const el=G('ai-resp');
+    if(el)el.innerHTML='<div class="al al-w" style="font-size:13px;">🔑 <b>AI API Key를 입력하세요</b><br><br>'+
+      '무료 Gemini Key 발급: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">aistudio.google.com/app/apikey</a><br>'+
+      '발급 후 위 🔑 AI 설정 칸에 붙여넣기 (AIza...로 시작)하면 됩니다.</div>';
+    return null;
+  }
 
   // Safe fetch wrapper — no AbortSignal.timeout (not supported everywhere)
   async function safeFetch(url, opts){
@@ -3593,8 +3656,8 @@ async function callAI(prompt){
     // All current Gemini model IDs (as of 2026)
     // 2026년 현재 작동 모델 목록
     // 2026년 현재 작동 모델
+    // Gemini 2026 최신 모델 (순서대로 시도)
     const models=[
-      'gemini-2.5-flash-preview-05-20',
       'gemini-2.0-flash',
       'gemini-2.0-flash-lite',
       'gemini-1.5-flash',
@@ -3806,7 +3869,7 @@ function applyProfile(p){
   const b=p.b||{};
   Object.entries(b).forEach(([k,v])=>{const el=G(k);if(!el)return;if(el.type==='checkbox')el.checked=!!v;else el.value=(v===null||v===undefined)?'':v;});
   dcHoldings=(p.dcHoldings||[]).map(h=>({...h,pb:null}));
-  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpTransferAge:a.irpTransferAge||55,investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
+  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpTransferAge:a.irpTransferAge||60,investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
   loans=p.loans||[];insurances=p.insurances||[];
   // 퇴직IRP 없으면 자동 추가
   if(!accounts.some(a=>a.type==='IRP_RETIRE')){
