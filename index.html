@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>은퇴 현금흐름 시뮬레이터 v6</title>
+<title>은퇴 현금흐름 시뮬레이터</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -136,7 +136,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 <body>
 <div class="hdr">
   <div>
-    <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 v6</div>
+    <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span style="font-size:10px;color:var(--t3);font-weight:400;margin-left:4px;">v2025 · 2026.03.22 02:29 퍼블리싱</span></div>
     <div class="hdr-sub">실시간 주가·배당 · 절세전략 · AI분석 · 주택연금</div>
   </div>
   <div style="display:flex;flex-direction:column;justify-content:center;padding:0 12px;border-left:1px solid var(--bd);margin-left:4px;">
@@ -345,8 +345,9 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
         <div id="sev-target-info" class="al al-i" style="font-size:12px;margin-top:4px;"></div>
       </div>
       <div>
-        <div class="frow"><label class="fl">배당 성장률 (%/년)</label><input class="fi mono" id="divGrowthRate" type="number" value="3" step="0.5"><div class="hint">보유 종목 배당금 연간 성장 가정</div></div>
+        <div id="sev-sal-growth-preview" class="al al-i" style="font-size:12px;margin-top:0;"></div>
         <div class="al al-i" style="font-size:11px;margin-top:4px;">💡 세액공제 환급액 재투자 설정은 <b>계좌설정 탭</b>에서 할 수 있습니다.</div>
+        <input type="hidden" id="divGrowthRate" value="3">
       </div>
     </div>
   </div>
@@ -2019,15 +2020,16 @@ function renderAccts(){
             <div class="frow">
               <label class="fl">배당률</label>
               <div style="display:flex;gap:4px;">
-                <input class="fi mono" type="number" value="${sl.rate||0}" min="0" step="0.1" style="width:65px;"
-                  oninput="APSlot('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
-                <select class="fi" style="max-width:60px;" onchange="APSlot('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
-                  <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>연%</option>
-                  <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>월%</option>
+              <div style="display:flex;gap:4px;align-items:center;">
+                <input class="fi mono" type="number" value="${sl.rate||0}" min="0" max="30" step="0.1" style="width:65px;"
+                  oninput="APSlot('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}');checkDivRateInline(this,${si},'${a.id}')">
+                <select class="fi" style="max-width:65px;" onchange="APSlot('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
+                  <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>%/년</option>
+                  <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>%/월</option>
                 </select>
-              </div>
+                <span style="font-size:10px;color:var(--red);display:none;" class="drw-slot"></span>
               <div class="hint">월배당ETF ~4%/년, 분기배당 ~3%</div>
-            </div>
+              <div class="hint">%/년: 연배당률 입력 · %/월: 월배당률 입력 · 월배당ETF ~4%/년</div>
             <div class="frow">
               <label class="fl">배당 주기</label>
               <select class="fi" onchange="APSlot('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
@@ -2372,8 +2374,8 @@ function renderInvestSlots(a){
               <input class="fi mono" type="number" value="${sl.rate||0}" step="0.1" style="width:65px;"
                 oninput="APInvest('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
               <select class="fi" style="max-width:60px;" onchange="APInvest('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
-                <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>연%</option>
-                <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>월%</option>
+                <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>%/년</option>
+                <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>%/월</option>
               </select>
             </div>
           </div>
@@ -2459,6 +2461,49 @@ async function quickAddHFromInput(acctId, inputId){
   toast(info.price?'✅ '+name+' 추가 (현재가 '+wf(info.price)+'원)':'✅ '+name+' 추가됨 (가격 조회 실패)');
 }
 
+function checkDivRateInline(inp, si, acctId){
+  // 입력 필드 옆 경고 span 업데이트
+  const rate=parseFloat(inp.value)||0;
+  const modeEl=inp.nextElementSibling;
+  const isMonthly=modeEl?.value==='monthly';
+  const annRate=isMonthly?rate*12:rate;
+  const warnEl=inp.parentElement?.querySelector('[id^="drw-"]');
+  if(!warnEl)return;
+  if(annRate>15){
+    warnEl.style.display='inline';
+    warnEl.textContent=`⚠ 연${annRate.toFixed(0)}% — 너무 높습니다`;
+  } else if(annRate>8){
+    warnEl.style.display='inline';
+    warnEl.style.color='var(--orange)';
+    warnEl.textContent=`💡 연${annRate.toFixed(1)}% (커버드콜형)`;
+  } else {
+    warnEl.style.display='none';
+  }
+}
+function checkDivRate(acctId, si, rate, rateMode){
+  const isMonthly=(rateMode||'annual')==='monthly';
+  const annRate=isMonthly?rate*12:rate;
+  const warnEl=G('divrate-warn-'+acctId+'-'+si);
+  const hintEl=G('divrate-hint-'+acctId+'-'+si);
+  if(!warnEl)return;
+  // 경고 기준: 연 15% 초과 (월 1.25% 초과)
+  const maxAnn=15;
+  if(annRate>maxAnn){
+    warnEl.style.display='inline';
+    warnEl.textContent=`⚠ 연${annRate.toFixed(1)}% — 현실적이지 않습니다`;
+    if(hintEl)hintEl.style.color='var(--red)';
+  } else {
+    warnEl.style.display='none';
+    if(hintEl)hintEl.style.color='';
+  }
+  // 힌트 업데이트
+  if(hintEl){
+    const refs={monthly:'월배당ETF ~4%/년 · 커버드콜 ~8~12%/년',quarterly:'분기배당 ~3%/년 · SCHD ~3.5%/년',semiannual:'반기배당 ~2~4%/년',annual:'연배당 ~2%/년 (S&P500 ~1.5%)'};
+    const freqEl=warnEl.previousElementSibling;
+    const freq=freqEl?.value||'monthly';
+    if(annRate<=maxAnn) hintEl.textContent=refs[freq]||refs.monthly;
+  }
+}
 function APSlot(acctId,slotIdx,field,val){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   if(!a.divSlots)a.divSlots=[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}];
