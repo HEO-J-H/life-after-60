@@ -2613,7 +2613,7 @@ function updateBudBar(){
 function getRO(sel){return`<option value="">투자 안 함</option>`+accounts.filter(a=>a.active).map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label}</option>`).join('');}
 function addLoan(n='',bal=0,mo=0,r=4.5,sd='',ed='',ri=''){
   CTR.l++;
-  loans.push({id:`l${CTR.l}`,name:n,balance:bal,monthly:mo,rate:r,
+  loans.push({id:`l${CTR.l}`,name:n,balance:bal,monthly:mo,rate:r,reinvestEndAge:0,
     startDate:sd||`${new Date().getFullYear()-5}-01-01`,
     endDate:ed||`${new Date().getFullYear()+10}-01-01`,reinvest:ri});
   renderLoans();
@@ -2631,8 +2631,19 @@ function renderLoans(){
       <div class="frow"><label class="fl">잔액(원)</label><input class="fi mono" type="number" value="${ln.balance}" oninput="loans[${i}].balance=+this.value"><div class="ka">${toKor(ln.balance)}</div></div>
       <div class="frow"><label class="fl">월상환(원)</label><input class="fi mono" type="number" value="${ln.monthly}" oninput="loans[${i}].monthly=+this.value"><div class="ka">${toKor(ln.monthly)}</div></div>
       <div class="frow"><label class="fl">금리(%)</label><input class="fi mono" type="number" value="${ln.rate}" step="0.1" oninput="loans[${i}].rate=+this.value"></div>
-      <div class="frow"><label class="fl">시작일</label><input class="fi" type="date" value="${ln.startDate}" onchange="loans[${i}].startDate=this.value"></div>
-      <div class="frow"><label class="fl">만기일 <span style="color:var(--teal);font-size:10px">${rt}</span></label><input class="fi" type="date" value="${ln.endDate}" onchange="loans[${i}].endDate=this.value;renderLoans()"></div>
+      <div class="frow"><label class="fl">시작일 <span style="font-size:10px;color:var(--t3)">YYYY-MM-DD</span></label>
+        <input class="fi mono" type="text" value="${ln.startDate||''}" placeholder="2020-01-01" maxlength="10" style="font-size:13px;"
+          oninput="if(this.value.match(/^\d{4}-\d{2}-\d{2}$/))loans[${i}].startDate=this.value"></div>
+      <div class="frow"><label class="fl">만기일 <span style="color:var(--teal);font-size:10px">${rt}</span></label>
+        <input class="fi mono" type="text" value="${ln.endDate||''}" placeholder="2030-12-31" maxlength="10" style="font-size:13px;"
+          oninput="if(this.value.length>=10&&this.value.match(/^\d{4}-\d{2}-\d{2}$/)){loans[${i}].endDate=this.value;renderLoans()}"
+          onblur="if(!this.value.match(/^\d{4}-\d{2}-\d{2}$/))this.style.borderColor='var(--red)';else this.style.borderColor=''">
+        <div class="hint">예: 2030-12-31 (년-월-일)</div>
+      </div>
+      <div class="frow"><label class="fl">재투자 종료 나이 <span style="font-size:10px;color:var(--t3)">(0=만기까지)</span></label>
+        <input class="fi mono" type="number" value="${ln.reinvestEndAge||0}" min="0" max="100" placeholder="0"
+          oninput="loans[${i}].reinvestEndAge=+this.value">
+      </div>
     </div>
     <div class="frow"><label class="fl">완납 후 월${wf(ln.monthly)}원 재투자</label><select class="fs" onchange="loans[${i}].reinvest=this.value">${getRO(ln.reinvest)}</select></div>
     </div>`;
@@ -2641,7 +2652,7 @@ function renderLoans(){
 }
 function addIns(n='',mo=0,sd='',ed='',rf=0,ri=''){
   CTR.i++;
-  insurances.push({id:`i${CTR.i}`,name:n,monthly:mo,
+  insurances.push({id:`i${CTR.i}`,name:n,monthly:mo,reinvestEndAge:0,
     startDate:sd||`${new Date().getFullYear()-5}-01-01`,
     endDate:ed||`${new Date().getFullYear()+8}-01-01`,refund:rf,reinvest:ri});
   renderIns();
@@ -2658,8 +2669,19 @@ function renderIns(){
       <div class="frow"><label class="fl">보험명</label><input class="fi" value="${ins.name}" onchange="insurances[${i}].name=this.value"></div>
       <div class="frow"><label class="fl">월보험료(원)</label><input class="fi mono" type="number" value="${ins.monthly}" oninput="insurances[${i}].monthly=+this.value"><div class="ka">${toKor(ins.monthly)}</div></div>
       <div class="frow"><label class="fl">환급금(원)</label><input class="fi mono" type="number" value="${ins.refund||0}" oninput="insurances[${i}].refund=+this.value"><div class="ka">${toKor(ins.refund||0)}</div></div>
-      <div class="frow"><label class="fl">시작일</label><input class="fi" type="date" value="${ins.startDate}" onchange="insurances[${i}].startDate=this.value"></div>
-      <div class="frow"><label class="fl">완납일 <span style="color:var(--teal);font-size:10px">${rt}</span></label><input class="fi" type="date" value="${ins.endDate}" onchange="insurances[${i}].endDate=this.value;renderIns()"></div>
+      <div class="frow"><label class="fl">시작일 <span style="font-size:10px;color:var(--t3)">YYYY-MM-DD</span></label>
+        <input class="fi mono" type="text" value="${ins.startDate||''}" placeholder="2020-01-01" maxlength="10" style="font-size:13px;"
+          oninput="if(this.value.match(/^\d{4}-\d{2}-\d{2}$/))insurances[${i}].startDate=this.value"></div>
+      <div class="frow"><label class="fl">완납일 <span style="color:var(--teal);font-size:10px">${rt}</span></label>
+        <input class="fi mono" type="text" value="${ins.endDate||''}" placeholder="2030-12-31" maxlength="10" style="font-size:13px;"
+          oninput="if(this.value.length>=10&&this.value.match(/^\d{4}-\d{2}-\d{2}$/)){insurances[${i}].endDate=this.value;renderIns()}"
+          onblur="if(!this.value.match(/^\d{4}-\d{2}-\d{2}$/))this.style.borderColor='var(--red)';else this.style.borderColor=''">
+        <div class="hint">예: 2030-12-31 (년-월-일)</div>
+      </div>
+      <div class="frow"><label class="fl">재투자 종료 나이 <span style="font-size:10px;color:var(--t3)">(0=만기까지)</span></label>
+        <input class="fi mono" type="number" value="${ins.reinvestEndAge||0}" min="0" max="100" placeholder="0"
+          oninput="insurances[${i}].reinvestEndAge=+this.value">
+      </div>
     </div>
     <div class="frow"><label class="fl">완납 후 월${wf(ins.monthly)}원 재투자</label><select class="fs" onchange="insurances[${i}].reinvest=this.value">${getRO(ins.reinvest)}</select></div>
     </div>`;
@@ -2669,30 +2691,53 @@ function renderIns(){
 
 // ═══════════ SIMULATION ENGINE ═══════════
 function getDivIncome(acct, year, curYear, divGrowthRate){
-  // Calculate annual dividend income for an account
   const cat=(AMETA[acct.type]||{}).cat;
   const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(cat);
+  const taxRate=isTaxFree?0:DIV_TAX_RATE;
+  const curAge=parseInt(Gval('curAge'))||47;
+  const ageAtYear=curAge+(year-curYear);
+
+  // ── 1. divSlots 기반 배당 (investSlots mode=div 또는 divSlots)
+  // 중요: divSlots 배당은 복리 성장 없이 고정 배당률 적용 (인컴형 ETF)
+  const slots=(acct.investSlots||[]).filter(sl=>sl.mode==='div'&&sl.allocPct>0&&sl.rate>0)
+    .concat((acct.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&
+      !(acct.investSlots||[]).some(is=>is.mode==='div'))); // fallback
+  if(slots.length>0){
+    const bal=acct.balance||0;
+    let slotGross=0;
+    slots.forEach(sl=>{
+      // 나이 범위 체크
+      const inRange=(!sl.startAge||ageAtYear>=sl.startAge)&&(!sl.endAge||ageAtYear<=sl.endAge);
+      if(!inRange)return;
+      const annRate=(sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0);
+      // 배당 비중 금액 (계좌 잔액 × 비중%) - 복리 성장 없음 (인컴 수익)
+      slotGross+=Math.round(bal*(sl.allocPct/100)*(annRate/100));
+    });
+    if(slotGross>0){
+      const net=Math.round(slotGross*(1-taxRate));
+      return{gross:slotGross,net,taxFree:isTaxFree};
+    }
+  }
+
+  // ── 2. holdings 배당수익률 기반
   const source=acct.useCommonH?cHoldings:acct.holdings;
-  if(!source.length)return{gross:0,net:0};
-  
+  if(!source||!source.length)return{gross:0,net:0};
   const evalTotal=source.reduce((s,h)=>{
-    const cp=(h.currentPrice||h.cp||0)>0?(h.currentPrice||h.cp):h.avgPrice||h.avg||0;
-    const qty=h.avgPrice||h.avg>0?Math.round((h.balance||0)/(h.avgPrice||h.avg)):h.qty||0;
+    const cp=(h.currentPrice||h.cp||0)>0?(h.currentPrice||h.cp):(h.avgPrice||h.avg||0);
+    const qty=(h.avgPrice||h.avg||0)>0?Math.round((h.balance||0)/(h.avgPrice||h.avg||1)):h.qty||0;
     return s+(cp>0&&qty>0?qty*cp:h.balance||0);
   },0);
-  
   const weightedDivYield=source.reduce((s,h)=>{
     const cp=(h.currentPrice||h.cp||0)>0?(h.currentPrice||h.cp):(h.avgPrice||h.avg||0);
-    const qty=h.avgPrice||h.avg>0?Math.round((h.balance||0)/(h.avgPrice||h.avg)):h.qty||0;
+    const qty=(h.avgPrice||h.avg||0)>0?Math.round((h.balance||0)/(h.avgPrice||h.avg||1)):h.qty||0;
     const ev=cp>0&&qty>0?qty*cp:h.balance||0;
     return s+(ev*(h.divYield||0)/100);
   },0);
-  
   const baseBalance=acct.balance||0;
   const divBase=evalTotal>0?weightedDivYield:baseBalance*(source.reduce((s,h)=>s+(h.divYield||0),0)/Math.max(1,source.length)/100);
+  // holdings 배당은 배당성장률 적용 (성장주 배당은 증가)
   const yrsFromNow=year-curYear;
   const gross=divBase*Math.pow(1+divGrowthRate,yrsFromNow);
-  const taxRate=isTaxFree?0:DIV_TAX_RATE;
   const net=gross*(1-taxRate);
   return{gross:Math.round(gross),net:Math.round(net),taxFree:isTaxFree};
 }
@@ -2790,8 +2835,8 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     const surplus=totInc-totExp;
     
     const freed={};
-    loans.forEach(ln=>{if(!ln.endDate||!ln.reinvest)return;if(year>new Date(ln.endDate).getFullYear())freed[ln.reinvest]=(freed[ln.reinvest]||0)+ln.monthly*12;});
-    insurances.forEach(ins=>{if(!ins.endDate||!ins.reinvest)return;if(year>new Date(ins.endDate).getFullYear())freed[ins.reinvest]=(freed[ins.reinvest]||0)+ins.monthly*12;});
+    loans.forEach(ln=>{if(!ln.endDate||!ln.reinvest)return;const endY=new Date(ln.endDate).getFullYear();const endAge2=(ln.reinvestEndAge||0);if(year>endY&&(!endAge2||age<=endAge2))freed[ln.reinvest]=(freed[ln.reinvest]||0)+ln.monthly*12;});
+    insurances.forEach(ins=>{if(!ins.endDate||!ins.reinvest)return;const endY2=new Date(ins.endDate).getFullYear();const endAge3=(ins.reinvestEndAge||0);if(year>endY2&&(!endAge3||age<=endAge3))freed[ins.reinvest]=(freed[ins.reinvest]||0)+ins.monthly*12;});
     
     // yC(연간 납입액) 먼저 초기화 — 이후 DC 적립 포함 모든 기여금에서 사용
     const yC={};active.forEach(a=>yC[a.id]=0);
@@ -2915,8 +2960,22 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     
     // Apply returns
     active.forEach(a=>{
-      const growth=(bal[a.id]||0)*retRates[a.id];
-      bal[a.id]=Math.max(0,(bal[a.id]||0)+(yC[a.id]||0)+growth);
+      const curBal=(bal[a.id]||0);
+      // 배당 설정 계좌: 배당 비중은 복리 성장에서 제외 (인컴 수익 = 배당소득으로 수령)
+      let divAllocFrac=0;
+      const divSlots2=(a.investSlots||[]).filter(sl=>sl.mode==='div'&&sl.allocPct>0&&sl.rate>0)
+        .concat((a.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&
+          !(a.investSlots||[]).some(is=>is.mode==='div')));
+      if(divSlots2.length>0){
+        divSlots2.forEach(sl=>{
+          const inRange2=(!sl.startAge||age>=sl.startAge)&&(!sl.endAge||age<=sl.endAge);
+          if(inRange2)divAllocFrac=Math.min(1,divAllocFrac+(sl.allocPct||0)/100);
+        });
+      }
+      // 성장 비중: 배당 비중 제외
+      const growthFrac=Math.max(0,1-divAllocFrac);
+      const growth=curBal*growthFrac*retRates[a.id];
+      bal[a.id]=Math.max(0,curBal+(yC[a.id]||0)+growth);
     });
     
     // Drawdown post-retirement
