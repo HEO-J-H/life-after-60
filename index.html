@@ -1836,11 +1836,55 @@ async function dcQuickAdd(){
 // ═══════════ PRICE FETCH ═══════════
 function yfCode(c){if(!c||!c.trim())return null;return/^\d{6}$/.test(c.trim())?c.trim()+'.KS':c.trim();}
 
+/** Fix UTF-8 bytes misinterpreted as Latin-1 (common via some CORS proxies). */
+function repairKoreanLabel(s){
+  if(s==null||s==='')return'';
+  const str=String(s);
+  if(/[\uAC00-\uD7A3]/.test(str))return str;
+  try{
+    const b=new Uint8Array(str.length);
+    for(let i=0;i<str.length;i++){
+      const c=str.charCodeAt(i);
+      if(c>255)return str;
+      b[i]=c;
+    }
+    const out=new TextDecoder('utf-8',{fatal:false}).decode(b);
+    if(/[\uAC00-\uD7A3]/.test(out))return out.replace(/\uFFFD/g,'');
+  }catch(e){}
+  return str;
+}
+
+function parseJsonFromArrayBuffer(buf){
+  if(!buf||buf.byteLength===0)return null;
+  const decoders=['utf-8','euc-kr'];
+  for(const label of decoders){
+    try{
+      const dec=new TextDecoder(label,{fatal:false});
+      let text=dec.decode(buf).trim().replace(/^\uFEFF/,'');
+      if(text.startsWith('<')||text.startsWith('<!'))continue;
+      const d=JSON.parse(text);
+      if(d&&typeof d==='object')return d;
+    }catch(e){}
+  }
+  if(typeof TextDecoder!=='undefined'){
+    try{
+      const dec=new TextDecoder('cp949',{fatal:false});
+      let text=dec.decode(buf).trim().replace(/^\uFEFF/,'');
+      const d=JSON.parse(text);
+      if(d&&typeof d==='object')return d;
+    }catch(e){}
+  }
+  return null;
+}
+
 async function fetchFromProxy(url){
   for(const proxy of CORS_PROXIES){
     try{
-      const r=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(7000)});
-      if(r.ok){const d=await r.json();return d;}
+      const r=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(12000)});
+      if(!r.ok)continue;
+      const buf=await r.arrayBuffer();
+      const d=parseJsonFromArrayBuffer(buf);
+      if(d!=null)return d;
     }catch(e){}
   }
   return null;
@@ -2560,7 +2604,8 @@ async function loadNaverETF(){
         arr.forEach(e=>{
           const code=String(e.itemcode??'').trim();
           if(!code)return;
-          ETF_CACHE.push({code,name:String(e.itemname||''),price:+e.nowVal||0,change:e.changeVal,changePct:e.changeRate});
+          const rawName=String(e.itemname??'');
+          ETF_CACHE.push({code,name:repairKoreanLabel(rawName),price:+e.nowVal||0,change:e.changeVal,changePct:e.changeRate});
         });
       }else{
         throw new Error('empty etf list');
@@ -2612,42 +2657,95 @@ function etfMatchScore(raw,e){
   return s;
 }
 
+function etfAppendNameHighlight(container,fullName,query){
+  const nm=repairKoreanLabel(fullName);
+  const q=(query||'').trim();
+  if(!q){
+    container.textContent=nm;
+    return;
+  }
+  const low=nm.toLowerCase();
+  const qi=q.toLowerCase();
+  let pos=0;
+  while(pos<nm.length){
+    const i=low.indexOf(qi,pos);
+    if(i<0){
+      container.appendChild(document.createTextNode(nm.slice(pos)));
+      break;
+    }
+    if(i>pos)container.appendChild(document.createTextNode(nm.slice(pos,i)));
+    const bold=document.createElement('b');
+    bold.style.color='var(--goldl)';
+    bold.textContent=nm.slice(i,i+q.length);
+    container.appendChild(bold);
+    pos=i+q.length;
+  }
+}
+
 async function etfAutocomplete(inputId, listId){
-  const inp=G(inputId);const list=G(listId);if(!inp||!list)return;
+  const inp=G(inputId),list=G(listId);
+  if(!inp||!list)return;
   const raw=inp.value.trim();
-  if(raw.length<1){list.style.display='none';return;}
+  if(raw.length<1){list.style.display='none';list.textContent='';return;}
   await loadNaverETF();
   const staticMatches=Object.entries(TMAP)
     .filter(([code,name])=>etfItemMatchesQuery(raw,{code,name}))
-    .map(([code,name])=>({code:String(code),name,price:0,change:null,live:false}));
+    .map(([code,name])=>({code:String(code),name:repairKoreanLabel(name),price:0,change:null,live:false}));
   const cacheMatches=ETF_CACHE
-    .filter(e=>e.name!==undefined&&etfItemMatchesQuery(raw,e))
-    .map(e=>({code:String(e.code),name:e.name,price:e.price||0,change:e.changePct,live:true}));
+    .filter(e=>e.name!==undefined&&etfItemMatchesQuery(raw,{code:e.code,name:repairKoreanLabel(String(e.name))}))
+    .map(e=>({code:String(e.code),name:repairKoreanLabel(String(e.name)),price:e.price||0,change:e.changePct,live:true}));
   const seen=new Set(staticMatches.map(s=>s.code));
   const merged=[...staticMatches,...cacheMatches.filter(c=>!seen.has(c.code))];
   merged.sort((a,b)=>etfMatchScore(raw,b)-etfMatchScore(raw,a));
   const all=merged.slice(0,20);
+  list.textContent='';
   if(!all.length){
-    list.style.cssText='display:block;position:absolute;z-index:999;background:var(--bgc);border:1px solid var(--bdl);border-radius:6px;min-width:280px;box-shadow:0 4px 20px #0006;padding:8px 12px;font-size:12px;color:var(--t2);font-family:"Noto Sans KR",sans-serif;';
-    list.innerHTML='검색 결과 없음 (코드 직접 입력 후 + 추가)';
+    list.style.cssText='display:block;position:absolute;z-index:999;background:var(--bgc);border:1px solid var(--bdl);border-radius:6px;min-width:280px;box-shadow:0 4px 20px #0006;padding:8px 12px;font-size:12px;color:var(--t2);font-family:"Noto Sans KR","Malgun Gothic",sans-serif;';
+    list.appendChild(document.createTextNode('검색 결과 없음 (코드 직접 입력 후 + 추가)'));
+    list.style.display='block';
     return;
   }
-  list.style.cssText='display:block;position:absolute;z-index:999;background:var(--bgc);border:1px solid var(--bdl);border-radius:6px;min-width:300px;box-shadow:0 4px 20px #0006;max-height:280px;overflow-y:auto;font-family:"Noto Sans KR",sans-serif;';
-  const escRe=raw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  list.innerHTML=all.map(e=>{
-    const onclk=`selectETF(${JSON.stringify(inputId)},${JSON.stringify(listId)},${JSON.stringify(String(e.code))},${JSON.stringify(e.name)})`;
-    const hi=escRe.length?e.name.replace(new RegExp('('+escRe+')','gi'),'<b style="color:var(--goldl)">$1</b>'):e.name;
-    return `<div class="etf-ac-item" onclick="${onclk.replace(/"/g,'&quot;')}"
-      style="padding:6px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;">
-      <span style="font-family:monospace;color:var(--teal);font-size:11px;min-width:55px;">${e.code}</span>
-      <span style="flex:1;font-weight:500;">${hi}</span>
-      ${e.price>0?`<span style="font-family:monospace;font-size:11px;color:var(--t3)">${wf(e.price)}${e.change!=null?` <span style="${e.change>=0?'color:var(--green)':'color:var(--red)'}">${e.change>=0?'+':''}${e.change}%</span>`:''}</span>`:''}
-    </div>`;
-  }).join('');
+  list.style.cssText='display:block;position:absolute;z-index:999;background:var(--bgc);border:1px solid var(--bdl);border-radius:6px;min-width:300px;box-shadow:0 4px 20px #0006;max-height:280px;overflow-y:auto;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;';
+  const frag=document.createDocumentFragment();
+  all.forEach(e=>{
+    const row=document.createElement('div');
+    row.className='etf-ac-item';
+    row.style.cssText='padding:6px 10px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;';
+    const codeEl=document.createElement('span');
+    codeEl.style.cssText='font-family:ui-monospace,monospace;color:var(--teal);font-size:11px;min-width:55px;flex-shrink:0;';
+    codeEl.textContent=String(e.code);
+    const nameEl=document.createElement('span');
+    nameEl.style.cssText='flex:1;font-weight:500;min-width:0;word-break:keep-all;';
+    etfAppendNameHighlight(nameEl,e.name,raw);
+    row.appendChild(codeEl);
+    row.appendChild(nameEl);
+    if(e.price>0){
+      const priceEl=document.createElement('span');
+      priceEl.style.cssText='font-family:ui-monospace,monospace;font-size:11px;color:var(--t3);flex-shrink:0;';
+      priceEl.appendChild(document.createTextNode(wf(e.price)));
+      if(e.change!=null){
+        const ch=document.createElement('span');
+        ch.style.color=e.change>=0?'var(--green)':'var(--red)';
+        ch.textContent=(e.change>=0?'+':'')+e.change+'%';
+        priceEl.appendChild(document.createTextNode(' '));
+        priceEl.appendChild(ch);
+      }
+      row.appendChild(priceEl);
+    }
+    const nmFixed=repairKoreanLabel(e.name);
+    row.addEventListener('click',()=>selectETF(inputId,listId,String(e.code),nmFixed));
+    frag.appendChild(row);
+  });
+  list.appendChild(frag);
+  list.style.display='block';
 }
 
 function selectETF(inputId, listId, code, name){
-  const inp=G(inputId);if(inp){inp.value=name;inp.dataset.code=code;}
+  const inp=G(inputId);
+  if(inp){
+    inp.value=repairKoreanLabel(name);
+    inp.dataset.code=code;
+  }
   const list=G(listId);if(list)list.style.display='none';
 }
 
