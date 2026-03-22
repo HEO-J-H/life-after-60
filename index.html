@@ -20,7 +20,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .ai-sel{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t1);padding:4px 8px;font-size:12px;font-family:inherit;}
 .ai-key{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t2);padding:5px 9px;font-size:11px;width:165px;font-family:monospace;}
 .ai-key:focus{outline:none;border-color:var(--goldd);color:var(--t1);}
-.tabs{background:var(--bg2);border-bottom:1px solid var(--bd);padding:0 16px;display:flex;overflow-x:auto;}
+.tabs{background:var(--bg2);border-bottom:1px solid var(--bd);padding:0 16px;display:flex;overflow-x:auto;position:sticky;top:62px;z-index:250;box-shadow:0 2px 8px #0008;}
 .tab{padding:10px 15px;background:none;border:none;border-bottom:2px solid transparent;color:var(--t2);cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;transition:all .18s;}
 .tab:hover{color:var(--t1);}
 .tab.on{color:var(--goldl);border-bottom-color:var(--gold);}
@@ -134,7 +134,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 </style>
 </head>
 <body>
-<div class="hdr">
+<div class="hdr" id="main-hdr">
   <div>
     <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span style="font-size:10px;color:var(--t3);font-weight:400;margin-left:4px;">v2025 · 2026.03.22 02:29 퍼블리싱</span></div>
     <div class="hdr-sub">실시간 주가·배당 · 절세전략 · AI분석 · 주택연금</div>
@@ -154,7 +154,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
     <button class="btn btn-gold btn-lg" onclick="runSim()">▶ 시뮬레이션</button>
   </div>
 </div>
-<div class="tabs">
+<div class="tabs" id="main-tabs">
   <button class="tab on"  onclick="ST('basic',this)">📋 기본정보</button>
   <button class="tab"     onclick="ST('accts',this)">💳 계좌설정</button>
   <button class="tab"     onclick="ST('loans',this)">🏠 대출·보험</button>
@@ -750,6 +750,13 @@ document.addEventListener('click',e=>{
   });
 });
 window.onload=()=>{
+  // 탭 위치 = 헤더 높이에 맞춰 동적 설정
+  function fixTabsPos(){
+    const hdr=G('main-hdr'),tabs=G('main-tabs');
+    if(hdr&&tabs)tabs.style.top=hdr.offsetHeight+'px';
+  }
+  fixTabsPos();
+  window.addEventListener('resize',fixTabsPos);
   // 구버전 키 정리
   ['retireSim_v6r','retireSim_v5','retireSim_v4'].forEach(k=>localStorage.removeItem(k));
   const s=localStorage.getItem('retireSim_v6r');
@@ -2004,7 +2011,7 @@ function renderAccts(){
         const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(m.cat);
         const monthlyDiv=divBal>0&&annRate>0?Math.round(divBal*annRate/100/12):0;
         const afterTaxMon=isTaxFree?monthlyDiv:Math.round(monthlyDiv*(1-0.154));
-        return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:6px;padding:10px;margin-bottom:8px;">
+        return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:10px;">
           <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;">📌 배당 설정 ${si+1}</div>
           <div class="g2" style="gap:6px;">
             <div class="frow">
@@ -2071,7 +2078,7 @@ function renderAccts(){
     // Account lifecycle - 퇴직IRP, ISA는 skip (자체 이전 섹션 있음)
     if(!isIRPR&&!isISA)extra+=`<hr class="d">
       <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;">📅 계좌 종료 설정 <span style="font-weight:400;font-size:11px;color:var(--t3)">(선택 · 특정 나이에 다른 계좌로 이전하거나 해지)</span></div>
-      <div class="g3">
+      <div class="g2">
         <div class="frow"><label class="fl">종료 나이 <span style="font-size:10px;color:var(--t3)">(0=사용안함)</span></label>
           <input class="fi mono" type="number" value="${a.acctEndAge||''}" placeholder="예: 65" oninput="AP('${a.id}','acctEndAge',this.value)">
           <div class="hint">이 나이가 되면 아래 처리 실행</div>
@@ -2366,7 +2373,7 @@ function renderInvestSlots(a){
     const monthlyDiv=divBal>0&&annRate>0?Math.round(divBal*annRate/100/12):0;
     const afterTax=isTaxFree?monthlyDiv:Math.round(monthlyDiv*0.846);
     const hqId=`hq-slot-${a.id}-${si}`, hqListId=`hqlist-${a.id}-${si}`;
-    return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:6px;padding:10px;margin-bottom:8px;">
+    return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:10px;">
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
         <span style="font-size:11px;font-weight:700;color:var(--t2);min-width:40px">슬롯${si+1}</span>
         <span style="font-size:11px;color:var(--t3)">나이:</span>
@@ -3823,6 +3830,8 @@ function resetAll(){
   Gv('budget',1000000);Gv('workYrs',15);Gv('sevType','DC');
   // 5. initDef로 기본 데이터 로드 (계좌 없이 시작)
   initDef();
+  // 5. initDef로 기본값 로드 (퇴직IRP 포함)
+  initDef();
   toast('🔄 초기화 완료');
 }
 
@@ -3874,6 +3883,10 @@ function applyProfile(p){
   // 퇴직IRP 없으면 자동 추가
   if(!accounts.some(a=>a.type==='IRP_RETIRE')){
     addAcctD('IRP_RETIRE',0,0,5,true);
+  }
+  // 퇴직IRP 누락 시 자동 추가
+  if(!accounts.some(a=>a.type==='IRP_RETIRE')){
+    addAcctD('IRP_RETIRE', 0, 0, 5, true);
   }
   renderDCTable();updateDCSummary();renderAccts();renderLoans();renderIns();
   toggleSev();  // 저장된 sevType에 따라 DC카드 표시/숨김 복원
