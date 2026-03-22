@@ -2036,7 +2036,7 @@ function renderAccts(){
                 <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
                 <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
               </select>
-              <div class="ka" style="color:var(--teal);font-size:11px;">${afterTaxMon>0?wf(afterTaxMon)+'원/월 예상':''}</div>
+              <div class="ka" style="color:var(--teal);font-size:11px;">${afterTaxMon>0?(()=>{const fpyD={monthly:12,quarterly:4,semiannual:2,annual:1};const fD=fpyD[sl.freq||'monthly']||12;const perD=Math.round(divBal*annRate/100/fD);const perDafterTax=isTaxFree?perD:Math.round(perD*(1-0.154));const lblD={monthly:'/월',quarterly:'/분기',semiannual:'/반기',annual:'/년'}[sl.freq||'monthly'];return wf(perDafterTax)+'원'+lblD+' 예상';})():''}</div>
             </div>
           </div>
         </div>`;
@@ -2610,7 +2610,7 @@ function updateBudBar(){
 }
 
 // ═══════════ LOANS / INSURANCE ═══════════
-function getRO(sel){return`<option value="">투자 안 함</option>`+accounts.filter(a=>a.active).map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label}</option>`).join('');}
+function getRO(sel){return`<option value="">투자 안 함</option>`+accounts.filter(a=>a.active&&a.type!=='IRP_RETIRE').map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label}</option>`).join('');}
 function addLoan(n='',bal=0,mo=0,r=4.5,sd='',ed='',ri=''){
   CTR.l++;
   loans.push({id:`l${CTR.l}`,name:n,balance:bal,monthly:mo,rate:r,reinvestEndAge:0,
@@ -2628,8 +2628,8 @@ function renderLoans(){
     d.innerHTML=`<div class="li-hdr"><b>🏠 ${ln.name||'대출 '+(i+1)}</b><button class="btn btn-red btn-xs" onclick="loans.splice(${i},1);renderLoans()">삭제</button></div>
     <div style="padding:12px;"><div class="g3">
       <div class="frow"><label class="fl">대출명</label><input class="fi" value="${ln.name}" onchange="loans[${i}].name=this.value"></div>
-      <div class="frow"><label class="fl">잔액(원)</label><input class="fi mono" type="number" value="${ln.balance}" oninput="loans[${i}].balance=+this.value"><div class="ka">${toKor(ln.balance)}</div></div>
-      <div class="frow"><label class="fl">월상환(원)</label><input class="fi mono" type="number" value="${ln.monthly}" oninput="loans[${i}].monthly=+this.value"><div class="ka">${toKor(ln.monthly)}</div></div>
+      <div class="frow"><label class="fl">잔액(원)</label><input class="fi mono" type="number" id="ln-bal-${i}" value="${ln.balance}" oninput="loans[${i}].balance=+this.value;this.nextElementSibling.textContent=toKor(+this.value)"><div class="ka">${toKor(ln.balance)}</div></div>
+      <div class="frow"><label class="fl">월상환(원)</label><input class="fi mono" type="number" id="ln-mo-${i}" value="${ln.monthly}" oninput="loans[${i}].monthly=+this.value;this.nextElementSibling.textContent=toKor(+this.value)"><div class="ka">${toKor(ln.monthly)}</div></div>
       <div class="frow"><label class="fl">금리(%)</label><input class="fi mono" type="number" value="${ln.rate}" step="0.1" oninput="loans[${i}].rate=+this.value"></div>
       <div class="frow"><label class="fl">시작일 <span style="font-size:10px;color:var(--t3)">YYYY-MM-DD</span></label>
         <input class="fi mono" type="text" value="${ln.startDate||''}" placeholder="2020-01-01" maxlength="10" style="font-size:13px;"
@@ -2637,15 +2637,19 @@ function renderLoans(){
       <div class="frow"><label class="fl">만기일 <span style="color:var(--teal);font-size:10px">${rt}</span></label>
         <input class="fi mono" type="text" value="${ln.endDate||''}" placeholder="2030-12-31" maxlength="10" style="font-size:13px;"
           oninput="if(this.value.length>=10&&this.value.match(/^\d{4}-\d{2}-\d{2}$/)){loans[${i}].endDate=this.value;renderLoans()}"
-          onblur="if(!this.value.match(/^\d{4}-\d{2}-\d{2}$/))this.style.borderColor='var(--red)';else this.style.borderColor=''">
+          >
         <div class="hint">예: 2030-12-31 (년-월-일)</div>
       </div>
-      <div class="frow"><label class="fl">재투자 종료 나이 <span style="font-size:10px;color:var(--t3)">(0=만기까지)</span></label>
-        <input class="fi mono" type="number" value="${ln.reinvestEndAge||0}" min="0" max="100" placeholder="0"
-          oninput="loans[${i}].reinvestEndAge=+this.value">
+
+      <div class="frow"><label class="fl">완납 후 재투자 계좌</label>
+        <select class="fs" onchange="loans[${i}].reinvest=this.value">${getRO(ln.reinvest)}</select>
+        <div class="hint">완납 후 월${wf(ln.monthly)}원을 이 계좌에 자동 투자</div>
       </div>
-    </div>
-    <div class="frow"><label class="fl">완납 후 월${wf(ln.monthly)}원 재투자</label><select class="fs" onchange="loans[${i}].reinvest=this.value">${getRO(ln.reinvest)}</select></div>
+      <div class="frow"><label class="fl">재투자 중단 나이 <span style="font-size:10px;color:var(--t3)">(0=계속 재투자)</span></label>
+        <input class="fi mono" type="number" value="${ln.reinvestEndAge||0}" min="0" max="100"
+          oninput="loans[${i}].reinvestEndAge=+this.value">
+        <div class="hint">이 나이가 되면 재투자 중단. 0이면 계속 투자</div>
+      </div>
     </div>`;
     w.appendChild(d);
   });
@@ -2667,23 +2671,27 @@ function renderIns(){
     d.innerHTML=`<div class="li-hdr"><b>🛡️ ${ins.name||'보험 '+(i+1)}</b><button class="btn btn-red btn-xs" onclick="insurances.splice(${i},1);renderIns()">삭제</button></div>
     <div style="padding:12px;"><div class="g3">
       <div class="frow"><label class="fl">보험명</label><input class="fi" value="${ins.name}" onchange="insurances[${i}].name=this.value"></div>
-      <div class="frow"><label class="fl">월보험료(원)</label><input class="fi mono" type="number" value="${ins.monthly}" oninput="insurances[${i}].monthly=+this.value"><div class="ka">${toKor(ins.monthly)}</div></div>
-      <div class="frow"><label class="fl">환급금(원)</label><input class="fi mono" type="number" value="${ins.refund||0}" oninput="insurances[${i}].refund=+this.value"><div class="ka">${toKor(ins.refund||0)}</div></div>
+      <div class="frow"><label class="fl">월보험료(원)</label><input class="fi mono" type="number" value="${ins.monthly}" oninput="insurances[${i}].monthly=+this.value;this.nextElementSibling.textContent=toKor(+this.value)"><div class="ka">${toKor(ins.monthly)}</div></div>
+      <div class="frow"><label class="fl">환급금(원)</label><input class="fi mono" type="number" value="${ins.refund||0}" oninput="insurances[${i}].refund=+this.value;this.nextElementSibling.textContent=toKor(+this.value)"><div class="ka">${toKor(ins.refund||0)}</div></div>
       <div class="frow"><label class="fl">시작일 <span style="font-size:10px;color:var(--t3)">YYYY-MM-DD</span></label>
         <input class="fi mono" type="text" value="${ins.startDate||''}" placeholder="2020-01-01" maxlength="10" style="font-size:13px;"
           oninput="if(this.value.match(/^\d{4}-\d{2}-\d{2}$/))insurances[${i}].startDate=this.value"></div>
       <div class="frow"><label class="fl">완납일 <span style="color:var(--teal);font-size:10px">${rt}</span></label>
         <input class="fi mono" type="text" value="${ins.endDate||''}" placeholder="2030-12-31" maxlength="10" style="font-size:13px;"
           oninput="if(this.value.length>=10&&this.value.match(/^\d{4}-\d{2}-\d{2}$/)){insurances[${i}].endDate=this.value;renderIns()}"
-          onblur="if(!this.value.match(/^\d{4}-\d{2}-\d{2}$/))this.style.borderColor='var(--red)';else this.style.borderColor=''">
+          >
         <div class="hint">예: 2030-12-31 (년-월-일)</div>
       </div>
-      <div class="frow"><label class="fl">재투자 종료 나이 <span style="font-size:10px;color:var(--t3)">(0=만기까지)</span></label>
-        <input class="fi mono" type="number" value="${ins.reinvestEndAge||0}" min="0" max="100" placeholder="0"
-          oninput="insurances[${i}].reinvestEndAge=+this.value">
+
+      <div class="frow"><label class="fl">완납 후 재투자 계좌</label>
+        <select class="fs" onchange="insurances[${i}].reinvest=this.value">${getRO(ins.reinvest)}</select>
+        <div class="hint">완납 후 월${wf(ins.monthly)}원을 이 계좌에 자동 투자</div>
       </div>
-    </div>
-    <div class="frow"><label class="fl">완납 후 월${wf(ins.monthly)}원 재투자</label><select class="fs" onchange="insurances[${i}].reinvest=this.value">${getRO(ins.reinvest)}</select></div>
+      <div class="frow"><label class="fl">재투자 중단 나이 <span style="font-size:10px;color:var(--t3)">(0=계속 재투자)</span></label>
+        <input class="fi mono" type="number" value="${ins.reinvestEndAge||0}" min="0" max="100"
+          oninput="insurances[${i}].reinvestEndAge=+this.value">
+        <div class="hint">이 나이가 되면 재투자 중단. 0이면 계속 투자</div>
+      </div>
     </div>`;
     w.appendChild(d);
   });
