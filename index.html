@@ -633,10 +633,14 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
       <div class="sc-chip" style="background:rgba(43,191,176,.15);border:1px solid rgba(43,191,176,.3);color:var(--teal);">● ISA 만기→배당형</div>
       <button class="btn btn-gold" style="margin-left:auto;" onclick="runScenario()">📊 시나리오 실행</button>
     </div>
+    <p style="font-size:11px;color:var(--t3);margin:8px 0 0 0;line-height:1.5;">메인 탭 시뮬 실행 <b>없이도</b> 현재 기본정보·계좌로 4가지 가정을 돌립니다. 실행 후 아래에 <b>이 결과에 맞는 인출·배당 안내</b>가 붙습니다.</p>
   </div>
+  <details class="card" style="margin-bottom:12px;padding:10px 14px;">
+    <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--goldl);list-style-position:outside;">📚 법령·인출·배당 참고표 (펼치기·접기)</summary>
+    <div style="margin-top:12px;">
   <div class="al al-i" style="font-size:11px;line-height:1.6;margin-bottom:12px;padding:10px 12px;">
     <b>근거·유의사항</b> 아래 표는 <b>소득세법</b>(연금소득 제20조의3, 연금소득공제 제47조의2 등), <b>소득세법 시행령</b>(이연퇴직소득세액 계산 제202조의2 등), <b>조세특례제한법</b>(ISA 금융투자소득 비과세·분리과세) 및 공적연금·퇴직연금 사업자가 배포하는 과세체계 안내(예: <a href="https://www.sema.or.kr/sema/main/contents.do?menuNo=200066" target="_blank" rel="noopener">과학기술인공제회 연금 과세체계</a>)를 요약한 것입니다.
-    <b>2024.1.1 이후 발생분부터</b> 연금소득 분리과세 기준액이 <b>연 1,200만→1,500만 원</b>으로 상향된 내용이 반영되어 있습니다. 지방소득세는 별도이며, 상품·가입 시기·인출 사유(부득이한 사유 등)에 따라 달라질 수 있으므로 <a href="https://www.law.go.kr" target="_blank" rel="noopener">국가법령정보센터</a>·<a href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스</a>·가입 기관 안내를 확인하세요. 본 시뮬레이터 숫자와 자동 연동되지 않습니다.
+    <b>2024.1.1 이후 발생분부터</b> 연금소득 분리과세 기준액이 <b>연 1,200만→1,500만 원</b>으로 상향된 내용이 반영되어 있습니다. 지방소득세는 별도이며, 상품·가입 시기·인출 사유(부득이한 사유 등)에 따라 달라질 수 있으므로 <a href="https://www.law.go.kr" target="_blank" rel="noopener">국가법령정보센터</a>·<a href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스</a>·가입 기관 안내를 확인하세요. 아래 표는 법 요약이며, 시나리오 실행 후 나오는 <b>「이 결과에 해당하는 안내」</b>는 평균 수익률 시나리오·계좌 설정과 연동됩니다.
   </div>
   <div class="card">
     <div class="ctitle">📤 인출 시나리오 — 연금계좌·퇴직IRP에서 돈을 <b>인출·연금수령</b>할 때</div>
@@ -747,9 +751,12 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
       </table>
     </div>
   </div>
-  <div id="sc-empty" class="al al-w">▶ 먼저 시뮬레이션을 실행하세요.</div>
+    </div>
+  </details>
+  <div id="sc-empty" class="al al-w">▶ 위에서 <b>시나리오 실행</b>을 누르세요. 메인 시뮬 없이도 수익률·배당 가정별 추이를 계산하고, 결과에 맞는 <b>인출·배당 안내</b>를 붙입니다.</div>
   <div id="sc-res" style="display:none;">
     <div class="card"><div class="ctitle">📈 4가지 시나리오 비교</div><div class="cw" style="height:320px;"><canvas id="scChart"></canvas></div></div>
+    <div class="card" id="sc-insight-wrap" style="border-color:rgba(200,168,75,.35);"><div class="ctitle">💡 이 결과에 해당하는 인출·배당 안내</div><div id="sc-insight"></div></div>
     <div class="g4" id="sc-stats"></div>
     <div class="card"><div class="ctitle">📋 시나리오별 비교표</div><div class="sim-wrap"><table class="st"><thead id="sc-th"></thead><tbody id="sc-tb"></tbody></table></div></div>
   </div>
@@ -3212,6 +3219,94 @@ function renderPensionPlanPreview(acctId){
     `${modeLbl} · ${plan.startAge}세 시작${plan.yFromNow>0?` (${plan.yFromNow}년 후)`:''}<br>`+
     `<span style="color:var(--t3)">은퇴시점 추정잔액 ${wf(plan.balStart)}원 | 1차 연도 한도 ${wf(plan.limit1)}원/년 (${plan.guide})</span>`;
 }
+/** Sum of estimated annual pension withdrawals at retire age (for scenario hints). */
+function estimateAnnualPensionAtRetireSum(){
+  const active=accounts.filter(a=>a.active);
+  const curA=parseInt(Gval('curAge'))||47;
+  const retA=parseInt(Gval('retireAge'))||60;
+  let sum=0;
+  active.forEach(a=>{
+    const cat=(AMETA[a.type]||{}).cat;
+    if(!['PENSION','IRP','IRP_RET'].includes(cat))return;
+    if(cat==='IRP_RET'&&(a.irpOnRetire||'keep')!=='keep')return;
+    if(a.irpOnRetire==='toAccum'||a.irpOnRetire==='liquidate')return;
+    const bal=getAcctProjectedBal(a);
+    const plan=calcPensionPlanAnnual(bal,a.pensionStartAge||55,curA,a.pensionYears||10,a.pensionMode||'equal');
+    if(retA>=plan.startAge)sum+=plan.annual;
+  });
+  return sum;
+}
+/** Max pension receipt year index through life expectancy (1 = first year of receipt). */
+function maxPensionReceiptYearsThroughLife(){
+  const active=accounts.filter(a=>a.active);
+  const life=parseInt(Gval('lifeExp'))||90;
+  let maxY=0;
+  active.forEach(a=>{
+    const cat=(AMETA[a.type]||{}).cat;
+    if(!['PENSION','IRP','IRP_RET'].includes(cat))return;
+    if(cat==='IRP_RET'&&(a.irpOnRetire||'keep')!=='keep')return;
+    if(a.irpOnRetire==='toAccum'||a.irpOnRetire==='liquidate')return;
+    const ps=a.pensionStartAge||55;
+    if(life>=ps){
+      const y=life-ps+1;
+      if(y>maxY)maxY=y;
+    }
+  });
+  return maxY;
+}
+/** Dynamic tax / withdrawal / dividend hints after scenario run (uses average path + profile). */
+function buildScenarioInsights(scO,scA,scP,scD){
+  const retA=parseInt(Gval('retireAge'))||60;
+  const life=parseInt(Gval('lifeExp'))||90;
+  const active=accounts.filter(a=>a.active);
+  const lines=[];
+  const rIdx=scA.findIndex(r=>r.age===retA);
+  const rRow=rIdx>=0?scA[rIdx]:null;
+
+  if(rRow&&rIdx>=0&&scO[rIdx]&&scP[rIdx]){
+    const spread=(scO[rIdx].totalAssets||0)-(scP[rIdx].totalAssets||0);
+    if(spread>0)
+      lines.push({title:'📊 수익률 시나리오',html:`은퇴 시점 총자산은 낙관·비관 가정 사이 약 <b>${ws(spread)}원</b> 차이로 추정됩니다. 입력한 연 수익률 가정이 결과에 크게 영향을 줍니다.`});
+  }
+
+  if(rRow&&rIdx>=0&&scD&&scD[rIdx]){
+    const dA=rRow.divNet||0,dD=scD[rIdx].divNet||0,dd=dD-dA;
+    const divGr=parseFloat(Gval('sc-div'));
+    const divGL=isNaN(divGr)?6:divGr;
+    if(Math.abs(dd)>=50000)
+      lines.push({title:'💵 배당 시나리오',html:`「ISA→배당형」은 시뮬 내부에서 배당 성장률을 <b>${divGL}%/년</b>으로 올린 가정입니다. 은퇴 시점 연배당(세후 추정)이 평균 시나리오 대비 약 <b>${ws(Math.abs(dd))}원/년</b> ${dd>=0?'많게':'적게'} 나옵니다. 일반 계좌는 지급 시·ISA는 실현 시·연금계좌는 인출 시 과세 구조가 다릅니다(위 참고표).`});
+  }
+
+  const hasIRPRet=active.some(a=>a.type==='IRP_RETIRE'&&(a.irpOnRetire||'keep')==='keep');
+  const maxPenY=maxPensionReceiptYearsThroughLife();
+  const estPenAll=estimateAnnualPensionAtRetireSum();
+  if(hasIRPRet&&maxPenY>0){
+    let html='';
+    if(maxPenY>=21)html=`연금 개시부터 기대수명(<b>${life}세</b>)까지 시뮬하면 최대 <b>${maxPenY}년차</b> 수령 구간이 포함됩니다. 퇴직금 이연분은 장기 구간에서 이연퇴직소득세액의 <b>50%</b> 분리과세가 적용될 수 있습니다. 일시금 인출은 연금형과 세 부담이 달라질 수 있습니다.`;
+    else if(maxPenY>=11)html=`연금 수령 <b>10년을 넘는 구간</b>이 포함되면, 퇴직금 이연분에 이연퇴직소득세액의 <b>60%</b> 분리과세가 적용될 수 있는 기간입니다.`;
+    else html=`연금 개시 직후~10년차 중심이면, 퇴직금 이연분은 이연퇴직소득세액의 <b>70%</b> 분리과세가 적용되는 경우가 많습니다.`;
+    if(estPenAll>=12000000)html+=`<br><br>연금·IRP 설정으로 은퇴 후 <b>연간 수령 추정 약 ${ws(estPenAll)}원</b>. 합산 시 <b>연 1,500만 원</b> 기준(2024.1.1 이후 분리과세)을 함께 확인하세요.`;
+    lines.push({title:'📤 인출·퇴직이연 시나리오',html});
+  }else if(active.some(a=>['PENSION','IRP'].includes((AMETA[a.type]||{}).cat))){
+    let html='연금저축·적립IRP가 있습니다. 연금형 인출 시 연금소득공제·연령별 연금소득세가 적용됩니다.';
+    if(estPenAll>=12000000)html+=` 설정 기준 연간 수령 추정 약 <b>${ws(estPenAll)}원</b> — <b>연 1,500만 원</b>(2024.1.1 이후 분리과세 기준) 부근이면 종합과세 신고 또는 15% 분리과세 선택을 검토할 수 있습니다.`;
+    lines.push({title:'📤 인출 시나리오(연금)',html});
+  }
+
+  if(active.some(a=>(AMETA[a.type]||{}).cat==='ISA'))
+    lines.push({title:'🏦 ISA',html:`ISA가 포함되어 있습니다. 시뮬은 잔고·배당 흐름만 반영하고, <b>비과세·9.9% 분리과세</b>는 실제 인출·해지 시 확정됩니다. 의무가입기간·금융소득종합과세 요건은 별도입니다.`});
+
+  let depAge=null;
+  for(const r of scA){if(r.isRet&&r.totalAssets<=0){depAge=r.age;break;}}
+  if(depAge)
+    lines.push({title:'⚠ 현금흐름',html:`평균 수익률 기준으로 <b>${depAge}세</b> 전후 총자산이 <b>0 이하</b>로 추정됩니다. 은퇴 후 지출·수입을 점검하세요.`});
+
+  if(!lines.length)
+    lines.push({title:'요약',html:`은퇴 시점(평균 시나리오) 총자산 <b>${rRow?ws(rRow.totalAssets):'—'}</b>, 연배당 세후 추정 <b>${rRow?ws(rRow.divNet):'—'}</b>입니다. 계좌 구성에 맞는 세목은 위 「법령·참고표」를 펼쳐 확인하세요.`});
+
+  const head='<div class="al al-i" style="font-size:11px;line-height:1.55;margin-bottom:10px;">아래는 <b>평균 수익률 시나리오</b>와 현재 계좌·연금 설정을 바탕으로 한 안내이며, 실제 세액과 다를 수 있습니다.</div>';
+  return head+lines.map(x=>`<div style="margin-bottom:10px;padding:10px 11px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--goldl);"><div style="font-size:12px;font-weight:700;color:var(--goldl);margin-bottom:5px;">${x.title}</div><div style="font-size:12px;color:var(--t2);line-height:1.55;">${x.html}</div></div>`).join('');
+}
 function calcAcctProjection(acctId){
   // 은퇴 시점까지 해당 계좌 예상 총자산 계산
   const a=accounts.find(x=>x.id===acctId);if(!a)return '계산불가';
@@ -4254,7 +4349,12 @@ function toggleFS(){const w=G('simWrap');w.classList.toggle('fs');const b=docume
 
 // ═══════════ SCENARIO ═══════════
 function runScenario(){
-  if(!simY.length){alert('시뮬레이션을 먼저 실행하세요');return;}
+  if(!accounts.filter(a=>a.active).length){alert('활성 계좌가 없습니다. 계좌설정에서 계좌를 추가하세요.');return;}
+  const _curA=parseInt(Gval('curAge'))||47;
+  const _retA=parseInt(Gval('retireAge'))||60;
+  const _life=parseInt(Gval('lifeExp'))||90;
+  if(_retA<=_curA){alert('은퇴 나이는 현재 나이보다 커야 합니다.');return;}
+  if(_life<=_retA){alert('기대수명은 은퇴 나이보다 커야 합니다.');return;}
   const opt=parseFloat(Gval('sc-opt'))||10;
   const avg=parseFloat(Gval('sc-avg'))||7;
   const pes=parseFloat(Gval('sc-pes'))||3;
@@ -4266,6 +4366,7 @@ function runScenario(){
   // ISA 배당형: 평균 수익률 유지하되 배당성장률 높게
   const scD=simEngine(avg,null,divR).yearly;
   G('sc-empty').style.display='none';G('sc-res').style.display='block';
+  const ins=G('sc-insight');if(ins)ins.innerHTML=buildScenarioInsights(scO,scA,scP,scD);
   const ctx=G('scChart');if(!ctx)return;
   if(scChartObj){scChartObj.destroy();scChartObj=null;}
   scChartObj=new Chart(ctx,{
