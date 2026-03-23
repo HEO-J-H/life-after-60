@@ -8,7 +8,7 @@ $stamp = Get-Date -Format 'yyyy.MM.dd HH:mm'
 $raw = [IO.File]::ReadAllText($html)
 $pat = "const PUBLISH_STAMP='[^']*'"
 $rep = "const PUBLISH_STAMP='$stamp'"
-$new = [regex]::Replace($raw, $pat, $rep, 1)
+$new = $raw -replace $pat, $rep
 if ($new -ne $raw) {
   [IO.File]::WriteAllText($html, $new, [Text.UTF8Encoding]::new($false))
   & git add -- $html
