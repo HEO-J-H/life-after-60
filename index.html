@@ -879,8 +879,8 @@ window._hpMonthly=0;window._hpStartAge=70; // 주택연금 초기값
 let simY=[],simM=[],simChartObj=null,scChartObj=null,cmpChartObj=null;
 let viewMode='year',CTR={a:0,l:0,i:0,c:0};
 let aiPlan=null;
-/** 새 빌드 배포 시 이 날짜·시간만 수정하세요 */
-const PUBLISH_STAMP='2026.03.23 00:24';
+/** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: githooks 참고) */
+const PUBLISH_STAMP='2026.03.23 20:03';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -910,7 +910,7 @@ window.onload=()=>{
 };
 function initHdrPublish(){
   const el=G('hdr-publish');
-  if(el)el.textContent='퍼블리싱(새로 생성) Ver. '+PUBLISH_STAMP;
+  if(el)el.textContent='Ver. '+PUBLISH_STAMP;
 }
 function initDef(){
   // ── 완전 초기화 (기존 계좌/대출/보험 전부 제거) ──

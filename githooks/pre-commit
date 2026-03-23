@@ -1,0 +1,4 @@
+#!/bin/sh
+# Auto-update Ver. stamp in index.html before each commit.
+DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$DIR/bump-publish.ps1"
