@@ -126,6 +126,93 @@ input[type=range]{accent-color:var(--gold);width:100%;}
 .np-opt{border:1px solid var(--bd);border-radius:6px;padding:8px;text-align:center;cursor:pointer;transition:all .18s;}
 .np-opt:hover,.np-opt.on{border-color:var(--gold);background:rgba(200,168,75,.05);}
 .sc-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:600;margin:2px;}
+.sc-plain-hero{margin-top:14px;padding:15px 17px;border-radius:10px;background:linear-gradient(145deg,rgba(200,168,75,.26),rgba(90,70,20,.14));border:1px solid rgba(232,201,106,.5);box-shadow:0 4px 24px rgba(0,0,0,.25);}
+.sc-plain-hero.warn{background:linear-gradient(145deg,rgba(232,135,59,.22),rgba(122,92,24,.1));border-color:rgba(232,135,59,.45);}
+.sc-plain-hero .sch-title{font-size:15px;font-weight:800;color:var(--goldl);margin-bottom:10px;line-height:1.35;letter-spacing:-.02em;}
+.sc-plain-hero .sch-lead{font-size:13px;color:var(--t1);line-height:1.7;margin-bottom:10px;}
+.sc-plain-hero ul{margin:0;padding-left:1.15em;color:var(--t1);font-size:13px;line-height:1.75;}
+.sc-plain-hero .sch-big{font-size:16px;font-weight:700;color:var(--goldl);font-family:'JetBrains Mono',monospace;}
+.sc-plain-hero .sch-note{font-size:11.5px;color:var(--t2);margin-top:12px;line-height:1.65;border-top:1px solid rgba(200,168,75,.2);padding-top:10px;}
+.sc-live-hint{font-size:11px;color:var(--teal);margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.sc-mini-h{font-size:12px;font-weight:700;color:var(--t2);margin:12px 0 6px;}
+/* 시나리오 — 언제부터 얼마씩 쓸까 레이아웃 */
+.scw-intro{padding:11px 14px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;font-size:12px;color:var(--t2);line-height:1.65;margin-bottom:0;}
+.scw-body{padding-top:4px;}
+.scw-section{padding:14px 0;border-bottom:1px solid var(--bd);}
+.scw-section:last-child{border-bottom:none;padding-bottom:0;}
+.scw-section-title{font-size:11px;font-weight:800;color:var(--goldl);margin:0 0 10px 0;display:flex;align-items:center;gap:8px;letter-spacing:-.01em;}
+.scw-section-title .scw-num{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;background:rgba(200,168,75,.2);border:1px solid rgba(200,168,75,.35);border-radius:6px;font-size:11px;font-weight:800;color:var(--goldl);}
+.scw-account-box{padding:12px 14px;background:var(--ibg);border:1px solid var(--ibd);border-radius:8px;}
+.scw-account-box .scw-cb-row{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px;}
+.scw-account-box .scw-cb-row:last-of-type{margin-bottom:0;}
+.scw-account-box .scw-cb-row input{margin-top:3px;flex-shrink:0;}
+.scw-acct-head{font-size:11px;font-weight:600;color:var(--t2);margin:12px 0 8px;}
+.scw-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;align-items:end;}
+.scw-grid-2 .frow{margin-bottom:0;}
+.scw-grid-full{grid-column:1/-1;}
+@media(max-width:720px){.scw-grid-2{grid-template-columns:1fr;}}
+.scw-input-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;align-items:stretch;}
+.scw-input-pair .frow{display:flex;flex-direction:column;margin-bottom:0;min-height:100%;}
+.scw-input-pair .frow .fl{flex:0 0 auto;min-height:2.75em;display:flex;align-items:flex-end;line-height:1.35;}
+.scw-input-pair .frow .fi,.scw-input-pair .frow .fs{flex:0 0 auto;width:100%;box-sizing:border-box;}
+.scw-input-pair .frow .hint{margin-top:auto;padding-top:6px;}
+@media(max-width:720px){.scw-input-pair{grid-template-columns:1fr;}}
+.scw-slider-block{padding-top:4px;}
+.scw-irp-track{font-size:12px;color:var(--t3);margin:8px 0 4px;line-height:1.45;}
+.scw-irp-zones{display:flex;height:11px;border-radius:6px;overflow:hidden;margin-bottom:2px;box-shadow:inset 0 0 0 1px var(--bd);}
+.scw-irp-zone-leg{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);flex-wrap:wrap;gap:4px;padding:0 2px 4px;}
+.scw-annual-note{margin-top:7px;font-size:12px;color:var(--t2);line-height:1.45;}
+.scw-tax-cards{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px;}
+.scw-tax-card{padding:12px 14px;background:var(--bgc);border:1px solid var(--bd);border-left:3px solid var(--goldl);border-radius:10px;}
+.scw-tax-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.scw-tax-head b{color:var(--goldl);}
+.scw-tax-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:13px;line-height:1.55;color:var(--t2);}
+.scw-tax-grid .v{font-family:'JetBrains Mono',monospace;color:var(--t1);text-align:right;}
+.scw-tax-grid .vv{font-family:'JetBrains Mono',monospace;color:var(--teal);font-weight:700;text-align:right;}
+.sdd-slider-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+@media(max-width:820px){.sdd-slider-row{grid-template-columns:1fr;}}
+.sdd-tip{font-size:12px;color:var(--t2);line-height:1.45;margin-top:6px;}
+.sdd-layout-note{font-size:13px;color:var(--t2);line-height:1.55;margin:0 0 12px;padding:12px 14px;background:var(--ibg);border:1px solid var(--ibd);border-radius:10px;}
+.sdd-terms-def{margin:0 0 14px;padding:12px 14px;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;font-size:13px;line-height:1.6;color:var(--t1);}
+.sdd-terms-def code{font-size:12px;background:var(--bgc);padding:1px 6px;border-radius:4px;}
+.scw-auto-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;margin-top:12px;background:rgba(43,191,176,.09);border:1px solid rgba(43,191,176,.25);border-radius:999px;font-size:11px;color:var(--teal);line-height:1.45;max-width:100%;flex-wrap:wrap;}
+.scw-results{margin-top:16px;padding:16px;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;}
+.scw-results-h{font-size:12px;font-weight:800;color:var(--goldl);margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;}
+.scw-results-h::before{content:'';width:4px;height:16px;background:var(--goldl);border-radius:2px;opacity:.85;}
+.scw-table-panel{margin-bottom:16px;}
+.scw-table-panel .scw-subh{font-size:11px;font-weight:600;color:var(--t3);margin:0 0 8px;}
+#scw-table-wrap{background:var(--bgc);border:1px solid var(--bd)!important;}
+.scw-results #scw-hero.sc-plain-hero{margin-top:14px;}
+.scw-details{margin-top:14px;padding-top:12px;border-top:1px dashed var(--bdl);}
+.scw-pair-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-bottom:4px;}
+@media(max-width:920px){.scw-pair-wrap{grid-template-columns:1fr;}}
+.scw-pair-wrap .scw-section{border-bottom:none;padding:14px 16px;background:var(--ibg);border:1px solid var(--ibd);border-radius:10px;margin:0;}
+.scw-pair-wrap .scw-section .scw-section-title{margin-top:0;}
+.scw-results.scw-in-pair{margin-top:0;padding:16px;border-radius:10px;}
+.scw-src-line{font-size:12px;color:var(--t2);margin-top:8px;line-height:1.5;}
+.scw-src-badge{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;margin-left:6px;vertical-align:middle;}
+.scw-src-sim{background:rgba(45,190,116,.22);color:var(--green);border:1px solid rgba(45,190,116,.4);}
+.scw-src-est{background:rgba(200,168,75,.18);color:var(--goldl);border:1px solid rgba(200,168,75,.35);}
+#tab-scenario.scen-reader{font-size:15px;line-height:1.58;}
+#tab-scenario.scen-reader .fl{font-size:14px;margin-bottom:5px;}
+#tab-scenario.scen-reader .fi,#tab-scenario.scen-reader .fs{font-size:16px;padding:9px 11px;}
+#tab-scenario.scen-reader .hint{font-size:13px;}
+#tab-scenario.scen-reader .scw-intro{font-size:14px;padding:13px 16px;}
+#tab-scenario.scen-reader .scw-section-title{font-size:13px;}
+#tab-scenario.scen-reader .scw-acct-head{font-size:13px;}
+#tab-scenario.scen-reader .scw-auto-pill{font-size:12px;padding:9px 14px;}
+#tab-scenario.scen-reader .scw-results-h{font-size:14px;}
+#tab-scenario.scen-reader .scw-subh{font-size:12px;}
+#tab-scenario.scen-reader .st.st-scenario-tax th,#tab-scenario.scen-reader .st.st-scenario-tax td{font-size:13px;padding:10px 9px;}
+#tab-scenario.scen-reader .sc-plain-hero .sch-title{font-size:18px;}
+#tab-scenario.scen-reader .sc-plain-hero ul,#tab-scenario.scen-reader .sc-plain-hero .sch-lead{font-size:14px;}
+#tab-scenario.scen-reader .sc-plain-hero .sch-note{font-size:13px;}
+#tab-scenario.scen-reader details summary{font-size:14px!important;}
+#tab-scenario.scen-reader #scw-formula,#tab-scenario.scen-reader #sdd-formula{font-size:13px!important;}
+.sdd-fig-yield{font-size:16px;font-weight:800;color:var(--teal);font-family:'JetBrains Mono',monospace;}
+.sdd-fig-tax{font-size:16px;font-weight:800;color:#ffb86c;font-family:'JetBrains Mono',monospace;text-shadow:0 0 14px rgba(255,184,108,.35);}
+.sdd-formula-box{margin-top:14px;padding:14px 16px;background:linear-gradient(160deg,rgba(43,191,176,.12),var(--bg2));border:1px solid rgba(43,191,176,.35);border-radius:10px;font-size:14px;line-height:1.65;color:var(--t1);}
+.sdd-formula-box b{color:var(--goldl);}
 .sec-off{opacity:.35;pointer-events:none;}
 .price-live{font-size:10px;padding:1px 4px;border-radius:3px;background:rgba(45,190,116,.12);color:var(--green);border:1px solid rgba(45,190,116,.25);}
 .price-err{font-size:10px;padding:1px 4px;border-radius:3px;background:rgba(224,85,85,.1);color:var(--red);border:1px solid rgba(224,85,85,.2);}
@@ -191,7 +278,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
       </div>
       <div class="g2">
         <div class="frow"><label class="fl">기대 수명</label><input class="fi mono" id="lifeExp" type="number" value="90"></div>
-        <div class="frow"><label class="fl">국민연금 수령 나이 <strong id="npAge-val" style="color:var(--goldl)">65세</strong></label><input type="range" id="npAge" min="55" max="70" value="65" oninput="renderNP()"></div>
+        <div class="frow"><label class="fl">국민연금 수령 나이 <strong id="npAge-val" style="color:var(--goldl)">65세</strong></label><input type="range" id="npAge" min="55" max="70" value="65" oninput="renderNP();updateRetireOtherHealthHint();"></div>
       </div>
     </div>
     <div class="card">
@@ -214,7 +301,6 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
           <option value="high" selected>총급여 5,500만원 초과 → 13.2%</option>
         </select>
       </div>
-      <div class="frow"><label class="fl">은퇴 후 기타 월소득 (원)</label><input class="fi mono" id="retireOther" type="number" value="0" oninput="ka(this,'ka-ro')"><div class="ka" id="ka-ro"></div></div>
     </div>
     <div class="card">
       <div class="ctitle">🛒 지출 &amp; 목표
@@ -266,10 +352,26 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
     </div>
   </div>
 
-  <!-- 국민연금 -->
+  <!-- 국민연금 소득 감액 + 은퇴 후 기타 월소득 -->
+  <div class="card" style="margin-top:14px;">
+    <div class="ctitle">📋 국민연금 소득 감액 (재취업 등·참고)</div>
+    <div class="al al-i" style="font-size:11px;margin-bottom:8px;line-height:1.55;color:var(--t1);">
+      <b>2026년 A값</b> 3,083,758원(매년 초 변동). <b>(월평균 소득 − A) &gt; 0</b>이면 감액 검토.<br>
+      아래 <b>은퇴 후 기타 월소득</b>을 <b>국민연금 감액용 월평균 소득</b>으로 동일하게 씁니다(재취업·사업 등 합산 월액을 한 칸에). 구간별 월 삭감은 <b>국민연금 수령 시뮬레이션</b>·메인 시뮬에 반영됩니다.
+    </div>
+    <div class="frow" style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;row-gap:6px;">
+      <label class="fl" style="margin:0;flex:0 0 auto;">은퇴 후 기타 월소득 (원) · 감액·시뮬 공통</label>
+      <input class="fi mono" id="retireOther" type="number" value="0" style="max-width:150px;flex:0 0 auto;" oninput="ka(this,'ka-ro');updateRetireOtherHealthHint();renderNP();">
+      <div class="ka" id="ka-ro" style="flex:0 0 auto;"></div>
+      <span id="ro-health-hint" style="font-size:11px;line-height:1.45;color:var(--t2);flex:1 1 260px;min-width:220px;margin:0;"></span>
+    </div>
+  </div>
+
+  <!-- 국민연금 수령 시뮬레이션 -->
   <div class="card">
     <div class="ctitle">🏛️ 국민연금 수령 시뮬레이션</div>
     <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
+      📎 위 카드의 <b>은퇴 후 기타 월소득</b>이 있으면, 동일 금액으로 <b>소득감액(월 삭감)</b>을 이 표에 반영합니다.<br>
       💡 <b>국민연금 핵심 포인트</b><br>
       · <b>조기수령</b>(55~64세): 1년 일찍받을수록 6% 감액 → 오래 살수록 손해<br>
       · <b>기본</b>(65세): 표준 수령<br>
@@ -278,43 +380,11 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
     </div>
     <div class="g2">
       <div>
-        <div class="frow"><label class="fl">기준 월수령액 — 65세 기준 (원)</label><input class="fi mono" id="npBase" type="number" value="1400000" oninput="ka(this,'ka-np');renderNP()"><div class="ka" id="ka-np"></div></div>
+        <div class="frow"><label class="fl">기준 월수령액 — 65세 기준 (원)</label><input class="fi mono" id="npBase" type="number" value="1400000" oninput="ka(this,'ka-np');renderNP();updateRetireOtherHealthHint();"><div class="ka" id="ka-np"></div></div>
         <div class="al al-i" style="font-size:12px;margin-top:6px;">조기수령: 1년마다 <strong>-6%</strong> · 연기수령: 1년마다 <strong>+7.2%</strong></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;" id="np-grid"></div>
-    </div>
-  </div>
-
-  <!-- 절세 삼총사 안내 -->
-  <div class="card" style="border-color:rgba(200,168,75,.3);">
-    <div class="ctitle">⚔️ 절세 삼총사 — ISA · IRP · 연금저축
-      <div class="ctr"><button class="btn btn-sec btn-xs" onclick="G('tax-trio-detail').style.display=G('tax-trio-detail').style.display==='none'?'':'none'">자세히 보기</button></div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
-      <div style="background:rgba(59,143,232,.08);border-radius:6px;padding:8px;text-align:center;">
-        <div style="font-size:13px;font-weight:700;color:var(--blue)">1️⃣ ISA</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">비과세 200만<br>3년 만기 후<br>연금계좌 이전</div>
-      </div>
-      <div style="background:rgba(155,111,224,.08);border-radius:6px;padding:8px;text-align:center;">
-        <div style="font-size:13px;font-weight:700;color:var(--purple)">2️⃣ 연금저축</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">세액공제 최대<br>99만원/년<br>55세+ 연금수령</div>
-      </div>
-      <div style="background:rgba(232,135,59,.08);border-radius:6px;padding:8px;text-align:center;">
-        <div style="font-size:13px;font-weight:700;color:var(--orange)">3️⃣ IRP</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">추가공제 49만<br>퇴직금 이전<br>세금 이연</div>
-      </div>
-    </div>
-    <div id="tax-trio-detail" style="display:none;">
-      <div class="al al-i" style="font-size:12px;">
-        <b>💡 최적 납입 순서</b>: ① ISA(연 2천만) → ② 연금저축(연 600만) → ③ IRP(연 300만)<br><br>
-        <b>💰 인출 순서 (세금 0원 먼저!)</b><br>
-        ① <span style="color:var(--green)">과세제외 원금</span> (세금 0%) — 세액공제 안 받은 돈<br>
-        ② <span style="color:var(--orange)">이연퇴직소득</span> — 퇴직금 이체금, 세율 퇴직소득세 60~70%<br>
-        ③ <span style="color:var(--teal)">세액공제 원금+수익</span> — 연금소득세 3.3~5.5%<br><br>
-        <b>⚠️ 연간 1,500만원 초과 수령 시</b><br>
-        선택: 종합과세(6~45%) vs 분리과세(16.5%) 중 유리한 쪽 선택 가능<br>
-        ISA에서 수령하면 비과세 → 이 금액은 1,500만원 계산에서 제외!
-      </div>
+      <div id="np-ded-summary" class="al al-i" style="font-size:11px;margin-top:10px;line-height:1.55;display:none;"></div>
     </div>
   </div>
 
@@ -323,7 +393,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
     <div class="ctitle">🏛️ 퇴직금 <span class="badge">DB/DC</span></div>
     <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
       💡 <b>DB형</b>: 회사가 운용 책임. 퇴직시 확정금액 지급 (마지막 3개월 평균임금 × 근속연수)<br>
-      💡 <b>DC형</b>: 근로자가 직접 운용. 법정 연간 적립 = 연봉÷12. 운용 성과에 따라 수령액 달라짐<br>
+      💡 <b>DC형</b>: 근로자가 직접 운용. 이 시뮬은 DC 납입을 <b>연간 연봉÷12원</b>(세전 월급 1개월분 상당)으로 간이합니다. 사업장·규약·적립 한도는 다를 수 있어요. 운용 성과에 따라 수령액 달라짐<br>
       🏆 <b>DC형 절세팁</b>: 퇴직IRP로 이전 시 퇴직소득세 이연 → 연금수령 시 세율 3.3~5.5%로 절감
     </div>
     <div class="g3">
@@ -392,14 +462,14 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
             <div class="hint">비우면 퇴직IRP 계좌 수익률 자동사용</div>
           </div>
           <div class="frow">
-            <label class="fl">매월 DC 적립금 <span style="font-size:10px;color:var(--teal)">법정: 연봉÷12 = 월 기준</span></label>
+            <label class="fl">DC 연간 적립(간이) <span style="font-size:10px;color:var(--teal)">연봉÷12원/년</span></label>
             <div style="position:relative;">
               <input class="fi mono" id="dc-extra-monthly" type="text" readonly
                 style="background:var(--bg2);cursor:default;color:var(--t2);padding-right:10px;"
                 placeholder="연봉 입력 시 자동계산">
               <div id="ka-dc-extra" style="font-size:13px;color:var(--goldl);font-weight:700;margin-top:3px;min-height:18px;"></div>
             </div>
-            <div class="hint" id="dc-auto-contrib">매달 이 금액이 퇴직IRP에 적립됩니다 (연간 합계 = 연봉)</div>
+            <div class="hint" id="dc-auto-contrib">시뮬·퇴직IRP: 매년 납입액을 <b>연봉÷12</b>(월급 1개월분)으로 둡니다. (구버전은 연 전액을 넣어 약 12배 과대였음)</div>
           </div>
         </div>
         <div id="dc-live-result" class="al al-s" style="margin-top:8px;font-size:12px;"></div>
@@ -452,6 +522,37 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 
 <!-- ════ 계좌설정 ════ -->
 <div id="tab-accts" class="panel">
+  <div class="card" style="border-color:rgba(200,168,75,.3);">
+    <div class="ctitle">⚔️ 절세 삼총사 — ISA · IRP · 연금저축
+      <div class="ctr"><button class="btn btn-sec btn-xs" onclick="G('tax-trio-detail').style.display=G('tax-trio-detail').style.display==='none'?'':'none'">자세히 보기</button></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
+      <div style="background:rgba(59,143,232,.08);border-radius:6px;padding:8px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:var(--blue)">1️⃣ ISA</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">비과세 200만<br>3년 만기 후<br>연금계좌 이전</div>
+      </div>
+      <div style="background:rgba(155,111,224,.08);border-radius:6px;padding:8px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:var(--purple)">2️⃣ 연금저축</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">세액공제 최대<br>99만원/년<br>55세+ 연금수령</div>
+      </div>
+      <div style="background:rgba(232,135,59,.08);border-radius:6px;padding:8px;text-align:center;">
+        <div style="font-size:13px;font-weight:700;color:var(--orange)">3️⃣ IRP</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">추가공제 49만<br>퇴직금 이전<br>세금 이연</div>
+      </div>
+    </div>
+    <div id="tax-trio-detail" style="display:none;">
+      <div class="al al-i" style="font-size:12px;color:var(--t1);">
+        <b>💡 최적 납입 순서</b>: ① ISA(연 2천만) → ② 연금저축(연 600만) → ③ IRP(연 300만)<br><br>
+        <b>💰 인출 순서 (세금 0원 먼저!)</b><br>
+        ① <span style="color:var(--green)">과세제외 원금</span> (세금 0%) — 세액공제 안 받은 돈<br>
+        ② <span style="color:var(--orange)">이연퇴직소득</span> — 퇴직금 이체금, 세율 퇴직소득세 60~70%<br>
+        ③ <span style="color:var(--teal)">세액공제 원금+수익</span> — 연금소득세 3.3~5.5%<br><br>
+        <b>⚠️ 연간 1,500만원 초과 수령 시</b><br>
+        선택: 종합과세(6~45%) vs 분리과세(16.5%) 중 유리한 쪽 선택 가능<br>
+        ISA에서 수령하면 비과세 → 이 금액은 1,500만원 계산에서 제외!
+      </div>
+    </div>
+  </div>
   <div class="card" style="border-color:rgba(155,111,224,.25);">
     <div class="ctitle">💴 월 투자 현황 &amp; 🎯 절세 자동배분
       <div class="ctr"><span class="badge" style="background:rgba(155,111,224,.2);color:var(--purple)">계좌 자동생성</span></div>
@@ -617,26 +718,107 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 </div>
 
 <!-- ════ 시나리오 ════ -->
-<div id="tab-scenario" class="panel">
-  <div class="card">
-    <div class="ctitle">🎲 시나리오 비교 설정</div>
-    <div class="g4">
-      <div class="frow"><label class="fl">낙관 수익률 (%/년)</label><input class="fi mono" id="sc-opt" type="number" value="10" step="0.5"></div>
-      <div class="frow"><label class="fl">평균 수익률 (%/년)</label><input class="fi mono" id="sc-avg" type="number" value="7" step="0.5"></div>
-      <div class="frow"><label class="fl">비관 수익률 (%/년)</label><input class="fi mono" id="sc-pes" type="number" value="3" step="0.5"></div>
-      <div class="frow"><label class="fl">ISA 만기→배당 교체 수익률(%)</label><input class="fi mono" id="sc-div" type="number" value="6" step="0.5"></div>
+<div id="tab-scenario" class="panel scen-reader">
+  <div class="card" style="border-color:rgba(200,168,75,.3);">
+    <div class="ctitle">📅 언제부터 얼마씩 쓸까? <span style="font-size:12px;font-weight:500;color:var(--t3)">(연금·ISA·퇴직통장)</span></div>
+    <div class="scw-intro"><b>세금 걱정 없이</b> 숫자만 만져 보세요. 잔액은 가능하면 <b>메인 탭에서 ▶ 시뮬레이션</b>을 돌린 뒤의 <b>그 나이 연도 잔액</b>을 쓰고, 아직 없으면 계좌 수익률·월납입만 넣은 <b>단순 불리기</b>로 보충합니다. 아래 표의 인출은 <b>이자 없이</b> 깎는 가정입니다.</div>
+    <div class="scw-body">
+      <div class="scw-pair-wrap">
+        <div class="scw-section">
+          <div class="scw-section-title"><span class="scw-num">1</span> 어떤 통장인지</div>
+          <div class="frow" style="margin-bottom:0;">
+            <label class="fl">통장 종류</label>
+            <select class="fs" id="scw-cat" onchange="refreshScwAcctPick();updateScwIrpSliderExplain();scheduleScwUI();">
+              <option value="IRP_RET">퇴직 IRP (퇴직금)</option>
+              <option value="PENSION_SAVE">연금저축 (펀드·보험)</option>
+              <option value="IRP_ACCUM">적립형 IRP</option>
+              <option value="ISA">ISA</option>
+            </select>
+          </div>
+        </div>
+        <div class="scw-section">
+          <div class="scw-section-title"><span class="scw-num">2</span> 그 나이에 통장에 얼마</div>
+          <div class="scw-account-box" style="background:var(--bgc);border-color:var(--bd);">
+            <label class="scw-cb-row">
+              <input type="checkbox" id="scw-link-bal" checked onchange="toggleScwBalRows();scheduleScwUI();">
+              <span>선택 계좌를 <b>「처음 꺼내기 시작하는 나이」</b> 연도에 맞춰 더하기</span>
+            </label>
+            <div id="scw-bal-manual-row" class="frow" style="display:none;margin-bottom:0;">
+              <label class="fl">직접 넣을 금액 (원)</label>
+              <input class="fi mono" type="number" id="scw-bal-manual" min="0" step="100000" placeholder="예: 80000000" oninput="ka(this,'ka-scw-bal');scheduleScwUI();">
+              <div class="ka" id="ka-scw-bal">0원</div>
+            </div>
+            <div id="scw-acct-pick-wrap">
+              <div class="scw-acct-head">포함 계좌 (해당 종류 전체 합산)</div>
+              <div id="scw-acct-pick" style="display:flex;flex-wrap:wrap;gap:8px 14px;"></div>
+              <div id="scw-src-note" class="scw-src-line"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="scw-pair-wrap">
+        <div class="scw-section">
+          <div class="scw-section-title"><span class="scw-num">3</span> 얼마씩·몇 년·몇 살부터</div>
+          <div class="scw-grid-2">
+            <div class="scw-input-pair scw-grid-full">
+              <div class="frow">
+                <label class="fl">1년 인출 (원)</label>
+                <input class="fi mono" type="number" id="scw-annual" min="0" step="100000" placeholder="예: 10000000" oninput="ka(this,'ka-scw-annual');scheduleScwUI();">
+                <div class="ka" id="ka-scw-annual">0원</div>
+                <div class="scw-annual-note">위에 입력한 <b>1년 인출(원)</b> 금액을 기준으로 예시를 보여 드려요. 실제 세금·실수령액은 수령 연차·연령·한도 등에 따라 달라질 수 있어요.</div>
+              </div>
+              <div class="frow">
+                <label class="fl">꺼내기 시작 나이</label>
+                <input class="fi mono" type="number" id="scw-start-age" min="45" max="90" value="60" style="max-width:100%;" oninput="refreshScwAcctPick();scheduleScwUI();">
+                <div class="hint">2번 잔액·세금 안내에 사용</div>
+              </div>
+            </div>
+            <div class="frow scw-grid-full scw-slider-block">
+              <label class="fl">쓸 기간 · <b id="scw-years-lbl" style="color:var(--goldl)">10년</b> <span style="color:var(--t3);font-weight:500">(1~21년)</span></label>
+              <div id="scw-irp-slider-explain"></div>
+              <input type="range" id="scw-years" min="1" max="21" value="10" style="width:100%;" oninput="G('scw-years-lbl').textContent=this.value+'년';scheduleScwUI();">
+            </div>
+          </div>
+          <div class="scw-auto-pill"><span style="color:var(--goldl);font-size:16px;line-height:1">●</span> 숫자만 바꿔도 오른쪽 결과가 <b>바로</b> 바뀝니다.</div>
+        </div>
+        <div class="scw-results scw-in-pair">
+          <div class="scw-results-h">4 · 결과</div>
+          <div id="scw-tax-cards" class="scw-tax-cards"></div>
+          <div id="scw-hero" class="sc-plain-hero" style="display:none;"></div>
+          <details class="scw-details"><summary style="cursor:pointer;color:var(--goldl);font-weight:600;">계산 설명 (선택)</summary>
+            <div id="scw-formula" style="margin-top:10px;padding:14px;background:var(--bgc);border:1px solid var(--bd);border-radius:8px;color:var(--t2);line-height:1.65;"></div>
+          </details>
+        </div>
+      </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <div class="sc-chip" style="background:rgba(45,190,116,.15);border:1px solid rgba(45,190,116,.3);color:var(--green);">● 낙관</div>
-      <div class="sc-chip" style="background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);color:var(--goldl);">● 평균</div>
-      <div class="sc-chip" style="background:rgba(224,85,85,.15);border:1px solid rgba(224,85,85,.3);color:var(--red);">● 비관</div>
-      <div class="sc-chip" style="background:rgba(43,191,176,.15);border:1px solid rgba(43,191,176,.3);color:var(--teal);">● ISA 만기→배당형</div>
-      <button class="btn btn-gold" style="margin-left:auto;" onclick="runScenario()">📊 시나리오 실행</button>
-    </div>
-    <p style="font-size:11px;color:var(--t3);margin:8px 0 0 0;line-height:1.5;">메인 탭 시뮬 실행 <b>없이도</b> 현재 기본정보·계좌로 4가지 가정을 돌립니다. 실행 후 아래에 <b>이 결과에 맞는 인출·배당 안내</b>가 붙습니다.</p>
   </div>
-  <details class="card" style="margin-bottom:12px;padding:10px 14px;">
-    <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--goldl);list-style-position:outside;">📚 법령·인출·배당 참고표 (펼치기·접기)</summary>
+  <div class="card" style="border-color:rgba(43,191,176,.3);">
+    <div class="ctitle">💵 배당·이자와 세금</div>
+    <div class="sdd-slider-row" style="margin-top:4px;">
+      <div class="scw-account-box" style="margin-bottom:0;">
+        <label class="fl">배당 비중 · <b id="sdd-alloc-lbl" style="color:var(--goldl)">100%</b></label>
+        <input type="range" id="sdd-alloc" min="0" max="100" step="5" value="100" style="width:100%;" oninput="G('sdd-alloc-lbl').textContent=this.value+'%';scheduleSddUI();">
+        <div class="sdd-tip">선택 계좌 잔액 중 배당/이자 계산 반영 비중</div>
+      </div>
+      <div class="scw-account-box" style="margin-bottom:0;">
+        <label class="fl">연 배당·이자율 · <b id="sdd-yield-lbl" style="color:var(--goldl)">4.0%</b></label>
+        <input type="range" id="sdd-yield" min="0" max="20" step="0.1" value="4" style="width:100%;" oninput="G('sdd-yield-lbl').textContent=(+this.value).toFixed(1)+'%';scheduleSddUI();">
+        <div class="sdd-tip">0~20%에서 움직이며 세전·세후 금액 변화를 확인</div>
+      </div>
+    </div>
+    <div id="sdd-acct-pick-wrap" style="font-size:13px;margin-bottom:10px;">
+      <div class="scw-acct-head">계좌 선택 <span style="color:var(--t3);font-weight:500">(현재 잔액 → 은퇴 시점 잔액)</span></div>
+      <div id="sdd-acct-pick" style="display:flex;flex-wrap:wrap;gap:8px 14px;"></div>
+      <div id="sdd-src-note" class="scw-src-line" style="margin-top:8px;"></div>
+    </div>
+    <div class="scw-auto-pill" style="margin-top:0;background:rgba(43,191,176,.09);border-color:rgba(43,191,176,.25);"><span style="color:var(--teal);">●</span> 슬라이더·체크를 바꾸면 세금·세후 금액이 바로 바뀝니다.</div>
+    <div id="sdd-hero" class="sc-plain-hero" style="display:none;margin:14px 0 10px;"></div>
+    <div class="sc-mini-h" style="margin-top:10px;">계좌별 표</div>
+    <div id="sdd-table-wrap" class="sim-wrap" style="max-height:300px;border:1px solid var(--bd);border-radius:8px;background:var(--bgc);"></div>
+    <div id="sdd-formula" class="sdd-tip" style="margin-top:10px;"></div>
+  </div>
+  <details class="card" style="display:none;margin-bottom:12px;padding:10px 14px;">
+    <summary style="cursor:pointer;font-size:13px;font-weight:700;color:var(--goldl);list-style-position:outside;">📚 심화 참고: 법령·인출·배당 표 (선택)</summary>
     <div style="margin-top:12px;">
   <div class="al al-i" style="font-size:11px;line-height:1.6;margin-bottom:12px;padding:10px 12px;">
     <b>근거·유의사항</b> 아래 표는 <b>소득세법</b>(연금소득 제20조의3, 연금소득공제 제47조의2 등), <b>소득세법 시행령</b>(이연퇴직소득세액 계산 제202조의2 등), <b>조세특례제한법</b>(ISA 금융투자소득 비과세·분리과세) 및 공적연금·퇴직연금 사업자가 배포하는 과세체계 안내(예: <a href="https://www.sema.or.kr/sema/main/contents.do?menuNo=200066" target="_blank" rel="noopener">과학기술인공제회 연금 과세체계</a>)를 요약한 것입니다.
@@ -759,6 +941,23 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
     <div class="card" id="sc-insight-wrap" style="border-color:rgba(200,168,75,.35);"><div class="ctitle">💡 이 결과에 해당하는 인출·배당 안내</div><div id="sc-insight"></div></div>
     <div class="g4" id="sc-stats"></div>
     <div class="card"><div class="ctitle">📋 시나리오별 비교표</div><div class="sim-wrap"><table class="st"><thead id="sc-th"></thead><tbody id="sc-tb"></tbody></table></div></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">🎲 시나리오 비교 설정</div>
+    <div class="g4">
+      <div class="frow"><label class="fl">낙관 수익률 (%/년)</label><input class="fi mono" id="sc-opt" type="number" value="10" step="0.5"></div>
+      <div class="frow"><label class="fl">평균 수익률 (%/년)</label><input class="fi mono" id="sc-avg" type="number" value="7" step="0.5"></div>
+      <div class="frow"><label class="fl">비관 수익률 (%/년)</label><input class="fi mono" id="sc-pes" type="number" value="3" step="0.5"></div>
+      <div class="frow"><label class="fl">ISA 만기→배당 교체 수익률(%)</label><input class="fi mono" id="sc-div" type="number" value="6" step="0.5"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div class="sc-chip" style="background:rgba(45,190,116,.15);border:1px solid rgba(45,190,116,.3);color:var(--green);">● 낙관</div>
+      <div class="sc-chip" style="background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);color:var(--goldl);">● 평균</div>
+      <div class="sc-chip" style="background:rgba(224,85,85,.15);border:1px solid rgba(224,85,85,.3);color:var(--red);">● 비관</div>
+      <div class="sc-chip" style="background:rgba(43,191,176,.15);border:1px solid rgba(43,191,176,.3);color:var(--teal);">● ISA 만기→배당형</div>
+      <button class="btn btn-gold" style="margin-left:auto;" onclick="runScenario()">📊 시나리오 실행</button>
+    </div>
+    <p style="font-size:11px;color:var(--t3);margin:8px 0 0 0;line-height:1.5;">메인 탭 시뮬 실행 <b>없이도</b> 현재 기본정보·계좌로 4가지 가정을 돌립니다. 실행 후 위쪽 <b>4가지 시나리오 비교</b> 영역에 차트·표가 열리고, <b>인출·배당 안내</b>가 붙습니다.</p>
   </div>
 </div>
 
@@ -1003,7 +1202,7 @@ let simY=[],simM=[],simChartObj=null,scChartObj=null,cmpChartObj=null;
 let viewMode='year',CTR={a:0,l:0,i:0,c:0};
 let aiPlan=null;
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.23 20:03';
+const PUBLISH_STAMP='2026.03.24 16:00';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1030,6 +1229,7 @@ window.onload=()=>{
     }catch(e){localStorage.removeItem('retireSim_v6r');initDef();}
   }else initDef();
   initHdrPublish();
+  setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
 };
 function initHdrPublish(){
   const el=G('hdr-publish');
@@ -1055,7 +1255,7 @@ function initDef(){
     DCctr++;dcHoldings.push({id:'dc2',ticker:'455050',name:'TIGER 미국배당다우존스',qty:80,avg:12000,cp:0,cagr:null,divYield:4.2,pb:null});
   }
   renderAccts();renderLoans();renderIns();
-  updateBudBar();updateTax();renderNP();calcTarget();onSalary();updateRule72();
+  updateBudBar();updateTax();renderNP();updateRetireOtherHealthHint();calcTarget();onSalary();updateRule72();
   // DC형 디폴트: 카드 표시 + 계산
   Gv('sevType','DC');
   // DC section 강제 표시
@@ -1065,7 +1265,7 @@ function initDef(){
   renderDCTable();
   calcDB();
   // Initial Korean display
-  const kaMap={'mExp':'ka-me','rExp':'ka-re','npBase':'ka-np','salary':'ka-sal','budget':'ka-bgt'};
+  const kaMap={'mExp':'ka-me','rExp':'ka-re','npBase':'ka-np','salary':'ka-sal','budget':'ka-bgt','scw-annual':'ka-scw-annual','scw-bal-manual':'ka-scw-bal','retireOther':'ka-ro'};
   // Holdings tab initial values
   setTimeout(()=>{
     const hiEl=G('hld-init'),hmEl=G('hld-monthly');
@@ -1102,6 +1302,52 @@ function ws(n){
 }
 // FIX: ka() properly updates Korean display
 function ka(inp,kid){const e=G(kid);if(e)e.textContent=toKor(parseFloat(inp?.value||0)||0);}
+/** 2026년 국민연금 일부재취업 등 감액 판단용 A값(전체 가입자 평균 소득월액, 매년 초 갱신) */
+const NP_SOCIAL_AVG_MONTHLY_2026=3083758;
+/** DC형 연간 납입 간이: 세전 연봉의 1/12(월급 1개월분 상당). 연 전액을 매년 넣으면 약 12배 과대. */
+function dcAnnualContribFromSalary(salY){
+  return Math.round(Math.max(0,salY)/12);
+}
+/** Tiered monthly reduction from national pension when (월평균소득−A) falls in bracket (KRW, excess over A). */
+function calcNpMonthlyReductionFromExcess(excess){
+  if(excess<=0)return 0;
+  const x=excess;
+  if(x<1000000)return Math.round(x*0.05);
+  if(x<2000000)return Math.round(50000+(x-1000000)*0.1);
+  if(x<3000000)return Math.round(150000+(x-2000000)*0.15);
+  if(x<4000000)return Math.round(300000+(x-3000000)*0.2);
+  return Math.round(500000+(x-4000000)*0.25);
+}
+/** 국민연금 감액용 월평균 소득 = 은퇴 후 기타 월소득(재취업·사업 등 합산 월액 한 칸) */
+function getNpEarnBizAvgMonthly(){
+  return Math.max(0,parseFloat(Gval('retireOther'))||0);
+}
+function getNpPensionMonthlyDeduction(){
+  const avg=getNpEarnBizAvgMonthly();
+  if(avg<=0)return 0;
+  const excess=avg-NP_SOCIAL_AVG_MONTHLY_2026;
+  return calcNpMonthlyReductionFromExcess(excess);
+}
+function getNpRateMultiplier(){
+  const npA=parseInt(Gval('npAge'),10)||65;
+  return npA<65?1+(npA-65)*0.06:1+(npA-65)*0.072;
+}
+function getNpMonthlyGrossAtCurrentSetting(){
+  return(Math.round((parseFloat(Gval('npBase'))||1200000)*getNpRateMultiplier()))||0;
+}
+function getNpMonthlyNetAtCurrentSetting(){
+  return Math.max(0,getNpMonthlyGrossAtCurrentSetting()-getNpPensionMonthlyDeduction());
+}
+function updateRetireOtherHealthHint(){
+  const el=G('ro-health-hint');
+  if(!el)return;
+  const ro=(parseFloat(Gval('retireOther'))||0)*12;
+  const npAnn=getNpMonthlyNetAtCurrentSetting()*12;
+  const over=ro+npAnn>20000000;
+  el.innerHTML='⚠ 참고 국민연금·은퇴 후 기타 월소득 등을 연간으로 합치면 <b>2,000만 원</b>을 넘는 경우, 건강보험 <b>피부양자 자격</b>·<b>지역가입자</b> 전환 등이 논의될 수 있어요. 직장·지역 공단 안내를 확인하세요.';
+  el.style.color=over?'var(--orange)':'var(--t2)';
+  el.style.fontWeight=over?'600':'400';
+}
 
 function toast(msg){
   const t=document.createElement('div');
@@ -1229,7 +1475,7 @@ function onSalary(){
 
   // DC 자동납입 표시 갱신
   const dcHint = G('dc-auto-contrib');
-  if(dcHint) dcHint.innerHTML = `연봉÷12 = <b style="color:var(--goldl)">${wf(monthSal)}원/월</b>이 매년 자동 적립됩니다 (연봉상승률 반영)`;
+  if(dcHint) dcHint.innerHTML = `DC 연간 적립(간이): <b style="color:var(--goldl)">${wf(dcAnnualContribFromSalary(parseFloat(Gval('salary'))||0))}원/년</b> (=연봉÷12, 상승률은 시뮬에서 연동)`;
   // dc-extra-monthly 자동 기입 (readonly)
   // dc-extra-monthly 자동 기입
   const dcInpX = G('dc-extra-monthly');
@@ -1538,6 +1784,8 @@ function renderNP(){
     return { netMon, totalTax };
   }
 
+  const ded=getNpPensionMonthlyDeduction();
+  const earnAvg=getNpEarnBizAvgMonthly();
   const opts=[
     {age:55,label:'조기 55세',r:-0.30},
     {age:60,label:'조기 60세',r:-0.18},
@@ -1546,15 +1794,18 @@ function renderNP(){
     {age:70,label:'연기 70세',r:0.36}
   ];
   grid.innerHTML=opts.map(o=>{
-    const adj=Math.round(base*(1+o.r));
-    const diff=adj-base;
+    const adj0=Math.round(base*(1+o.r));
+    const adj=Math.max(0,adj0-ded);
+    const diff=adj0-base;
     const isOn=sel===o.age;
     const {netMon,totalTax}=npAfterTax(adj);
+    const dedLine=ded>0?`<div style="font-size:10px;color:var(--orange);margin-top:2px">소득감액 −${wf(ded)}원/월</div>`:'';
     return `<div class="np-opt ${isOn?'on':''}" onclick="Gv('npAge',${o.age});renderNP()"
       style="border-color:${isOn?'var(--gold)':'var(--bd)'};background:${isOn?'rgba(200,168,75,.08)':''}">
       <div style="font-size:10px;font-weight:600;color:${isOn?'var(--goldl)':'var(--t2)'};margin-bottom:3px">${o.label}</div>
       <div style="font-size:16px;font-weight:800;color:${o.r<0?'var(--red)':o.r>0?'var(--green)':'var(--goldl)'}">${o.r>=0?'+':''}${(o.r*100).toFixed(0)}%</div>
       <div style="font-size:13px;font-weight:700;color:var(--t1);font-family:monospace;margin:2px 0">${wf(adj)}원/월</div>
+      ${dedLine}
       <div style="font-size:10px;color:var(--t2)">세전 연 ${ws(adj*12)}원</div>
       <div style="border-top:1px solid var(--bd);margin-top:3px;padding-top:3px;">
         <div style="font-size:10px;color:var(--t3)">세금 -${wf(Math.round(totalTax/12))}원/월</div>
@@ -1563,6 +1814,25 @@ function renderNP(){
       <div style="font-size:10px;font-weight:600;color:${diff>=0?'var(--green)':'var(--red)'};margin-top:2px">${diff>=0?'+':''}${wf(diff)}/월 차이</div>
     </div>`;
   }).join('');
+  const sum=G('np-ded-summary');
+  if(sum){
+    const roMo=earnAvg;
+    if(roMo>0&&ded>0){
+      sum.style.display='';
+      const over=Math.max(0,earnAvg-NP_SOCIAL_AVG_MONTHLY_2026);
+      sum.innerHTML=`📉 <b>소득 감액 반영</b> — 기타 월소득(감액용 월평균) <b>${wf(Math.round(earnAvg))}원</b>, A값 초과분 <b>${wf(Math.round(over))}원</b> → 연금 월 <b>${wf(ded)}원</b> 삭감(시뮬·카드 동일).`;
+    }else if(roMo>0&&earnAvg>NP_SOCIAL_AVG_MONTHLY_2026){
+      sum.style.display='';
+      sum.innerHTML=`ℹ️ 월평균 <b>${wf(Math.round(earnAvg))}원</b>은 A값(<b>${wf(NP_SOCIAL_AVG_MONTHLY_2026)}원</b>) 초과이나, 입력 구간 기준 산출 감액은 <b>0원</b>이에요(실제는 공단 산정).`;
+    }else if(roMo>0){
+      sum.style.display='';
+      sum.innerHTML=`ℹ️ 기타 월소득 <b>${wf(Math.round(earnAvg))}원</b> — A값 이하로 감액 대상이 아닌 참고치예요.`;
+    }else{
+      sum.style.display='none';
+      sum.textContent='';
+    }
+  }
+  updateRetireOtherHealthHint();
 }
 
 function switchDCTab(tab){
@@ -1673,26 +1943,41 @@ function applyDCRROverride(){
   }
 }
 function calcDCProjection(){
-  // 핵심 계산: 현재 DC잔액 + 매년 연봉÷12 적립 + 추가납입 + 종목CAGR 복리 운용
+  // 현재 DC잔액 + 매년 연봉÷12 납입(간이) + 종목CAGR 복리. (연 전액 납입은 약 12배 과대)
   const sal=parseFloat(Gval('salary'))||0;
   const sg=(parseFloat(Gval('salGrowth'))||3)/100;
   const ra=parseInt(Gval('retireAge'))||60;
   const ca=parseInt(Gval('curAge'))||47;
   const yl=Math.max(0,ra-ca);
-  const extraMonthly=0; // 자동적립금(연봉÷12)은 별도 salY/12로 계산됨
+  const extraMonthly=0;
   const rr=getDCWeightedCAGR(); // 직접입력 → 종목CAGR → IRP수익률 순 우선
   let bal=getDCTotal(); // 현재 평가잔액
   let totalContrib=0;
   let totalExtra=0;
   for(let i=0;i<yl;i++){
     const salY=sal*Math.pow(1+sg,i);
-    const dcAnnual=Math.round(salY/12); // 법정DC: 연봉÷12
+    const dcYearContrib=dcAnnualContribFromSalary(salY);
     const extraAnn=extraMonthly*12;
-    totalContrib+=dcAnnual;
+    totalContrib+=dcYearContrib;
     totalExtra+=extraAnn;
-    bal=(bal+dcAnnual+extraAnn)*(1+rr);
+    bal=(bal+dcYearContrib+extraAnn)*(1+rr);
   }
   return {proj:Math.round(bal),totalContrib:Math.round(totalContrib),totalExtra:Math.round(totalExtra),rr,yl,sal,sg};
+}
+/** DC형 퇴직IRP: 현재~targetAge까지 연봉÷12 연납 + 가중 CAGR (calcDCProjection·getSev와 동일 루프). */
+function getDCBalanceAtAge(targetAge){
+  const sal=parseFloat(Gval('salary'))||0;
+  const sg=(parseFloat(Gval('salGrowth'))||3)/100;
+  const ca=parseInt(Gval('curAge'))||47;
+  const ta=Math.max(ca,Math.min(100,+targetAge||ca));
+  const yl=Math.max(0,ta-ca);
+  const rr=getDCWeightedCAGR();
+  let bal=getDCTotal();
+  for(let i=0;i<yl;i++){
+    const salY=sal*Math.pow(1+sg,i);
+    bal=(bal+dcAnnualContribFromSalary(salY))*(1+rr);
+  }
+  return Math.round(bal);
 }
 function calcDB(){
   const t=Gval('sevType');
@@ -1713,6 +1998,8 @@ function calcDB(){
     const ca=parseInt(Gval('curAge'))||47;
     const firstSal=sal;
     const lastSal=yl>0?Math.round(sal*Math.pow(1+sg,yl-1)):sal;
+    const dcFirst=dcAnnualContribFromSalary(firstSal);
+    const dcLast=dcAnnualContribFromSalary(lastSal);
     const hasCagr=dcHoldings.some(h=>h.cagr!=null);
     const rrLabel=hasCagr?`종목 가중평균 CAGR`:`퇴직IRP 수익률`;
     const ds=G('dc-sum');
@@ -1723,8 +2010,8 @@ function calcDB(){
         `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">`+
           `<div>🏦 현재 DC 잔액</div><div style="text-align:right;font-family:monospace;color:var(--goldl)">${wf(now)}원</div>`+
           `<div>📅 남은 근무기간</div><div style="text-align:right;font-family:monospace">${yl}년 (${ca}세 → ${ca+yl}세)</div>`+
-          `<div>💴 연간 DC 적립액 (연봉÷12, 상승률 ${(sg*100).toFixed(1)}%)</div><div style="text-align:right;font-family:monospace">${wf(Math.round(firstSal/12))}원/년 → ${wf(Math.round(lastSal/12))}원/년</div>`+
-          `<div>💰 총 연봉 적립액</div><div style="text-align:right;font-family:monospace;color:var(--blue)">${wf(totalContrib)}원</div>`+
+          `<div>💴 법정 DC 적립 <span style="font-size:10px;color:var(--t3)">간이: 매년 <b>연봉÷12</b> · 상승률 ${(sg*100).toFixed(1)}%</span></div><div style="text-align:right;font-family:monospace">${wf(dcFirst)}원/년 → ${wf(dcLast)}원/년</div>`+
+          `<div>💰 총 DC 납입(간이 합)</div><div style="text-align:right;font-family:monospace;color:var(--blue)">${wf(totalContrib)}원</div>`+
           `<div>📈 ${rrLabel}</div><div style="text-align:right;font-family:monospace;color:${hasCagr?'var(--green)':'var(--t2)'}">${hasCagr?'':'(기본값) '}${(rr*100).toFixed(1)}%/년${!hasCagr?' ← 종목 CAGR 조회 후 자동반영':''}</div>`+
         `</div>`+
         `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);">`+
@@ -1798,7 +2085,7 @@ function applySheetRefTemplate(){
   const kd=G('ka-dc-bal');if(kd)kd.textContent=toKor(dcb);
   syncDCBalToIRP(dcb);
 
-  onBirth();onRetireAge();renderNP();
+  onBirth();onRetireAge();renderNP();updateRetireOtherHealthHint();
 }
 
 function getDCTotal(){
@@ -2573,6 +2860,7 @@ function renderAccts(){
     if((AMETA[a.type]||{}).cat==='ISA'){syncIsaElapsedFromJoin(a);updateIsaJoinHint(a.id);}
   });
   populateHldAcctFilter();
+  try{refreshScwAcctPick();refreshSddAcctPick();toggleScwBalRows();toggleScwAnnualRows();}catch(e){}
 }
 
 /** 전체 보유·적립 현황 — 계좌 드롭다운 (활성 계좌 목록) */
@@ -3302,15 +3590,391 @@ function buildScenarioInsights(scO,scA,scP,scD){
     lines.push({title:'⚠ 현금흐름',html:`평균 수익률 기준으로 <b>${depAge}세</b> 전후 총자산이 <b>0 이하</b>로 추정됩니다. 은퇴 후 지출·수입을 점검하세요.`});
 
   if(!lines.length)
-    lines.push({title:'요약',html:`은퇴 시점(평균 시나리오) 총자산 <b>${rRow?ws(rRow.totalAssets):'—'}</b>, 연배당 세후 추정 <b>${rRow?ws(rRow.divNet):'—'}</b>입니다. 계좌 구성에 맞는 세목은 위 「법령·참고표」를 펼쳐 확인하세요.`});
+    lines.push({title:'요약',html:`은퇴 시점(평균 시나리오) 총자산 <b>${rRow?ws(rRow.totalAssets):'—'}</b>, 연배당 세후 추정 <b>${rRow?ws(rRow.divNet):'—'}</b>입니다. 시나리오 탭 위쪽의 <b>“언제 얼마씩 쓸까”</b>·<b>배당·이자</b> 칸에서 숫자만 바꿔 보거나, 아래 「심화 참고 표」를 펼칠 수 있습니다.`});
 
   const head='<div class="al al-i" style="font-size:11px;line-height:1.55;margin-bottom:10px;">아래는 <b>평균 수익률 시나리오</b>와 현재 계좌·연금 설정을 바탕으로 한 안내이며, 실제 세액과 다를 수 있습니다.</div>';
   return head+lines.map(x=>`<div style="margin-bottom:10px;padding:10px 11px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;border-left:3px solid var(--goldl);"><div style="font-size:12px;font-weight:700;color:var(--goldl);margin-bottom:5px;">${x.title}</div><div style="font-size:12px;color:var(--t2);line-height:1.55;">${x.html}</div></div>`).join('');
+}
+// ─── 시나리오 탭: 인출·배당 FP 시뮬레이터 ───
+function fpInsightBlocks(lines,accent){
+  const c=accent||'var(--teal)';
+  return lines.map(x=>`<div style="margin-bottom:10px;padding:10px 11px;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;border-left:3px solid ${c};"><div style="font-size:12px;font-weight:700;color:${c};margin-bottom:5px;">${x.t}</div><div style="font-size:12px;color:var(--t2);line-height:1.55;">${x.h}</div></div>`).join('');
+}
+/** Main-tab sim row for exact age (if sim was run). */
+function getSimBalanceAtAge(acctId,age){
+  try{
+    if(typeof simY==='undefined'||!simY||!simY.length)return null;
+    const row=simY.find(r=>r.age===+age);
+    if(!row||!row.balances)return null;
+    const v=row.balances[acctId];
+    const a=accounts.find(x=>x.id===acctId);
+    const ra=parseInt(Gval('retireAge'))||60;
+    if(a&&a.type==='IRP_RETIRE'&&Gval('sevType')==='DC'&&(a.irpOnRetire||'keep')!=='keep'&&+age===ra){
+      const simVal=(v==null||v===undefined||isNaN(+v))?0:Math.round(+v);
+      if(simVal<=0)return null;
+    }
+    if(a&&a.type==='IRP_ACCUM'&&+age===ra){
+      const simVal=(v==null||v===undefined||isNaN(+v))?0:Math.round(+v);
+      const f=getAcctProjectedBalAtAge(a,age);
+      if(simVal<=0&&f>0)return null;
+    }
+    if(v==null||v===undefined||isNaN(+v))return null;
+    return Math.round(+v);
+  }catch(e){return null;}
+}
+function getScenarioBalAtAge(a,targetAge){
+  const formula=getAcctProjectedBalAtAge(a,targetAge);
+  const sim=getSimBalanceAtAge(a.id,targetAge);
+  return{formula,sim,use:sim!=null?sim:formula,fromSim:sim!=null};
+}
+function collectScwLinkedBalance(){
+  const startAge=Math.max(45,Math.min(90,parseInt(Gval('scw-start-age'),10)||60));
+  const cat=Gval('scw-cat');
+  const picked=accounts.filter(a=>a.active&&accountMatchesScwCat(a,cat));
+  let sum=0,simN=0,n=0,diffs=[];
+  picked.forEach(a=>{
+    n++;
+    const sc=getScenarioBalAtAge(a,startAge);
+    sum+=sc.use;
+    if(sc.fromSim)simN++;
+    if(sc.fromSim&&sc.sim!=null&&Math.abs(sc.sim-sc.formula)>Math.max(5000,sc.formula*0.002))
+      diffs.push({label:a.label,sim:sc.sim,f:sc.formula});
+  });
+  const hasSim=typeof simY!=='undefined'&&simY&&simY.length;
+  return{startAge,sum:Math.round(sum),simN,totalChecked:n,diffs,hasSim};
+}
+function getScwBalanceDetails(){
+  const startAge=Math.max(45,Math.min(90,parseInt(Gval('scw-start-age'),10)||60));
+  if(!G('scw-link-bal')?.checked)
+    return{mode:'manual',sum:Math.max(0,Math.round(parseFloat(Gval('scw-bal-manual'))||0)),startAge,simN:0,totalChecked:0,diffs:[],hasSim:typeof simY!=='undefined'&&simY&&simY.length};
+  const c=collectScwLinkedBalance();
+  return{mode:'linked',sum:c.sum,startAge:c.startAge,simN:c.simN,totalChecked:c.totalChecked,diffs:c.diffs,hasSim:c.hasSim};
+}
+function updateScwSrcNote(){
+  const el=G('scw-src-note');if(!el)return;
+  if(!G('scw-link-bal')?.checked){el.innerHTML='';return;}
+  const d=collectScwLinkedBalance();
+  const ra=parseInt(Gval('retireAge'))||60;
+  const irpXferNote=(d.startAge===ra&&Gval('sevType')==='DC'&&accounts.some(a=>a.active&&a.type==='IRP_RETIRE'&&(a.irpOnRetire||'keep')!=='keep'))
+    ?' <span style="color:var(--t3);font-size:12px">DC형 <b>퇴직IRP</b>를 은퇴 후 다른 계좌로 넘기도록 설정했으면, 시뮬에서는 <b>'+ra+'세</b> 연도 잔액이 0일 수 있어요. 그때는 메인과 같은 <b>DC 퇴직금 추정</b> 금액을 씁니다.</span>':'';
+  if(!d.hasSim)el.innerHTML='<span class="scw-src-badge scw-src-est">단순 추정</span> 메인 탭에서 <b>시뮬</b>을 돌리면 그 연도 잔액을 여기에 맞출 수 있어요.'+irpXferNote;
+  else if(d.totalChecked===0)el.innerHTML='';
+  else if(d.simN===0)el.innerHTML='<span class="scw-src-badge scw-src-est">단순 추정</span> 시뮬에 <b>'+d.startAge+'세</b> 행이 없거나 잔액이 비어 있으면 복리·DC 추정을 씁니다.'+irpXferNote;
+  else if(d.simN===d.totalChecked)el.innerHTML='<span class="scw-src-badge scw-src-sim">시뮬 반영</span> 위 계좌는 <b>'+d.startAge+'세</b> 연도(메인 시뮬) 잔액 합을 썼습니다.'+irpXferNote;
+  else el.innerHTML='<span class="scw-src-badge scw-src-sim">혼합</span> 일부는 시뮬 잔액, 일부는 단순·DC 추정입니다.'+irpXferNote;
+}
+function scwIsPensionLike(cat){return cat==='PENSION_SAVE'||cat==='IRP_ACCUM';}
+function accountMatchesScwCat(a,cat){
+  if(cat==='IRP_RET')return a.type==='IRP_RETIRE';
+  if(cat==='PENSION_SAVE')return['PENSION_FUND','PENSION_INS'].includes(a.type);
+  if(cat==='IRP_ACCUM')return a.type==='IRP_ACCUM';
+  if(cat==='ISA')return(AMETA[a.type]||{}).cat==='ISA';
+  return false;
+}
+function refreshScwAcctPick(){
+  const box=G('scw-acct-pick');if(!box)return;
+  const cat=Gval('scw-cat');
+  const startAge=Math.max(45,Math.min(90,parseInt(Gval('scw-start-age'),10)||60));
+  const active=accounts.filter(a=>a.active&&accountMatchesScwCat(a,cat));
+  if(!active.length){box.innerHTML='<span style="color:var(--orange)">이 종류에 해당하는 계좌가 없어요. 메인 탭에서 계좌를 추가하거나, 위에서 다른 종류를 골라 보세요.</span>';updateScwSrcNote();scheduleScwUI();return;}
+  box.innerHTML=active.map(a=>{
+    const sc=getScenarioBalAtAge(a,startAge);
+    const cur=Math.round(a.balance||0);
+    const tag=sc.fromSim?'<span class="scw-src-badge scw-src-sim" style="font-size:10px;vertical-align:middle">시뮬</span>':'<span class="scw-src-badge scw-src-est" style="font-size:10px;vertical-align:middle">추정</span>';
+    const diff=(sc.fromSim&&Math.abs(sc.sim-sc.formula)>Math.max(5000,sc.formula*0.002))?` <span style="color:var(--t3);font-size:12px">(단순 ${ws(sc.formula)})</span>`:'';
+    const xfer=a.type==='IRP_RETIRE'&&(a.irpOnRetire||'keep')!=='keep'?'<span style="color:var(--orange);font-size:11px;margin-left:4px">(은퇴 후 타계좌 이전 설정)</span>':'';
+    return`<div class="scw-acct-line" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;max-width:100%;">${a.label}${xfer} <span style="color:var(--t3);font-size:13px">(현재 ${ws(cur)} → <b style="color:var(--goldl)">${startAge}세 ${ws(sc.use)}</b>${tag}${diff})</span></div>`;
+  }).join('');
+  updateScwSrcNote();
+}
+function estimateScwAnnualFromPensionSettings(cat){
+  const curA=parseInt(Gval('curAge'))||47;
+  const startAge=Math.max(45,Math.min(90,parseInt(Gval('scw-start-age'),10)||60));
+  let sum=0;
+  accounts.filter(a=>a.active&&accountMatchesScwCat(a,cat)).forEach(a=>{
+    if(cat==='ISA')return;
+    if(a.type==='IRP_RETIRE'&&(a.irpOnRetire||'keep')!=='keep')return;
+    if(a.irpOnRetire==='toAccum'||a.irpOnRetire==='liquidate')return;
+    const base=getScenarioBalAtAge(a,startAge).use;
+    const plan=calcPensionPlanAnnual(base,a.pensionStartAge||55,curA,a.pensionYears||10,a.pensionMode||'equal');
+    if(startAge>=plan.startAge)sum+=plan.annual;
+  });
+  return Math.round(sum);
+}
+function toggleScwBalRows(){
+  const lk=G('scw-link-bal')?.checked;
+  const row=G('scw-bal-manual-row');
+  if(row)row.style.display=lk?'none':'';
+}
+function toggleScwAnnualRows(){}
+function scwGetBalance(){
+  if(G('scw-link-bal')?.checked)return collectScwLinkedBalance().sum;
+  return Math.max(0,Math.round(parseFloat(Gval('scw-bal-manual'))||0));
+}
+let _scwUiT=null,_sddUiT=null;
+function scheduleScwUI(){clearTimeout(_scwUiT);_scwUiT=setTimeout(renderWithdrawScheduleUI,130);}
+function scheduleSddUI(){clearTimeout(_sddUiT);_sddUiT=setTimeout(renderDividendUI,130);}
+/** 연금 수령 연차 yearIdx(1=첫해) 기준 세무 한도 참고: 평가액÷(11−연차)×120% */
+function scwPensionLimitRef(balBefore,yearIdx){
+  const d=11-yearIdx;
+  if(d<=0||balBefore<=0)return null;
+  return Math.round(balBefore/d*1.2);
+}
+/** 연금 인출액에 대한 연령별 안내용 세부담(공제 전 단순 곱) */
+function scwApproxPensionTaxWon(annual,age){
+  if(annual<=0)return{w:0,rateLabel:'—'};
+  const r=age>=70?0.044:0.055;
+  return{w:Math.round(annual*r),rateLabel:`약 ${(r*100).toFixed(1)}%×연인출(안내)`};
+}
+function initScenarioWidgets(){
+  const sa=G('scw-start-age');
+  if(sa){const ra=parseInt(Gval('retireAge'),10)||60;if(!sa.value||sa.value==='60')sa.value=String(ra);}
+  const scwA=G('scw-annual'),scwK=G('ka-scw-annual');if(scwA&&scwK)scwK.textContent=toKor(parseFloat(scwA.value)||0);
+  const scwM=G('scw-bal-manual'),scwMK=G('ka-scw-bal');if(scwM&&scwMK)scwMK.textContent=toKor(parseFloat(scwM.value)||0);
+  refreshScwAcctPick();
+  refreshSddAcctPick();
+  toggleScwBalRows();
+  toggleScwAnnualRows();
+  updateScwIrpSliderExplain();
+  scheduleScwUI();
+  scheduleSddUI();
+}
+function updateScwIrpSliderExplain(){
+  const host=G('scw-irp-slider-explain');
+  if(!host)return;
+  if(Gval('scw-cat')!=='IRP_RET'){
+    host.innerHTML='';
+    return;
+  }
+  host.innerHTML=
+`<div class="scw-irp-track">퇴직 IRP · 연금으로 나눠 받을 때 <b>수령 연차</b>(몇 년째)에 따른 <b>이연퇴직소득세 부담률 안내</b>(참고). 아래 막대는 이 시나리오의 <b>1~21년</b> 구간을 색으로 나눈 것입니다.</div>
+<div class="scw-irp-zones" title="연차 구간별 안내 비율">
+  <div style="flex:10;background:linear-gradient(90deg,rgba(255,140,90,.5),rgba(255,184,108,.32));"></div>
+  <div style="flex:10;background:linear-gradient(90deg,rgba(200,168,75,.42),rgba(200,168,75,.2));"></div>
+  <div style="flex:1;min-width:8px;background:rgba(43,191,176,.32);"></div>
+</div>
+<div class="scw-irp-zone-leg"><span>1년째</span><span style="color:var(--orange)">~10년 · 70%</span><span style="color:var(--goldl)">11~20년 · 60%</span><span style="color:var(--teal)">21년~ · 50%</span></div>`;
+}
+function renderWithdrawScheduleUI(){
+  const cards=G('scw-tax-cards'),hero=G('scw-hero'),form=G('scw-formula');
+  if(!cards||!hero||!form)return;
+  updateScwSrcNote();
+  updateScwIrpSliderExplain();
+  const cat=Gval('scw-cat');
+  const years=Math.max(1,Math.min(21,parseInt(Gval('scw-years'),10)||10));
+  const startAge=Math.max(45,Math.min(90,parseInt(Gval('scw-start-age'),10)||60));
+  const bal0=scwGetBalance();
+  const det=getScwBalanceDetails();
+  const annual=Math.max(0,Math.round(parseFloat(Gval('scw-annual'))||0));
+  if(bal0<=0){
+    cards.innerHTML='<div style="padding:16px;color:var(--t2);font-size:13px;text-align:center;">시작 추정 금액이 0이에요. 메인 시뮬·계좌 잔액 또는 아래 직접 입력 금액을 확인해 주세요.</div>';
+    hero.style.display='block';hero.className='sc-plain-hero warn';
+    hero.innerHTML='<div class="sch-title">먼저 확인</div><div class="sch-lead"><b>꺼내기 시작 나이</b>까지 불려야 할 통장 합이 0으로 보여요.</div>';
+    form.textContent='';
+    return;
+  }
+  if(annual<=0){
+    cards.innerHTML='<div style="padding:16px;color:var(--t2);font-size:13px;text-align:center;">1년에 얼마씩 인출할지 금액을 적어 주세요.</div>';
+    hero.style.display='block';hero.className='sc-plain-hero warn';
+    hero.innerHTML='<div class="sch-title">연 인출 금액이 필요해요</div><div class="sch-lead">“1년에 꺼내 쓴다고 가정할 금액” 칸에 숫자를 넣어야 연도별로 나눠 볼 수 있어요.</div>';
+    form.textContent='';
+    return;
+  }
+  let bal=bal0;
+  const tr=[];
+  for(let y=1;y<=years;y++){
+    const age=startAge+y-1;
+    const balStart=bal;
+    const lim=(scwIsPensionLike(cat)||cat==='ISA')?scwPensionLimitRef(balStart,y):null;
+    let taxPlain='';
+    let note='';
+    if(scwIsPensionLike(cat)){
+      const{w}=scwApproxPensionTaxWon(annual,age);
+      taxPlain=`대략 <b>${ws(w)}</b> 정도 세금이 붙을 수 있다고 흔히 안내돼요(나이 ${age}세·단순 가정). 실제는 더 적을 수 있어요.`;
+      if(lim!=null&&annual>lim)note=`이 해에는 법으로 정한 “많이 받아도 되는 상한” <b>${ws(lim)}</b>보다 큰데요. 은행·세무에 물어보세요.`;
+      if(annual>=15000000)note+=(note?'<br>':'')+`연 <b>1,500만 원</b>을 넘는 수령이면 신고 방식을 골라야 할 수 있어요.`;
+    }else if(cat==='IRP_RET'){
+      const sep=y<=10?70:y<=20?60:50;
+      taxPlain=`퇴직금을 연금으로 나눠 받을 때, 처음 10년 / 그다음 10년 / 그 이후에 <b>세금을 나눠 내는 비율</b>이 달라진다고 알려주는 경우가 많아요. 이 해는 대략 <b>${sep}%</b> 구간 안내와 비슷한 시기로 보면 됩니다.`;
+      note='정확한 원 단위는 가입 내역마다 달라서 금융사 설명이 필요해요.';
+    }else{
+      taxPlain='ISA는 <b>통장에서 돈을 뺄 때</b> 비과세·저율 과세가 정리되는 경우가 많아요. 배당이 들어올 때마다 바로 세는 아니에요.';
+      if(lim!=null)note=(annual>lim?'참고 상한보다 인출이 크면 확인 필요.':'참고 상한 안쪽 가정.')+' ISA는 순이익·가입 기간도 봅니다.';
+    }
+    const balEnd=balStart-annual;
+    tr.push(`<tr><td class="tc">${y}년째</td><td class="tc">${age}세</td><td style="text-align:right;font-family:monospace;font-size:13px">${ws(annual)}</td><td style="text-align:right;font-family:monospace;font-size:13px">${ws(Math.max(0,balEnd))}</td><td style="font-size:13px;line-height:1.55">${taxPlain}${note?'<div style="margin-top:6px;color:var(--orange);font-size:12px">'+note+'</div>':''}</td></tr>`);
+    bal=balEnd;
+  }
+  const idxA=Math.min(years,10),idxB=Math.min(years,20),idxC=Math.min(years,21);
+  const ageA=startAge+idxA-1,ageB=startAge+idxB-1,ageC=startAge+idxC-1;
+  const retireRatio=(y)=>y<=10?0.7:y<=20?0.6:0.5;
+  const retireTaxOnAnnual=(amt)=>calcRetirementTax(Math.max(0,Math.round(amt))).retireTax;
+  const pensionRate=(age)=>age>=80?0.033:age>=70?0.044:0.055;
+  const isaRate=(annual<=2000000)?0:0.099;
+  const mkCard=(title,idx,age,retireTxt)=>{
+    const retireTax=Math.round(retireTaxOnAnnual(annual)*retireRatio(idx));
+    const pensionTax=Math.round(annual*pensionRate(age));
+    const divTax=Math.round(annual*0.154);
+    const isaTax=Math.round(Math.max(0,annual-2000000)*isaRate);
+    const totalTax=Math.round(retireTax+pensionTax+divTax+isaTax);
+    const take=Math.max(0,annual-totalTax);
+    return `<div class="scw-tax-card"><div class="scw-tax-head"><b>${title}</b><span>${age}세 기준</span></div><div class="scw-tax-grid"><span>퇴직소득세(참고·감면계수 적용)</span><span class="v">${wf(retireTax)}원</span><span>연금소득세(${(pensionRate(age)*100).toFixed(1)}%)</span><span class="v">${wf(pensionTax)}원</span><span>배당·이자소득세(15.4% 가정)</span><span class="v">${wf(divTax)}원</span><span>ISA 과세(한도 초과분)</span><span class="v">${wf(isaTax)}원</span><span>총 세금</span><span class="v">${wf(totalTax)}원</span><span>실수령액(연)</span><span class="vv">${wf(take)}원</span></div><div class="sdd-tip" style="margin-top:8px;">${retireTxt} · 퇴직분은 근속·공제 반영 간이세액에 연차별 70·60·50% 계수 · 나이에 따라 연금소득세 ${(pensionRate(age)*100).toFixed(1)}% 가정 · ISA는 비과세 한도(200만) 초과분만 9.9% 가정</div></div>`;
+  };
+  const mkCardIrpRet=(title,idx,age,retireTxt)=>{
+    const retireTax=Math.round(retireTaxOnAnnual(annual)*retireRatio(idx));
+    const take=Math.max(0,annual-retireTax);
+    return `<div class="scw-tax-card"><div class="scw-tax-head"><b>${title}</b><span>${age}세 · 퇴직IRP</span></div><div class="scw-tax-grid"><span>이연퇴직 퇴직소득세(참고)</span><span class="v">${wf(retireTax)}원</span><span>실수령 추정(연·퇴직분만)</span><span class="vv">${wf(take)}원</span></div><div class="sdd-tip" style="margin-top:8px;">${retireTxt}. 연 인출액에 대해 <b>간이 퇴직소득세</b>를 구한 뒤, 구간별 <b>세액 계수</b>(70·60·50%)를 곱한 참고치예요. 연금소득세·배당·ISA는 다른 통장 안내를 쓰세요.</div></div>`;
+  };
+  cards.innerHTML=cat==='IRP_RET'?[
+    mkCardIrpRet('수령 1~10년차',idxA,ageA,'퇴직소득세율의 70% 구간(30% 감면) 참고'),
+    mkCardIrpRet('수령 11~20년차',idxB,ageB,'퇴직소득세율의 60% 구간(40% 감면) 참고'),
+    mkCardIrpRet('수령 21년차~',idxC,ageC,'퇴직소득세율의 50% 구간(50% 감면) 참고')
+  ].join(''):[
+    mkCard('수령 1~10년차',idxA,ageA,'퇴직소득세율의 70% (30% 감면)'),
+    mkCard('수령 11년차 이상',idxB,ageB,'퇴직소득세율의 60% (40% 감면)'),
+    mkCard('수령 21년차 이상',idxC,ageC,'퇴직소득세율의 50% (50% 감면)')
+  ].join('');
+  hero.style.display='none';
+  hero.innerHTML='';
+  hero.className='sc-plain-hero';
+  const simLine=det.hasSim?`시뮬: <code>simY</code>에서 age=${startAge} 행의 <code>balances[계좌ID]</code> 합(있을 때).<br>`:'시뮬을 아직 안 돌렸거나 해당 나이 행이 없으면 단순 추정만 씁니다.<br>';
+  if(scwIsPensionLike(cat)){
+    form.innerHTML=simLine+'• 단순 추정식: 매년 <code>(잔액 + 월납×12) × (1 + 수익률)</code> 반복<br>• 결과는 카드형으로 과세 항목별 실금액(가정치)과 실수령액을 표시';
+  }else if(cat==='IRP_RET'){
+    form.innerHTML=simLine+'• DC형 퇴직IRP 시작 잔액: 메인 <b>퇴직금(은퇴 시 예상)</b>과 동일 루프<br>• 카드 퇴직세: 연 인출액에 대한 <b>간이 퇴직소득세</b>에 수령 연차별 <b>세액 계수</b> 70%→60%→50% 적용(참고)';
+  }else{
+    form.innerHTML=simLine+'• 단순 추정식: 위와 동일<br>• ISA 실제 과세는 <b>인출·해지 시</b>가 중심(카드의 ISA 세금은 한도 초과분 단순 가정)';
+  }
+}
+function sddClassifyAcct(a){
+  const m=AMETA[a.type]||{};
+  if(m.cat==='ISA')return'ISA';
+  if(a.type==='IRP_RETIRE')return'IRP_RET';
+  if(['PENSION_FUND','PENSION_INS','IRP_ACCUM'].includes(a.type))return'PENSION';
+  return'GENERAL';
+}
+function refreshSddAcctPick(){
+  const box=G('sdd-acct-pick');if(!box)return;
+  const act=accounts.filter(x=>x.active);
+  const ra=parseInt(Gval('retireAge'),10)||60;
+  const prev=new Set();
+  document.querySelectorAll('.sdd-acct-cb').forEach(cb=>{if(cb.checked)prev.add(cb.value);});
+  const useAll=prev.size===0;
+  if(!act.length){box.innerHTML='<span style="color:var(--orange)">켜 둔 계좌가 없어요.</span>';scheduleSddUI();return;}
+  box.innerHTML=act.map(a=>{
+    const lab=(AMETA[a.type]||{}).label||a.type;
+    const cur=Math.round(a.balance||0);
+    const sc=getScenarioBalAtAge(a,ra);
+    const tag=sc.fromSim?'<span class="scw-src-badge scw-src-sim" style="font-size:10px;vertical-align:middle">시뮬</span>':'<span class="scw-src-badge scw-src-est" style="font-size:10px;vertical-align:middle">추정</span>';
+    const diff=(sc.fromSim&&Math.abs(sc.sim-sc.formula)>Math.max(5000,sc.formula*0.002))?` <span style="color:var(--t3);font-size:12px">(단순 ${ws(sc.formula)})</span>`:'';
+    const ck=useAll||prev.has(a.id);
+    return`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;max-width:100%;"><input type="checkbox" class="sdd-acct-cb" value="${a.id}" ${ck?'checked':''} onchange="scheduleSddUI();"> ${a.label} <span style="color:var(--t3);font-size:13px">(${lab} · ${ws(cur)}→<b style="color:var(--goldl)">${ra}세 ${ws(sc.use)}</b>${tag}${diff})</span></label>`;
+  }).join('');
+}
+function updateSddSrcNote(simN,total,ra){
+  const el=G('sdd-src-note');if(!el)return;
+  if(!total){el.innerHTML='';return;}
+  const hasSim=typeof simY!=='undefined'&&simY&&simY.length;
+  const xfer=Gval('sevType')==='DC'&&accounts.some(a=>a.active&&a.type==='IRP_RETIRE'&&(a.irpOnRetire||'keep')!=='keep')
+    ?' <span style="color:var(--t3);font-size:12px">DC형 <b>퇴직IRP</b>가 은퇴 연도에 다른 계좌로 이전되면 시뮬 잔액이 0으로 보일 수 있어, 메인과 같은 <b>DC 퇴직금 추정</b>을 씁니다.</span>':'';
+  if(!hasSim)el.innerHTML='<span class="scw-src-badge scw-src-est">단순 추정</span> <b>'+ra+'세</b> 시점 잔액 — 메인 탭에서 시뮬을 돌리면 엔진 값으로 맞출 수 있어요.'+xfer;
+  else if(simN===0)el.innerHTML='<span class="scw-src-badge scw-src-est">단순 추정</span> 시뮬에 <b>'+ra+'세</b> 행이 없거나 해당 계좌 잔액이 비어 있을 수 있어요.'+xfer;
+  else if(simN===total)el.innerHTML='<span class="scw-src-badge scw-src-sim">시뮬 반영</span> 체크한 계좌는 <b>'+ra+'세</b> 연도 메인 시뮬 잔액을 썼습니다.'+xfer;
+  else el.innerHTML='<span class="scw-src-badge scw-src-sim">혼합</span> 일부는 시뮬 잔액, 일부는 단순·DC 추정입니다.'+xfer;
+}
+function approxIsaDivNetAnnual(gross,taxFreeLim){
+  if(gross<=0)return{net:0,taxEst:0};
+  if(gross<=taxFreeLim)return{net:gross,taxEst:0};
+  const ex=gross-taxFreeLim;
+  const taxEst=Math.round(ex*0.099);
+  return{net:taxFreeLim+ex-taxEst,taxEst};
+}
+function renderDividendUI(){
+  const tw=G('sdd-table-wrap'),hero=G('sdd-hero'),fr=G('sdd-formula');
+  if(!tw||!hero)return;
+  const yld=Math.max(0,(parseFloat(Gval('sdd-yield'))||0)/100);
+  const alloc=Math.max(0,Math.min(1,(parseFloat(Gval('sdd-alloc'))||0)/100));
+  const ra=parseInt(Gval('retireAge'),10)||60;
+  const cbs=document.querySelectorAll('.sdd-acct-cb:checked');
+  if(!cbs.length){
+    tw.innerHTML='<div style="padding:16px;color:var(--t2);font-size:14px;text-align:center;">계좌를 하나 이상 선택하세요.</div>';
+    hero.style.display='block';hero.className='sc-plain-hero warn';
+    hero.innerHTML='<div class="sch-title">선택 필요</div><div class="sch-lead">체크된 계좌가 있어야 표가 나옵니다.</div>';
+    if(fr)fr.innerHTML='';
+    updateSddSrcNote(0,0,ra);
+    return;
+  }
+  const rows=[];
+  const extraLi=[];
+  let sumGenGross=0;
+  let simN=0;
+  let totalGross=0;
+  cbs.forEach(cb=>{
+    const a=accounts.find(x=>x.id===cb.value);
+    if(!a)return;
+    const sc=getScenarioBalAtAge(a,ra);
+    if(sc.fromSim)simN++;
+    const P=Math.max(0,sc.use);
+    const base=Math.round(P*alloc);
+    const gross=Math.round(base*yld);
+    totalGross+=gross;
+    const kind=sddClassifyAcct(a);
+    let plain='';
+    let net=gross;
+    let hand='';
+    if(kind==='GENERAL'){
+      const tax=Math.round(gross*0.154);
+      net=gross-tax;
+      plain=`세금 <span class="sdd-fig-tax">${ws(tax)}</span>, 세후 <span class="sdd-fig-yield">${ws(net)}</span>/년`;
+      hand=`${ws(net)}/년`;
+      sumGenGross+=gross;
+      if(gross>=20000000)extraLi.push(`<b>${a.label}</b>(일반): 연 <b>${ws(gross)}</b> — 금융소득이 크면 <b>추가 신고</b> 검토될 수 있음.`);
+    }else if(kind==='ISA'){
+      const lim=(AMETA[a.type]||{}).taxFree||2000000;
+      const{net:n,taxEst}=approxIsaDivNetAnnual(gross,lim);
+      net=n;
+      plain=`세금 <span class="sdd-fig-tax">${ws(taxEst)}</span>, 세후 <span class="sdd-fig-yield">${ws(net)}</span>/년`;
+      hand=`${ws(net)}/년`;
+    }else if(kind==='PENSION'){
+      const t=Math.round(gross*0.154);
+      plain=`유지 시 당기 과세 적음 · 현금화 가정 세금 <span class="sdd-fig-tax">${ws(t)}</span>, 세후 <span class="sdd-fig-yield">${ws(gross-t)}</span>/년`;
+      hand=`유지 시 0`;
+      if(gross>=15000000){
+        const ex=gross-15000000;
+        const fifteenPct=Math.round(ex*0.15);
+        extraLi.push(`<b>${a.label}</b>: 연 수령을 <b>${ws(gross)}</b>로 보면 1,500만 초과 <b>${ws(ex)}</b> · 단순 15% 가정 시 약 <b>${ws(fifteenPct)}</b> 추가 성격(참고).`);
+      }
+    }else{
+      const t=Math.round(gross*0.154);
+      plain=`유지 시 당기 과세 적음 · 현금화 가정 세금 <span class="sdd-fig-tax">${ws(t)}</span>, 세후 <span class="sdd-fig-yield">${ws(gross-t)}</span>/년`;
+      hand=`유지 시 0`;
+      if(gross>=15000000)extraLi.push(`<b>${a.label}</b>(퇴직): 연 <b>${ws(gross)}</b> — 다른 연금과 합쳐 1,500만 기준 확인 권장.`);
+    }
+    rows.push(`<tr><td><b>${a.label}</b></td><td style="font-size:13px;color:var(--t3)">${(AMETA[a.type]||{}).label||a.type}</td><td style="text-align:right;font-family:monospace;font-size:13px">${ws(P)}</td><td class="tc">${(alloc*100).toFixed(0)}% × ${(yld*100).toFixed(1)}%</td><td style="text-align:right;font-family:monospace;font-size:13px"><span class="sdd-fig-yield">${ws(gross)}</span><div style="font-size:11px;color:var(--t3)">월 ${ws(Math.round(gross/12))}</div></td><td style="font-size:13px;line-height:1.5">${plain}</td><td style="text-align:right;font-size:13px;font-weight:600">${hand}</td></tr>`);
+  });
+  if(sumGenGross>=20000000)extraLi.push(`일반 계좌만 합치면 연 <b>${ws(sumGenGross)}</b> — 종합과세 해당 여부 확인.`);
+  tw.innerHTML=`<table class="st st-scenario-tax"><thead><tr><th>계좌</th><th>종류</th><th>${ra}세 잔액</th><th class="tc">배당비중×연율</th><th>연 배당·이자(세전 G)</th><th>세금/세후</th><th>세후 추정액</th></tr></thead><tbody>${rows.join('')}</tbody></table>
+<div class="sch-note" style="margin-top:10px;">합산 세전 G <b>${ws(totalGross)}</b> · 월 기준 약 <b>${ws(Math.round(totalGross/12))}</b></div>`;
+  if(extraLi.length){
+    hero.style.display='block';
+    hero.className='sc-plain-hero warn';
+    hero.innerHTML=`<ul style="margin:0;padding-left:1.1em;font-size:14px;line-height:1.65;">${extraLi.map(t=>'<li style="margin-bottom:6px">'+t+'</li>').join('')}</ul>`;
+  }else{
+    hero.style.display='none';
+    hero.innerHTML='';
+    hero.className='sc-plain-hero';
+  }
+  updateSddSrcNote(simN,cbs.length,ra);
+  const ypct=(yld*100).toFixed(2),apct=(alloc*100).toFixed(0);
+  if(fr){
+    fr.innerHTML=`세전 G 계산식: <b>은퇴잔액 × 배당비중(${apct}%) × 연 배당률(${ypct}%)</b>. 실제 과세는 계좌 보유기간·한도·인출 방식에 따라 달라집니다.`;
+  }
 }
 function calcAcctProjection(acctId){
   // 은퇴 시점까지 해당 계좌 예상 총자산 계산
   const a=accounts.find(x=>x.id===acctId);if(!a)return '계산불가';
   const ra=parseInt(Gval('retireAge'))||60;
+  if(a.type==='IRP_RETIRE'&&Gval('sevType')==='DC')return wf(getDCBalanceAtAge(ra))+'원';
   const ca=parseInt(Gval('curAge'))||47;
   const yl=Math.max(0,ra-ca);
   const rr=(a.returnRate||7)/100;
@@ -3322,14 +3986,16 @@ function calcAcctProjection(acctId){
 }
 function getAcctProjectedBal(a){
   const ra=parseInt(Gval('retireAge'))||60;
+  return getAcctProjectedBalAtAge(a,ra);
+}
+/** Project account balance from current age to targetAge (inclusive growth; same rules as main sim). */
+function getAcctProjectedBalAtAge(a,targetAge){
   const ca=parseInt(Gval('curAge'))||47;
-  const yl=Math.max(0,ra-ca);
+  const ta=Math.max(ca,Math.min(100,+targetAge||ca));
+  if(a.type==='IRP_RETIRE'&&Gval('sevType')==='DC')return getDCBalanceAtAge(ta);
+  const yl=Math.max(0,ta-ca);
   const rr=(a.returnRate||7)/100;
-  let bal=a.balance;
-  if(a.type==='IRP_RETIRE'&&Gval('sevType')==='DC'){
-    const dcBal=getDCTotal();
-    if(dcBal>0)bal=dcBal;
-  }
+  let bal=a.balance||0;
   for(let i=0;i<yl;i++) bal=(bal+a.monthlyContrib*12)*(1+rr);
   return Math.round(bal);
 }
@@ -3628,7 +4294,9 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
   const life=parseInt(Gval('lifeExp'))||90;
   const npA=parseInt(Gval('npAge'))||65;
   const npR=npA<65?1+(npA-65)*0.06:1+(npA-65)*0.072;
-  const npMo=(parseFloat(Gval('npBase'))||1200000)*npR;
+  const npMoGross=(parseFloat(Gval('npBase'))||1200000)*npR;
+  const npDedMo=getNpPensionMonthlyDeduction();
+  const npMo=Math.max(0,npMoGross-npDedMo);
   const sal=parseFloat(Gval('salary'))||0;
   const sg=(parseFloat(Gval('salGrowth'))||3)/100;
   const othr=parseFloat(Gval('retireOther'))||0;
@@ -3747,15 +4415,14 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     // ── 퇴직금 처리 (DB형/수동: 은퇴시 일괄이전 | DC형: 매년 연봉 적립+운용) ──
     const sevTypeNow=Gval('sevType');
     if(sevTypeNow==='DC'){
-      // DC형: 법정 납입액 = 연봉÷12 (월급 기준) + 추가납입
+      // DC형: 연간 납입 간이 = 연봉÷12 (월급 1개월분 상당 — 연 전액은 약 12배 과대)
       if(!isRet && salY>0){
-        // dc-extra-monthly는 display-only (연봉÷12 표시용), 실제 적립은 법정DC만
-        const dcContrib = Math.round(salY/12);
+        const dcAnnualContrib=dcAnnualContribFromSalary(salY);
         const dcAcct = active.find(a=>a.type==='IRP_RETIRE')
                     || active.find(a=>a.type===sevTgt||a.id===sevTgt);
         if(dcAcct && yC[dcAcct.id]!==undefined){
-          yC[dcAcct.id] += dcContrib;
-          if(i===0) events.push({label:`DC형 월급적립 시작 (연 ${ws(dcContrib)}원)`,color:'g'});
+          yC[dcAcct.id] += dcAnnualContrib;
+          if(i===0) events.push({label:`DC형 적립 (연 ${ws(dcAnnualContrib)}원 ≈ 연봉÷12)`,color:'g'});
         }
       }
     } else {
@@ -3875,10 +4542,12 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
           if(inRange2)divAllocFrac=Math.min(1,divAllocFrac+(sl.allocPct||0)/100);
         });
       }
-      // 성장 비중: 배당 비중 제외
+      // 성장 비중: 배당 비중 제외 — 당해 연 납입(yC)까지 합친 잔액에 수익률 적용(연간 납입이 같은 해에 복리되는 단순 모델)
       const growthFrac=Math.max(0,1-divAllocFrac);
-      const growth=curBal*growthFrac*retRates[a.id];
-      bal[a.id]=Math.max(0,curBal+(yC[a.id]||0)+growth);
+      const contrib=yC[a.id]||0;
+      const base=curBal+contrib;
+      const growth=base*growthFrac*retRates[a.id];
+      bal[a.id]=Math.max(0,base+growth);
     });
     
     // Drawdown post-retirement
@@ -3909,10 +4578,13 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     }
     
     if(age===retA)events.push({label:'🎉 은퇴',color:''});
-    if(age===npA)events.push({label:`국민연금 시작 (${wf(Math.round(npMo))}원/월)`,color:'g'});
+    if(age===npA){
+      const npLbl=npDedMo>0?`국민연금 시작 (${wf(Math.round(npMo))}원/월, 소득감액 −${wf(npDedMo)})`:`국민연금 시작 (${wf(Math.round(npMo))}원/월)`;
+      events.push({label:npLbl,color:'g'});
+    }
     
     const totA=active.reduce((s,a)=>s+(bal[a.id]||0),0);
-    const dcYearContrib=(sevTypeNow==='DC'&&!isRet&&salY>0)?(Math.round(salY/12)):0;
+    const dcYearContrib=(sevTypeNow==='DC'&&!isRet&&salY>0)?dcAnnualContribFromSalary(salY):0;
     yearly.push({year,age,isRet,totInc,netSal,npInc,othr:othInc,divGross:totalDivGross,divNet:totalDivNet,
       totExp,livExp,lnPay,insPay,surplus,dcContrib:dcYearContrib,hpInc:hpMon,
       yC:{...yC},balances:{...bal},totalAssets:totA,events,
@@ -3934,7 +4606,7 @@ function genMonthly(yearly){
       months.push({year:yr.year,month:m,age:yr.age,isRet:yr.isRet,
         income:Math.round(yr.totInc/12),expense:Math.round(yr.totExp/12),
         divGross:Math.round(yr.divGross/12),divNet:Math.round(yr.divNet/12),
-        dcContrib:m===startM?(yr.dcContrib||0):0,
+        dcContrib:!yr.isRet&&yr.dcContrib>0?Math.round(yr.dcContrib/12):0,
         cf:Math.round((yr.totInc-yr.totExp)/12),totalAssets:yr.totalAssets,events:mEv});
     }
     return months;
@@ -4215,9 +4887,7 @@ function calcHealth(){
   else if(taxable<=500000000)aScore=250+(taxable-100000000)/1000000*0.8;
   else aScore=570+(taxable-500000000)/1000000*0.4;
   const monthly=Math.round((incScore+aScore)*score_unit);
-  const npA=parseInt(Gval('npAge'))||65;
-  const npR=npA<65?1+(npA-65)*0.06:1+(npA-65)*0.072;
-  const npInc=(parseFloat(Gval('npBase'))||1200000)*npR;
+  const npInc=getNpMonthlyNetAtCurrentSetting();
   const otherInc=parseFloat(Gval('retireOther'))||0;
   const expOn=G('expOn')?.checked===true;
   const rExp=expOn?(parseFloat(Gval('rExp'))||0):0;
@@ -4326,7 +4996,7 @@ function renderTable(mode){
       const cf=r.totInc-r.totExp;
       const rc=r.age===retA?'ev-r':r.events.length?'ev-e':r.isRet?'retired':'';
       const notes=r.events.map(e=>`<span class="ev-tag${e.color?' '+e.color:''}">${e.label}</span>`).join(' ');
-      return `<tr class="${rc}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td>${active.map(a=>`<td class="dim">${ws(r.balances[a.id]||0)}</td>`).join('')}<td class="tcol">${ws(r.totalAssets)}</td><td class="${r.totInc>0?'pos':'dim'}">${ws(r.totInc)}</td><td class="neg">${ws(r.totExp)}</td><td class="divcol">${ws(r.divNet)}</td>${showDC?`<td style="color:var(--orange);font-family:monospace" title="법정DC 연봉÷12 적립액">${r.dcContrib>0?ws(r.dcContrib):'—'}</td>`:''}${showHP?`<td style="color:var(--purple);font-family:monospace">${(r.hpInc||0)>0?ws(r.hpInc/12)+'원/월':'—'}</td>`:''}<td class="${cf>=0?'pos':'neg'}">${ws(cf)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
+      return `<tr class="${rc}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td>${active.map(a=>`<td class="dim">${ws(r.balances[a.id]||0)}</td>`).join('')}<td class="tcol">${ws(r.totalAssets)}</td><td class="${r.totInc>0?'pos':'dim'}">${ws(r.totInc)}</td><td class="neg">${ws(r.totExp)}</td><td class="divcol">${ws(r.divNet)}</td>${showDC?`<td style="color:var(--orange);font-family:monospace" title="DC 연간 납입 간이 = 해당 연도 연봉÷12">${r.dcContrib>0?ws(r.dcContrib):'—'}</td>`:''}${showHP?`<td style="color:var(--purple);font-family:monospace">${(r.hpInc||0)>0?ws(r.hpInc/12)+'원/월':'—'}</td>`:''}<td class="${cf>=0?'pos':'neg'}">${ws(cf)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
     }).join('');
   }else{
     const showDCm=Gval('sevType')==='DC';
@@ -4713,7 +5383,12 @@ function loadFile(ev){
   const f=ev.target.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=e=>{
-    try{const p=JSON.parse(e.target.result);if(!p||p.ver!==6){alert('v6 형식이 아닙니다.');return;}applyProfile(p);toast('📂 불러오기 완료!');}
+    try{
+      const p=JSON.parse(e.target.result);
+      if(!p||p.ver!==6){alert('v6 형식이 아닙니다.');return;}
+      applyProfile(p);
+      setTimeout(()=>{try{runSim();toast('📂 불러오기 완료 · 시뮬 반영됨');}catch(err){console.error(err);toast('불러오기는 됐으나 시뮬 오류: '+((err&&err.message)||err));}},60);
+    }
     catch(err){alert('파일 오류: '+err.message);}
   };
   r.readAsText(f);G('fin').value='';
@@ -4733,14 +5408,23 @@ function applyProfile(p){
   if(!p||p.ver!==6)return;
   const b=p.b||{};
   Object.entries(b).forEach(([k,v])=>{
+    if(k==='npEarnBizAnnual'||k==='npEarnBizMonths')return;
     const domId=PROFILE_B_EL[k]||k;
     const el=G(domId);
     if(!el)return;
     if(el.type==='checkbox')el.checked=!!v;
     else el.value=(v===null||v===undefined)?'':String(v).replace(/,/g,'');
   });
+  const roEl=G('retireOther');
+  if(roEl){
+    const roNow=parseFloat(String(roEl.value||'').replace(/,/g,''))||0;
+    const legAnn=parseFloat(String(b.npEarnBizAnnual??'').replace(/,/g,''))||0;
+    const legMo=Math.max(1,parseInt(String(b.npEarnBizMonths??'12'),10)||12);
+    const legAvg=legAnn>0?Math.round(legAnn/legMo):0;
+    if(legAvg>0&&roNow===0)Gv('retireOther',String(legAvg));
+  }
   dcHoldings=(p.dcHoldings||[]).map(h=>({...h,pb:null}));
-  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpTransferAge:a.irpTransferAge||60,isaJoinDate:a.isaJoinDate||'',investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
+  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpOnRetire:a.irpOnRetire||'keep',irpAccumTarget:a.irpAccumTarget||'',irpTransferAge:a.irpTransferAge??60,isaJoinDate:a.isaJoinDate||'',investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
   loans=p.loans||[];insurances=p.insurances||[];
   // 퇴직IRP 없으면 자동 추가
   if(!accounts.some(a=>a.type==='IRP_RETIRE')){
@@ -4755,6 +5439,7 @@ function applyProfile(p){
     calcDB();
   },50);
   updateTax();updateBudBar();renderNP();onSalary();calcDB();calcTarget();
+  const kra=G('ka-ro'),roI=G('retireOther');if(kra&&roI)kra.textContent=toKor(parseFloat(roI.value)||0);
   if(G('taxReinvest')&&b.taxReinvest!==undefined)G('taxReinvest').checked=!!b.taxReinvest;
   const trt=G('taxReinvestTgt');
   if(trt&&b.taxReinvestTgt!=null&&String(b.taxReinvestTgt)!=='')trt.value=String(b.taxReinvestTgt);
@@ -4842,6 +5527,7 @@ function collectAllInvestmentLines(){
   const cagrDefault = (parseFloat(Gval('hld-cagr'))||10)/100;
   const divDefault = (parseFloat(Gval('hld-div'))||0)/100;
   accounts.filter(a=>a.active).forEach(a=>{
+    if(a.type==='IRP_RETIRE'&&Gval('sevType')==='DC'&&Array.isArray(dcHoldings)&&dcHoldings.length)return;
     const hs = a.holdings||[];
     let acctEv = hs.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(h.qty>0&&cp>0?h.qty*cp:0);},0);
     const mo = +(a.monthlyContrib||0);
@@ -4884,6 +5570,28 @@ function collectAllInvestmentLines(){
       lines.push({key:`dc|${di}|${h.ticker||''}`,acctId:dcGrpId,acct:(irp&&irp.label)||'퇴직IRP(DC)',name:h.name||h.ticker,ticker:String(h.ticker||''),ev,hMo,cagr:rr,divR});
     });
   }
+  if(Gval('sevType')==='DC'){
+    const hasDc=lines.some(L=>String(L.key||'').startsWith('dc|'));
+    if(!hasDc){
+      const irp=accounts.find(x=>x.type==='IRP_RETIRE'&&x.active);
+      const ev=Math.round(getDCTotal());
+      const salMo=Math.round((parseFloat(Gval('salary'))||0)/12);
+      if(ev>0||salMo>0){
+        const rr=(irp?.returnRate!=null&&+irp.returnRate>0)?+irp.returnRate/100:cagrDefault;
+        lines.push({
+          key:'dc|synth|lump',
+          acctId:irp?.id||'dc-external',
+          acct:(irp&&irp.label)||'퇴직IRP(DC)',
+          name:'(DC 통합·종목 미입력 또는 평가 0)',
+          ticker:'—',
+          ev:Math.max(ev,0),
+          hMo:salMo,
+          cagr:rr,
+          divR:divDefault
+        });
+      }
+    }
+  }
   return lines;
 }
 
@@ -4903,8 +5611,13 @@ function updateHldSimCompareStrip(){
     const b=Math.round(row.balances[a.id]||0);
     return `<tr><td style="color:${a.color};font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${String(a.label).replace(/"/g,'&quot;')}">${a.label}</td><td class="r mono">${ws(b)}</td></tr>`;
   }).join(''):'<tr><td colspan="2" class="tc" style="color:var(--t3)">활성 계좌 없음</td></tr>';
-  el.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--goldl);margin-bottom:6px;">📎 시뮬레이션 계좌 잔액 · ${row.year}년 · ${row.age}세 <span style="font-weight:400;color:var(--t3);font-size:11px">(위 슬라이더 ${hy}년 후)</span></div>
-  <div style="overflow-x:auto;max-width:100%;"><table class="ht" style="min-width:280px;max-width:480px;font-size:11px;"><thead><tr><th>계좌</th><th class="r">시뮬 잔액</th></tr></thead><tbody>${body}</tbody></table></div>`;
+  el.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--goldl);margin-bottom:6px;">📎 시뮬 계좌 잔액 · ${row.year}년 ${row.age}세 <span style="font-weight:400;color:var(--t2);font-size:11px">(슬라이더 ${hy}년 후)</span></div>
+  <div style="overflow-x:auto;max-width:100%;"><table class="ht" style="min-width:280px;max-width:480px;font-size:11px;"><thead><tr><th>계좌</th><th class="r">시뮬 잔액</th></tr></thead><tbody>${body}</tbody></table></div>
+  <ul style="margin:8px 0 0;padding:8px 10px 8px 1.25em;font-size:11px;line-height:1.55;color:var(--t1);list-style:disc;background:var(--bg2);border:1px solid var(--bdl);border-radius:8px;">
+    <li>${row.year}년 말 기준 잔액입니다.</li>
+    <li>IRP가 0원이면 은퇴 시 <b>이전·해지</b>로 다른 계좌로 옮긴 설정일 수 있습니다.</li>
+    <li>메인 시뮬 표·이벤트 로그로 확인하세요.</li>
+  </ul>`;
 }
 
 function exportHldOverviewCsv(){
@@ -5033,6 +5746,17 @@ function hldRowClick(key){
   if(key.indexOf('m|')===0)return;
   if(key.indexOf('dc|')===0){
     const parts=key.split('|');
+    if(parts[1]==='synth'){
+      populateHldTicker();
+      Gv('hld-ticker','');
+      Gv('hld-init',String(Math.round(getDCTotal())));
+      Gv('hld-monthly',String(Math.round((parseFloat(Gval('salary'))||0)/12)));
+      const dcAcct=accounts.find(x=>x.type==='IRP_RETIRE'&&x.active);
+      if(dcAcct?.returnRate!=null)Gv('hld-cagr',String(Number(dcAcct.returnRate).toFixed(1)));
+      const meta=G('hld-meta');if(meta)meta.textContent='DC 퇴직IRP 통합(종목 미입력)';
+      calcHolding();
+      return;
+    }
     const di=parseInt(parts[1],10);
     const h=(!isNaN(di)&&dcHoldings[di])?dcHoldings[di]:dcHoldings.find(x=>String(x.ticker)===parts[2]);
     if(!h)return;
@@ -5110,6 +5834,7 @@ const _origST = window.ST || function(){};
 
 function ST(id,btn){
   if(id==='holdings'){populateHldAcctFilter();populateHldTicker();}
+  if(id==='scenario')setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
   const panel=document.getElementById('tab-'+id);
