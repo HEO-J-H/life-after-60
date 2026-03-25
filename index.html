@@ -688,7 +688,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       <div class="ctr"><span class="badge" style="background:rgba(155,111,224,.2);color:var(--purple)">계좌 자동생성</span></div>
     </div>
     <div class="g2" style="margin-bottom:8px;">
-      <div>
+      <div class="frow">
         <label class="fl">월 예산 (원)</label>
         <input class="fi mono" id="budget" type="number" value="1500000"
           oninput="ka(this,'ka-bgt');updateBudBar();Gv('auto-budget-hidden',this.value);G('ka-auto-budget').textContent=toKor(+this.value)">
@@ -749,9 +749,10 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         <option value="CUSTOM">사용자정의 ★</option>
       </optgroup>
     </select>
-      <div style="display:flex;align-items:center;gap:5px;">
-        <input class="fi mono" id="quick-mo" type="number" placeholder="월납입(원)" style="width:130px;padding:4px 8px;font-size:12px;">
-        <span style="font-size:11px;color:var(--t2)">월납입</span>
+      <div class="frow" style="margin:0;min-width:200px;">
+        <label class="fl">빠른 월납입 (원)</label>
+        <input class="fi mono" id="quick-mo" type="number" placeholder="예: 500000" style="width:130px;padding:4px 8px;font-size:12px;" oninput="ka(this,'ka-quick-mo')">
+        <div class="ka" id="ka-quick-mo"></div>
       </div>
     <button class="btn btn-green" onclick="addAcct()">＋ 계좌 추가</button>
   </div>
@@ -800,9 +801,16 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
         예: 68세 자녀 결혼 5,000만원, 75세 의료비 3,000만원. 설정 시 해당 나이에 지출·자산추이·현금흐름표에 반영됩니다.
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
-        <input class="fi mono" id="lump-age" type="number" min="50" max="100" value="68" style="width:90px;">
-        <input class="fi mono" id="lump-amt" type="number" value="50000000" style="width:170px;">
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px;">
+        <div class="frow" style="margin:0;min-width:110px;">
+          <label class="fl">나이 (세)</label>
+          <input class="fi mono" id="lump-age" type="number" min="50" max="100" value="68" style="width:90px;">
+        </div>
+        <div class="frow" style="margin:0;min-width:200px;flex:1;">
+          <label class="fl">목돈 금액 (원)</label>
+          <input class="fi mono" id="lump-amt" type="number" value="50000000" style="width:100%;max-width:220px;" oninput="ka(this,'ka-lump-amt')">
+          <div class="ka" id="ka-lump-amt"></div>
+        </div>
         <select class="fs" id="lump-src" style="max-width:160px;">
           <option value="auto">세금원천 자동</option>
           <option value="taxable">일반과세계좌</option>
@@ -843,8 +851,9 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
           </div>
         </div>
         <div class="frow">
-          <label class="fl">현재 월납입 합계 <span style="font-size:10px;color:var(--t2)">(수정 가능)</span></label>
-          <input class="fi mono" id="rev-cur" type="number" style="background:var(--bg2);" oninput="G('rev-cur').style.background='var(--ifocus)'">
+          <label class="fl">현재 월납입 합계 (원) <span style="font-size:10px;color:var(--t2)">(수정 가능)</span></label>
+          <input class="fi mono" id="rev-cur" type="number" style="background:var(--bg2);" oninput="ka(this,'ka-rev-cur');this.style.background='var(--ifocus)'">
+          <div class="ka" id="ka-rev-cur"></div>
           <div class="hint">현재 시뮬 구성값이 자동 입력되며, 필요 시 직접 수정 가능합니다.</div>
         </div>
         <div class="frow">
@@ -874,7 +883,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         </div>
         <div class="frow">
           <label class="fl">은퇴 후 월 생활비 (원)</label>
-          <input class="fi mono" id="simq-rExp" type="number" value="2200000">
+          <input class="fi mono" id="simq-rExp" type="number" value="1800000">
           <div class="ka" id="ka-simq-re" style="color:var(--goldl)"></div>
         </div>
         <div class="frow">
@@ -1509,7 +1518,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.26 00:30';
+const PUBLISH_STAMP='2026.03.26 01:03';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1550,6 +1559,7 @@ window.onload=()=>{
   renderLumpEvents();
   syncRevTargetSlider();
   attachAutoMoneyHints(document);
+  if(G('lump-amt')&&G('ka-lump-amt'))G('ka-lump-amt').textContent=toKor(parseFloat(Gval('lump-amt'))||0);
   setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
 };
 function setTheme(theme){
@@ -1672,15 +1682,25 @@ function pickIRPTargetForRetire(acct, action){
 // FIX: ka() properly updates Korean display
 function ka(inp,kid){const e=G(kid);if(e)e.textContent=toKor(parseFloat(inp?.value||0)||0);}
 function attachAutoMoneyHints(root){
-  const scope=root&&root.querySelectorAll?root:document;
-  scope.querySelectorAll('.frow input.fi.mono[type="number"]').forEach(inp=>{
+  const rootNode=root&&root.querySelectorAll?root:document;
+  const list=rootNode.querySelectorAll?rootNode.querySelectorAll('input.fi.mono[type="number"]'):[];
+  list.forEach(inp=>{
     const row=inp.closest('.frow');
-    const lbl=row?.querySelector('label.fl')?.textContent||'';
-    if(!/\(원\)/.test(lbl))return;
-    // 이미 ka가 있으면 자동 생성하지 않고, 자동생성 중복만 정리
-    const kas=row.querySelectorAll('.ka');
+    let lbl='',container=null;
+    if(row){
+      lbl=row.querySelector('label.fl')?.textContent||'';
+      container=row;
+    }else{
+      const p=inp.parentElement;
+      if(p){
+        const lab=p.querySelector(':scope > label.fl');
+        if(lab){lbl=lab.textContent||'';container=p;}
+      }
+    }
+    if(!/\(원\)/.test(lbl)||!container)return;
+    const kas=container.querySelectorAll('.ka');
     if(kas.length){
-      const fixed=row.querySelector('.ka:not([id^="ka-auto-"])')||kas[0];
+      const fixed=container.querySelector('.ka:not([id^="ka-auto-"])')||kas[0];
       kas.forEach(k=>{if(k!==fixed&&(k.id||'').startsWith('ka-auto-'))k.remove();});
       return;
     }
@@ -1692,7 +1712,7 @@ function attachAutoMoneyHints(root){
       kaEl=document.createElement('div');
       kaEl.className='ka';
       kaEl.id=aid;
-      row.appendChild(kaEl);
+      container.appendChild(kaEl);
     }
     const update=()=>{kaEl.textContent=toKor(parseFloat(inp.value)||0);};
     if(!inp._autoKaBound){
@@ -5427,7 +5447,7 @@ function renderSimRes(tgt,retA){
   }
   
   const curMC=accounts.filter(a=>a.active&&(AMETA[a.type]||{}).cat!=='IRP_RET').reduce((s,a)=>s+a.monthlyContrib,0);
-  const rc=G('rev-cur');if(rc){rc.value=curMC;rc.style.background='';}
+  const rc=G('rev-cur');if(rc){rc.value=curMC;rc.style.background='';const kr=G('ka-rev-cur');if(kr)kr.textContent=toKor(curMC);}
   const fa=G('fin-asset');if(fa&&rRow)fa.textContent=wf(rRow.totalAssets)+'원';
   calcHealth();
   renderMainChart(simY,retA);renderTable(viewMode);
