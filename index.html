@@ -18,6 +18,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .hdr-sub{color:#9fb2c8;font-size:12px;line-height:1.5;}
 .hdr-r{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
 .ai-sel{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t1);padding:4px 8px;font-size:12px;font-family:inherit;}
+.theme-sel{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t1);padding:4px 8px;font-size:12px;font-family:inherit;min-width:132px;}
 .ai-key{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t2);padding:5px 9px;font-size:11px;width:165px;font-family:monospace;}
 .ai-key:focus{outline:none;border-color:var(--goldd);color:var(--t1);}
 .tabs{background:var(--bg2);border-bottom:1px solid var(--bd);padding:0 16px;display:flex;overflow-x:auto;position:sticky;top:62px;z-index:250;box-shadow:0 2px 8px #0008;}
@@ -286,6 +287,89 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 .hld-tbl-wrap input.hi.code-col,.hld-tbl-wrap .mono-fig{font-family:ui-monospace,Consolas,"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;}
 .hld-search-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
 .hld-search-row .fi{min-width:100px;flex:1;}
+/* ===== Accessibility-first redesign (50+) ===== */
+:root{
+  --bg:#071018;
+  --bg2:#0c1724;
+  --bgc:#111f2f;
+  --bgh:#15263a;
+  --gold:#d9b85b;
+  --goldl:#f2d885;
+  --goldd:#8e6d1c;
+  --t1:#f2f6fc;
+  --t2:#c6d4e6;
+  --t3:#8ea5bf;
+  --bd:#27405b;
+  --bdl:#32537a;
+  --ibg:#0b1522;
+  --ibd:#3b5e86;
+  --ifocus:#69a8ff;
+}
+:root[data-theme="mid"]{
+  --bg:#0b1520;--bg2:#122033;--bgc:#18293f;--bgh:#1c314b;
+  --gold:#d3b464;--goldl:#efd993;--goldd:#9a7a2a;
+  --t1:#f4f8ff;--t2:#d2deed;--t3:#95acc6;
+  --bd:#315176;--bdl:#3f6897;--ibg:#132338;--ibd:#476f9f;--ifocus:#6fb2ff;
+}
+:root[data-theme="light"]{
+  --bg:#f4f7fb;--bg2:#eef3f9;--bgc:#ffffff;--bgh:#f3f6fb;
+  --gold:#9a6e00;--goldl:#b78400;--goldd:#7c5a00;
+  --t1:#1b2a3a;--t2:#3a5470;--t3:#6d839b;
+  --bd:#d0ddeb;--bdl:#bfd2e5;--ibg:#f7fbff;--ibd:#b5cce3;--ifocus:#2f7de1;
+}
+html{font-size:18px;}
+body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
+.hdr{padding:14px 20px;gap:12px;}
+.hdr-logo{font-size:23px;line-height:1.25;}
+.hdr-sub{font-size:14px;line-height:1.6;}
+.hdr-brief{font-size:12px;line-height:1.55;}
+.tabs{top:74px;padding:0 20px;}
+.tab{font-size:17px;padding:14px 18px;border-bottom-width:3px;}
+.main{padding:18px 20px;}
+.card{border-radius:12px;padding:18px;margin-bottom:14px;}
+.ctitle{font-size:19px;font-weight:800;margin-bottom:12px;}
+.badge{font-size:12px;padding:3px 8px;border-radius:999px;}
+.fl{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--t1);}
+.fi,.fs{font-size:17px;padding:11px 12px;min-height:46px;border-radius:9px;border-width:2px;}
+.fi.mono{font-size:17px;}
+.hint{font-size:13px;line-height:1.55;color:var(--t2);}
+.ka{font-size:13px;font-weight:700;line-height:1.5;min-height:19px;}
+.btn{font-size:16px;padding:10px 15px;min-height:44px;border-radius:9px;}
+.btn-sm{font-size:14px;padding:8px 12px;min-height:38px;}
+.btn-xs{font-size:13px;padding:7px 10px;min-height:34px;}
+.btn-lg{font-size:17px;padding:12px 18px;min-height:48px;}
+.ai-key,.ai-sel{font-size:14px;padding:8px 10px;border-width:2px;}
+.al{font-size:14px;line-height:1.65;padding:12px 13px;border-radius:9px;}
+.sc{padding:13px;border-radius:10px;}
+.sl{font-size:13px;}
+.sv{font-size:17px;}
+.ss{font-size:12px;}
+.acct-lbl{font-size:16px;}
+.st{font-size:13px;}
+.st th{font-size:12px;padding:9px 8px;}
+.st td{font-size:13px;padding:7px 8px;}
+.ht{font-size:13px;}
+.ht th{font-size:12px;padding:8px 8px;}
+.ht td{font-size:13px;padding:7px 7px;}
+.ai-resp{font-size:15px;line-height:1.85;}
+.ai-chat-msg{font-size:14px;line-height:1.7;}
+.sdd-tip{font-size:13px;line-height:1.6;}
+.scw-section-title{font-size:14px;}
+.scw-acct-head{font-size:13px;}
+.scw-tax-grid{font-size:13px;}
+.scw-results-h{font-size:15px;}
+.fi:focus,.fs:focus,.btn:focus,.tab:focus,.qbtn:focus,.hi:focus{
+  outline:3px solid rgba(105,168,255,.45);
+  outline-offset:2px;
+  border-color:var(--ifocus)!important;
+}
+@media(max-width:900px){
+  html{font-size:17px;}
+  .tab{font-size:16px;padding:12px 15px;}
+  .ctitle{font-size:18px;}
+  .fi,.fs{font-size:16px;min-height:44px;}
+  .btn{font-size:15px;}
+}
 </style>
 </head>
 <body>
@@ -298,6 +382,11 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
     <div class="hdr-brief">본 결과는 단순 시뮬레이션이며 실제 수령액과 다를 수 있습니다. 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</div>
   </div>
   <div class="hdr-r">
+    <select id="uiTheme" class="theme-sel" onchange="setTheme(this.value)">
+      <option value="dark">A. 고대비 다크</option>
+      <option value="mid">B. 미들톤 다크</option>
+      <option value="light">C. 라이트</option>
+    </select>
     <select id="aiProv" class="ai-sel"><option value="gemini">Gemini (무료)</option><option value="gpt">ChatGPT</option></select>
     <input type="password" id="aiKey" class="ai-key" placeholder="AI API Key (AIza... / sk-...)">
     <button class="btn btn-red btn-sm" onclick="resetAll()">🔄 초기화</button>
@@ -1414,7 +1503,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.25 18:40';
+const PUBLISH_STAMP='2026.03.26 00:02';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1423,6 +1512,7 @@ document.addEventListener('click',e=>{
   });
 });
 window.onload=()=>{
+  applyThemeFromStorage();
   // 탭 위치 = 헤더 높이에 맞춰 동적 설정
   function fixTabsPos(){
     const hdr=G('main-hdr'),tabs=G('main-tabs');
@@ -1456,6 +1546,19 @@ window.onload=()=>{
   attachAutoMoneyHints(document);
   setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
 };
+function setTheme(theme){
+  const t=(theme==='mid'||theme==='light')?theme:'dark';
+  const root=document.documentElement;
+  if(t==='dark')root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme',t);
+  try{localStorage.setItem('retireSim_theme',t);}catch(e){}
+  const sel=G('uiTheme');if(sel&&sel.value!==t)sel.value=t;
+}
+function applyThemeFromStorage(){
+  let t='dark';
+  try{t=localStorage.getItem('retireSim_theme')||'dark';}catch(e){}
+  setTheme(t);
+}
 function initHdrPublish(){
   const el=G('hdr-publish');
   if(el)el.textContent='Ver. '+PUBLISH_STAMP;
@@ -1724,24 +1827,21 @@ function onSalary(){
   const empMon  = Math.round(monthSal * 0.009);
 
   // 소득세 (월 기준 간이세액표 근사치)
-  // 과세표준 = 월급 - 월 공제합계 - 근로소득공제
-  const deductMon = npMon + hltMon + ltcMon + empMon;
-  const taxableMon = Math.max(0, monthSal - deductMon);
-  // 근로소득공제 (연간) → 월 환산
+  // 근로소득공제는 "총급여(세전)" 기준으로 계산
+  // 간이 반영: 공적연금(국민연금)만 소득공제에 반영
+  const grossAnn = monthSal * 12;
+  // 근로소득공제 (연간)
   let wageDeduct = 0;
-  const taxableAnnForWage = taxableMon * 12;
-  if(taxableAnnForWage <= 5000000)       wageDeduct = taxableAnnForWage * 0.70;
-  else if(taxableAnnForWage <= 15000000) wageDeduct = 3500000 + (taxableAnnForWage-5000000)*0.40;
-  else if(taxableAnnForWage <= 45000000) wageDeduct = 7500000 + (taxableAnnForWage-15000000)*0.15;
-  else if(taxableAnnForWage <= 100000000)wageDeduct = 12000000 + (taxableAnnForWage-45000000)*0.05;
-  else                                   wageDeduct = 14750000 + (taxableAnnForWage-100000000)*0.02;
-  const wageDeductMon = Math.round(wageDeduct / 12);
-  // 인적공제 월 환산 (본인 150만원 ÷ 12)
-  const personalDeductMon = Math.round(1500000 / 12);
-  const incomeTaxBase = Math.max(0, taxableMon - wageDeductMon - personalDeductMon);
+  if(grossAnn <= 5000000)       wageDeduct = grossAnn * 0.70;
+  else if(grossAnn <= 15000000) wageDeduct = 3500000 + (grossAnn-5000000)*0.40;
+  else if(grossAnn <= 45000000) wageDeduct = 7500000 + (grossAnn-15000000)*0.15;
+  else if(grossAnn <= 100000000)wageDeduct = 12000000 + (grossAnn-45000000)*0.05;
+  else                          wageDeduct = 14750000 + (grossAnn-100000000)*0.02;
+  const personalDeductAnn = 1500000; // 본인 기본공제(간이)
+  const npDeductAnn = npMon * 12;    // 공적연금보험료 소득공제(간이)
+  const annBase = Math.max(0, grossAnn - wageDeduct - personalDeductAnn - npDeductAnn);
 
   // 소득세 누진
-  const annBase = incomeTaxBase * 12;
   let annTax = 0;
   if(annBase <= 14000000)       annTax = annBase * 0.06;
   else if(annBase <= 50000000)  annTax = 840000   + (annBase-14000000)*0.15;
@@ -2936,7 +3036,7 @@ function renderAccts(){
       <div id="pension-plan-${a.id}" style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px;">🎯 연금수령 계획 <span style="font-weight:400;color:var(--t2);font-size:11px">(55세 & 5년 이상 가입 조건)</span></div>
       <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
         📌 사적연금 수령 조건: <b>만 55세 이상</b> & <b>가입기간 5년 이상</b><br>
-        💰 연금소득세: 70세 미만 5.5% · 70~80세 4.4% · 80세+ 3.3% (분리과세)<br>
+        💰 연금소득세: 70세 미만 5.5% · 70~79세 4.4% · 80세+ 3.3% (분리과세)<br>
         ⚠️ 연간 1,500만원 초과 시 다른 소득과 합산 종합과세 또는 16.5% 분리과세 선택
       </div>
       <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:5px;">📋 인출 순서 (세금 꼬리표 — 자동 적용)</div>
@@ -3097,38 +3197,7 @@ function renderAccts(){
       </div>`;
     }
     // Account lifecycle - 퇴직IRP, ISA는 skip (자체 이전 섹션 있음)
-    // 연금저축(펀드·보험): ISA 만기 블록과 같은 g3 + 안내 박스 레이아웃
-    if(!isIRPR&&!isISA){
-      if(isPension){
-        extra+=`<hr class="d">
-      <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:7px;">📅 계좌 종료 설정 <span style="font-weight:400;font-size:11px;color:var(--t2)">(선택 · 특정 나이에 다른 계좌로 이전하거나 해지)</span></div>
-      <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
-        💡 ISA <b>만기·해지</b> 블록과 같은 형태입니다. 종료 나이·처리·이전 계좌를 맞춰 두세요. (예: 적립IRP 이전, 해지 후 현금)
-      </div>
-      <div class="g3">
-        <div class="frow"><label class="fl">종료 나이 <span style="font-size:10px;color:var(--t3)">(0=사용안함)</span></label>
-          <input class="fi mono" type="number" value="${a.acctEndAge||''}" placeholder="예: 65" oninput="AP('${a.id}','acctEndAge',this.value)">
-          <div class="hint">이 나이가 되면 아래 처리 실행</div>
-        </div>
-        <div class="frow"><label class="fl">종료 후 처리</label>
-          <select class="fs" onchange="AP('${a.id}','acctEndAction',this.value)">
-            <option value="keep"     ${a.acctEndAction==='keep'?'selected':''}>계속유지</option>
-            <option value="transfer" ${a.acctEndAction==='transfer'?'selected':''}>다른 계좌로 전액이전</option>
-            <option value="liquidate"${a.acctEndAction==='liquidate'?'selected':''}>해지 후 현금</option>
-          </select>
-        </div>
-        <div class="frow"><label class="fl">옮길 계좌</label>
-          <select class="fs" onchange="AP('${a.id}','acctEndTarget',this.value)">
-            <option value="">없음</option>
-            ${accounts.filter(x=>x.id!==a.id).map(x=>`<option value="${x.id}" ${x.id===a.acctEndTarget?'selected':''}>${x.label}</option>`).join('')}
-          </select>
-          <div class="hint">💡 예: 적립IRP·다른 연금계좌 / 성장형→배당형 전환</div>
-        </div>
-      </div>`;
-      }else{
-        // 계좌 종료 설정: UI 복잡도 대비 사용 빈도 낮아 숨김(데이터는 유지)
-      }
-    }
+    // Account lifecycle UI removed for stability/simplicity
 
     const div=document.createElement('div');
     div.className='acct-card';div.id=`ac-${a.id}`;
@@ -3797,7 +3866,10 @@ function checkPensionAge(acctId, age){
   const curAge=parseInt(Gval('curAge'))||47;
   const yearsToStart=Math.max(0,age-curAge);
   if(age<55){el.innerHTML='<span style="color:var(--red)">⚠ 최소 55세부터 수령 가능</span>';}
-  else{el.innerHTML=`${yearsToStart>0?yearsToStart+'년 후 수령 시작':'이미 수령 가능'} <span style="color:var(--teal)">연금소득세 ${age<70?'5.5':'4.4'}%</span>`;}
+  else{
+    const tx=age>=80?'3.3':age>=70?'4.4':'5.5';
+    el.innerHTML=`${yearsToStart>0?yearsToStart+'년 후 수령 시작':'이미 수령 가능'} <span style="color:var(--teal)">연금소득세 ${tx}%</span>`;
+  }
 }
 function calcPensionPlanAnnual(baseBal,startAge,curAge,pensionYears,pensionMode){
   const years=Math.max(1,pensionYears===99?30:+pensionYears||10);
@@ -4091,7 +4163,7 @@ function scwPensionLimitRef(balBefore,yearIdx){
 /** 연금 인출액에 대한 연령별 안내용 세부담(공제 전 단순 곱) */
 function scwApproxPensionTaxWon(annual,age){
   if(annual<=0)return{w:0,rateLabel:'—'};
-  const r=age>=70?0.044:0.055;
+  const r=age>=80?0.033:age>=70?0.044:0.055;
   return{w:Math.round(annual*r),rateLabel:`약 ${(r*100).toFixed(1)}%×연인출(안내)`};
 }
 function initScenarioWidgets(){
@@ -4451,17 +4523,17 @@ function calcDivPreview(acctId){
   });
   if(!totalMonDiv){el.style.display='none';el.innerHTML='';return;}
   const annualDiv=totalMonDiv*12;
-  const over1500=(annualDiv>15000000)&&!isTaxFree;
+  const overFinanceTax=(annualDiv>20000000)&&!isTaxFree; // 금융소득(이자+배당) 종합과세 판단 기준(참고)
   el.style.display='';
   el.innerHTML=lines.join('')+
     `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;">` +
     `<span style="font-size:12px;color:var(--t2)">💰 합산 세후 배당 (월 환산)</span>` +
     `<b style="font-size:16px;color:var(--teal)">${wf(totalMonDiv)}원<span style="font-size:11px">/월</span></b></div>` +
     `<div style="text-align:right;font-size:11px;color:var(--t2)">연 ${wf(annualDiv)}원 (${toKor(annualDiv)}) · ${isTaxFree?'<span style="color:var(--green)">비과세</span>':'15.4% 원천징수'}</div>`+
-    (over1500?`<div class="al al-e" style="font-size:11px;margin-top:6px;">
-      ⚠️ <b>연 배당 1,500만원 초과</b> — 금융소득 종합과세 적용 가능성<br>
+    (overFinanceTax?`<div class="al al-e" style="font-size:11px;margin-top:6px;">
+      ⚠️ <b>연 배당 2,000만원 초과</b> — 금융소득 종합과세 적용 가능성<br>
       금융소득(이자+배당) 합산이 연 2,000만원 초과 시 다른 소득과 합산 종합과세 됩니다.<br>
-      선택: ① <b>종합과세</b> (누진세율 6~45% 적용) · ② <b>분리과세 14%</b> 중 유리한 쪽 선택<br>
+      현재 문구는 <b>안내용</b>이며, 실제 신고 방식은 다른 소득·공제·합산 기준에 따라 달라질 수 있습니다.<br>
       💡 해결책: ISA·연금계좌로 배당 수취 → <b>비과세 또는 저율과세(3.3~5.5%)</b>로 절세
     </div>`:'');
   // (duplicate removed)
@@ -4853,9 +4925,10 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
           const ta = active.find(a=>a.type===sevTgt||a.id===sevTgt);
           if(ta){bal[ta.id]=(bal[ta.id]||0)+sevAmt;events.push({label:`퇴직금 이전 ${ws(sevAmt)}`,color:''});}
         }else{
-          const afterTax = Math.round(sevAmt*0.70);
+          const rt=calcRetirementTax(sevAmt);
+          const afterTax = Math.max(0, Math.round(sevAmt-(rt?.retireTax||0)));
           const cma = active.find(a=>a.type==='CMA')||active[0];
-          if(cma){bal[cma.id]=(bal[cma.id]||0)+afterTax;events.push({label:`퇴직금 현금수령 ${ws(afterTax)} (세후70%)`,color:''});}
+          if(cma){bal[cma.id]=(bal[cma.id]||0)+afterTax;events.push({label:`퇴직금 현금수령 ${ws(afterTax)} (간이세후)`,color:''});}
         }
       }
     }
@@ -4918,24 +4991,25 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       }
     });
     
-    // ── IRP/퇴직IRP 은퇴 시 처리 (irpOnRetire 설정 반영) ──
-    if(age===retA && i>0){
+    // ── IRP/퇴직IRP 처리 (은퇴 후 설정 반영) ──
+    if(i>0){
       active.filter(a=>(AMETA[a.type]||{}).cat==='IRP_RET'||(AMETA[a.type]||{}).cat==='IRP').forEach(a=>{
         const action=a.irpOnRetire||'keep';
         if(action==='toAccum'||action==='toAccumIRP'){
           const transferAge=a.irpTransferAge||55;
-          if(age===transferAge||age===retA){
+          const execAge=Math.max(retA,transferAge);
+          if(age===execAge){
             const tgt=(a.irpAccumTarget?active.find(x=>x.id===a.irpAccumTarget):null) || pickIRPTargetForRetire(a,action);
             if(tgt){
               const transferAmt=bal[a.id]||0;
               if(transferAmt>0){
                 bal[tgt.id]=(bal[tgt.id]||0)+transferAmt;
                 bal[a.id]=0;
-                events.push({label:`${a.label}→${tgt.label} ${transferAge}세 이전 ${ws(transferAmt)}`,color:'b'});
+                events.push({label:`${a.label}→${tgt.label} ${execAge}세 이전 ${ws(transferAmt)}`,color:'b'});
               }
             }
           }
-        } else if(action==='liquidate'){
+        } else if(action==='liquidate'&&age===retA){
           const liqAmt=bal[a.id]||0;
           if(liqAmt>0){
             // 해지 시 기타소득세 16.5% 적용
@@ -4952,17 +5026,7 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       });
     }
 
-    // Account lifecycle end
-    active.forEach(a=>{
-      const endAge=parseInt(a.acctEndAge)||0;
-      if(endAge>0&&age===endAge&&a.acctEndAction!=='keep'){
-        const balAmt=bal[a.id]||0;
-        if(a.acctEndAction==='transfer'&&a.acctEndTarget){
-          const tgt=active.find(x=>x.id===a.acctEndTarget);
-          if(tgt){bal[tgt.id]=(bal[tgt.id]||0)+balAmt;bal[a.id]=0;events.push({label:`${a.label}→${tgt.label} 이전`,color:'b'});}
-        }else if(a.acctEndAction==='liquidate'){bal[a.id]=0;events.push({label:`${a.label} 해지`,color:''});}
-      }
-    });
+    // Account lifecycle end: UI에서 제거되어 시뮬 처리 비활성화
     
     // Apply returns
     active.forEach(a=>{
