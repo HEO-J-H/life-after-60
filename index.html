@@ -414,12 +414,12 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="card">
       <div class="ctitle">👤 개인 정보</div>
       <div class="g2">
-        <div class="frow"><label class="fl">생년월일</label><input class="fi" id="birthDate" type="date" value="1978-02-25" oninput="onBirth()"><div class="ka" id="ka-age"></div></div>
-        <div class="frow"><label class="fl">현재 나이</label><input class="fi mono" id="curAge" type="number" value="47" oninput="onAge()"><div class="hint">입력하면 생년월일 자동계산</div></div>
+        <div class="frow"><label class="fl">생년월일</label><input class="fi" id="birthDate" type="date" value="1980-01-01" oninput="onBirth()"><div class="ka" id="ka-age"></div></div>
+        <div class="frow"><label class="fl">현재 나이</label><input class="fi mono" id="curAge" type="number" value="46" oninput="onAge()"><div class="hint">입력하면 생년월일 자동계산</div></div>
       </div>
       <div class="frow">
-        <label class="fl">은퇴 목표 나이: <strong id="retireAge-val" style="color:var(--goldl)">60세</strong> <span id="ka-retire" style="font-size:11px;color:var(--t2);"></span></label>
-        <input type="range" id="retireAge" min="45" max="75" value="60" oninput="onRetireAge()">
+        <label class="fl">은퇴 목표 나이: <strong id="retireAge-val" style="color:var(--goldl)">65세</strong> <span id="ka-retire" style="font-size:11px;color:var(--t2);"></span></label>
+        <input type="range" id="retireAge" min="45" max="75" value="65" oninput="onRetireAge()">
       </div>
       <div class="g2">
         <div class="frow"><label class="fl">기대 수명</label><input class="fi mono" id="lifeExp" type="number" value="90"></div>
@@ -432,7 +432,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         💡 <b>연봉</b> = 세전 총급여. 아래 월급 실수령액이 자동계산됩니다.<br>
         <b>연봉 상승률</b>: 통계청 기준 평균 2~4%. 시뮬레이션 전체기간에 복리 반영됩니다.
       </div>
-      <div class="frow"><label class="fl">현재 연봉 (원)</label><input class="fi mono" id="salary" type="number" value="70000000" oninput="onSalary()"><div class="ka" id="ka-sal"></div><div id="sal-hint" style="font-size:12px;margin-top:4px;"></div></div>
+      <div class="frow"><label class="fl">현재 연봉 (원)</label><input class="fi mono" id="salary" type="number" value="50000000" oninput="onSalary()"><div class="ka" id="ka-sal"></div><div id="sal-hint" style="font-size:12px;margin-top:4px;"></div></div>
       <div class="g2">
         <div class="frow"><label class="fl">연봉 상승률 (%/년)</label><input class="fi mono" id="salGrowth" type="number" value="3" step="0.5"></div>
         <div class="frow"><label class="fl">급여일 <span style="font-size:10px;color:var(--t2)">(매월 며칠)</span></label>
@@ -442,8 +442,8 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       </div>
       <div class="frow"><label class="fl">세액공제 구간 <span id="tax-badge" class="badge" style="background:var(--green);color:#fff">자동</span></label>
         <select class="fs" id="taxBracket" onchange="updateTax()">
-          <option value="low">총급여 5,500만원 이하 → 16.5%</option>
-          <option value="high" selected>총급여 5,500만원 초과 → 13.2%</option>
+          <option value="low" selected>총급여 5,500만원 이하 → 16.5%</option>
+          <option value="high">총급여 5,500만원 초과 → 13.2%</option>
         </select>
       </div>
     </div>
@@ -453,8 +453,8 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       </div>
       <div id="exp-sec">
         <div class="g2">
-          <div class="frow"><label class="fl">현재 월 생활비 (원)</label><input class="fi mono" id="mExp" type="number" value="2800000" oninput="ka(this,'ka-me')"><div class="ka" id="ka-me"></div></div>
-          <div class="frow"><label class="fl">은퇴 후 월 생활비 (원)</label><input class="fi mono" id="rExp" type="number" value="2200000" oninput="ka(this,'ka-re');calcTarget()"><div class="ka" id="ka-re" style="color:var(--goldl)"></div></div>
+          <div class="frow"><label class="fl">현재 월 생활비 (원)</label><input class="fi mono" id="mExp" type="number" value="2000000" oninput="ka(this,'ka-me')"><div class="ka" id="ka-me"></div></div>
+          <div class="frow"><label class="fl">은퇴 후 월 생활비 (원)</label><input class="fi mono" id="rExp" type="number" value="1800000" oninput="ka(this,'ka-re');calcTarget()"><div class="ka" id="ka-re" style="color:var(--goldl)"></div></div>
         </div>
         <div class="g2">
           <div class="frow">
@@ -480,7 +480,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         <div class="np-base-row">
           <div class="frow">
             <label class="fl">기준 월수령액 — 65세 기준 (원)</label>
-            <input class="fi mono" id="npBase" type="number" value="1400000" oninput="ka(this,'ka-np');renderNP();updateRetireOtherHealthHint();">
+            <input class="fi mono" id="npBase" type="number" value="1200000" oninput="ka(this,'ka-np');renderNP();updateRetireOtherHealthHint();">
             <div class="ka" id="ka-np"></div>
           </div>
         </div>
@@ -1452,44 +1452,50 @@ const CORS_PROXIES=[
 const PCACHE={};
 
 /**
- * Starter profile — synced from user spreadsheet screenshots (2026.03).
- * Holdings: 연금/ISA/적립IRP/퇴직 columns; cashflow: 대출·보험·월저축 100만.
+ * Demo starter profile only — no real personal data.
+ * First visit: localStorage empty → this template loads. Your saved profile stays in this browser only.
  */
 const SHEET_REF={
   basic:{
-    birthDate:'1978-02-25',curAge:'47',retireAge:'60',lifeExp:'90',
-    salary:'70000000',salGrowth:'3',salaryDay:'15',taxBracket:'high',retireOther:'0',
-    mExp:'2400000',rExp:'2100000',inf:'2.5',sw:'4',target:'0',
-    npBase:'1300000',npAge:'65',
-    sevType:'DC',workYrs:'16',dbSal:'0',manSev:'18249437',sevTarget:'IRP_RETIRE',
-    budget:'1000000',dcDirectBal:'0',dcRROverride:'',
+    birthDate:'1980-01-01',curAge:'46',retireAge:'65',lifeExp:'90',
+    salary:'50000000',salGrowth:'3',salaryDay:'25',taxBracket:'low',retireOther:'0',
+    mExp:'2000000',rExp:'1800000',inf:'2.5',sw:'4',target:'0',
+    npBase:'1200000',npAge:'65',
+    sevType:'DC',workYrs:'15',dbSal:'0',manSev:'50000000',sevTarget:'IRP_RETIRE',
+    budget:'500000',dcDirectBal:'0',dcRROverride:'',
     taxReinvest:false,taxReinvestTgt:'',
-    expOn:true,hpOn:false,hpPrice:'620000000',hpStartAge:'70',hpMode:'lifetime',healthApplySim:false,healthRetireOnly:true,
-    realEstate:'350000000',healthInc:'0','rev-target':'0',
+    expOn:true,hpOn:false,hpPrice:'400000000',hpStartAge:'70',hpMode:'lifetime',healthApplySim:false,healthRetireOnly:true,
+    realEstate:'200000000',healthInc:'0',revTarget:'0',
   },
   irpRetire:{balance:0,returnRate:6.5},
   extraAccounts:[
-    {type:'PENSION_FUND',balance:1759702,monthly:400000,returnRate:6.5},
-    {type:'ISA_BRK',balance:3437007,monthly:350000,returnRate:7},
-    {type:'IRP_ACCUM',balance:240440,monthly:250000,returnRate:6.5},
+    {type:'PENSION_FUND',balance:10000000,monthly:400000,returnRate:6.5},
+    {type:'ISA_BRK',balance:15000000,monthly:300000,returnRate:7},
+    {type:'IRP_ACCUM',balance:5000000,monthly:200000,returnRate:6.5},
   ],
   dcHoldings:[
-    {ticker:'379810',name:'KODEX 미국나스닥100',qty:523,avg:24277,cp:24255,divYield:0.5,cagr:null},
-    {ticker:'438100',name:'ACE 미국나스닥100미국채혼합50액티브',qty:375,avg:14807,cp:14900,divYield:1.2,cagr:null},
+    {ticker:'379810',name:'KODEX 미국나스닥100',qty:100,avg:17000,cp:17000,divYield:0.5,cagr:null},
+    {ticker:'455050',name:'TIGER 미국배당다우존스',qty:80,avg:12000,cp:12000,divYield:1.0,cagr:null},
   ],
   loans:[
-    {name:'케이뱅크',balance:22347965,monthly:258359,rate:5.09,startDate:'2018-06-01',endDate:'2035-02-28'},
-    {name:'아낌e보금자리론',balance:97967118,monthly:464497,rate:3.23,startDate:'2019-01-01',endDate:'2052-02-21'},
-    {name:'마이너스통장',balance:6000465,monthly:30000,rate:5.86,startDate:'2021-01-01',endDate:'2032-12-31'},
+    {name:'가계대출 (예시)',balance:20000000,monthly:400000,rate:4.5,startDate:'2020-01-01',endDate:'2035-12-31'},
+    {name:'주택담보대출 (예시)',balance:150000000,monthly:800000,rate:3.5,startDate:'2019-06-01',endDate:'2049-06-01'},
   ],
   insurances:[
-    {name:'실손의료(실비)',monthly:92900,refund:0,startDate:'2020-01-01',endDate:'2099-12-31'},
-    {name:'삼성The퍼스트건강(10일)',monthly:108391,refund:0,startDate:'2026-02-10',endDate:'2046-02-10'},
-    {name:'삼성The퍼스트건강(15일)',monthly:76527,refund:0,startDate:'2026-01-05',endDate:'2046-01-05'},
-    {name:'경증간편플러스원건강',monthly:233917,refund:0,startDate:'2025-02-07',endDate:'2045-02-07'},
-    {name:'골든종신보험',monthly:332550,refund:0,startDate:'2025-10-01',endDate:'2035-10-01'},
-    {name:'자동차보험',monthly:137500,refund:0,startDate:'2024-01-01',endDate:'2099-12-31'},
+    {name:'실손의료보험 (예시)',monthly:100000,refund:0,startDate:'2020-01-01',endDate:'2099-12-31'},
+    {name:'자동차보험 (예시)',monthly:150000,refund:0,startDate:'2024-01-01',endDate:'2099-12-31'},
   ],
+};
+
+/** getProfile `b` keys → DOM ids (must match applyProfile). */
+const PROFILE_B_EL={
+  dcDirectBal:'dc-direct-bal',
+  dcRROverride:'dc-rr-override',
+  scOpt:'sc-opt',
+  scAvg:'sc-avg',
+  scPes:'sc-pes',
+  scDiv:'sc-div',
+  revTarget:'rev-target',
 };
 
 // ═══════════ STATE ═══════════
@@ -1503,7 +1509,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.26 00:02';
+const PUBLISH_STAMP='2026.03.26 00:30';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -2485,12 +2491,18 @@ function syncDCBalToIRP(val){
 
 /** Apply SHEET_REF: 기본정보 폼 + 퇴직IRP + 부가 계좌 + 대출·보험 (초기 로드·초기화 시) */
 function applySheetRefTemplate(){
-  const b=SHEET_REF.basic||{};
+  const extraB={
+    divGrowthRate:'3',aiProv:'gemini',aiKey:'',
+    scOpt:'10',scAvg:'7',scPes:'3',scDiv:'6',
+  };
+  const b={...extraB,...(SHEET_REF.basic||{})};
+  b.aiKey='';
   Object.entries(b).forEach(([k,v])=>{
-    const el=G(k);
+    const domId=PROFILE_B_EL[k]||k;
+    const el=G(domId);
     if(!el)return;
-    if(el.type==='checkbox') el.checked=(v===true||v==='true'||v===1||v==='1');
-    else if(v!==undefined&&v!==null) el.value=String(v);
+    if(el.type==='checkbox')el.checked=(v===true||v==='true'||v===1||v==='1');
+    else if(v!==undefined&&v!==null)el.value=String(v);
   });
   if(G('hpOn')) toggleHP(!!G('hpOn').checked);
   if(G('expOn')) toggleExp(!!G('expOn').checked);
@@ -3871,6 +3883,9 @@ function checkPensionAge(acctId, age){
     el.innerHTML=`${yearsToStart>0?yearsToStart+'년 후 수령 시작':'이미 수령 가능'} <span style="color:var(--teal)">연금소득세 ${tx}%</span>`;
   }
 }
+/** Korean label for pension withdrawal mode (현금흐름 이벤트·UI). */
+const PENSION_MODE_KOR={equal:'정액',limit:'한도최대',amount:'금액지정',free:'자유',front:'전반집중',back:'후반집중'};
+function pensionModeKor(m){return PENSION_MODE_KOR[m||'equal']||String(m||'').trim()||'정액';}
 function calcPensionPlanAnnual(baseBal,startAge,curAge,pensionYears,pensionMode){
   const years=Math.max(1,pensionYears===99?30:+pensionYears||10);
   const mode=pensionMode||'equal';
@@ -3901,7 +3916,7 @@ function renderPensionPlanPreview(acctId){
   const el=G('pension-pay-preview-'+acctId);if(!el)return;
   const curAge=parseInt(Gval('curAge'))||47;
   const plan=calcPensionPlanAnnual(getAcctProjectedBal(a),a.pensionStartAge,curAge,a.pensionYears,a.pensionMode);
-  const modeLbl={equal:'정액',limit:'한도최대',amount:'금액지정',free:'자유',front:'전반집중',back:'후반집중'}[a.pensionMode||'equal']||'정액';
+  const modeLbl=pensionModeKor(a.pensionMode);
   const endAge=(a.pensionYears===99)?'종신형':`${plan.startAge+plan.years-1}세`;
   const totalRecv=Math.round(plan.annual*plan.years);
   const first10=Math.round(plan.annual*Math.min(10,plan.years));
@@ -4836,7 +4851,7 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       if(ann<=0)return;
       bal[a.id]=Math.max(0,(bal[a.id]||0)-ann);
       pensionInc+=ann;
-      events.push({label:`${a.label} 연금수령 ${ws(ann)} (${a.pensionMode||'equal'})`,color:'g'});
+      events.push({label:`${a.label} 연금수령 ${ws(ann)} (${pensionModeKor(a.pensionMode)})`,color:'g'});
     });
 
     // 주택연금 소득 반영
@@ -6384,6 +6399,7 @@ function resetAll(){
   const scr=G('sc-res');if(scr)scr.style.display='none';
   const ais=G('ai-suggs');if(ais)ais.style.display='none';
   const aic=G('ai-cmp-card');if(aic)aic.style.display='none';
+  try{clearAI();}catch(e){}
   // 4. 폼·계좌는 initDef → applySheetRefTemplate(SHEET_REF)로 채움
   // 5. initDef로 기본 데이터 로드
   initDef();
@@ -6434,17 +6450,6 @@ function loadFile(ev){
   };
   r.readAsText(f);G('fin').value='';
 }
-/** JSON `b` keys (getProfile) → actual DOM element ids (camelCase / legacy mismatches). */
-const PROFILE_B_EL={
-  dcDirectBal:'dc-direct-bal',
-  dcRROverride:'dc-rr-override',
-  scOpt:'sc-opt',
-  scAvg:'sc-avg',
-  scPes:'sc-pes',
-  scDiv:'sc-div',
-  revTarget:'rev-target',
-};
-
 function applyProfile(p){
   if(!p||p.ver!==6)return;
   const b=p.b||{};
