@@ -382,11 +382,6 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-brief">본 결과는 단순 시뮬레이션이며 실제 수령액과 다를 수 있습니다. 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</div>
   </div>
   <div class="hdr-r">
-    <select id="uiTheme" class="theme-sel" onchange="setTheme(this.value)">
-      <option value="dark">A. 고대비 다크</option>
-      <option value="mid">B. 미들톤 다크</option>
-      <option value="light">C. 라이트</option>
-    </select>
     <select id="aiProv" class="ai-sel"><option value="gemini">Gemini (무료)</option><option value="gpt">ChatGPT</option></select>
     <input type="password" id="aiKey" class="ai-key" placeholder="AI API Key (AIza... / sk-...)">
     <button class="btn btn-red btn-sm" onclick="resetAll()">🔄 초기화</button>
@@ -806,9 +801,9 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
           <label class="fl">나이 (세)</label>
           <input class="fi mono" id="lump-age" type="number" min="50" max="100" value="68" style="width:90px;">
         </div>
-        <div class="frow" style="margin:0;min-width:200px;flex:1;">
+        <div class="frow" style="margin:0;min-width:230px;max-width:260px;">
           <label class="fl">목돈 금액 (원)</label>
-          <input class="fi mono" id="lump-amt" type="number" value="50000000" style="width:100%;max-width:220px;" oninput="ka(this,'ka-lump-amt')">
+          <input class="fi mono" id="lump-amt" type="number" value="50000000" style="width:100%;" oninput="ka(this,'ka-lump-amt')">
           <div class="ka" id="ka-lump-amt"></div>
         </div>
         <select class="fs" id="lump-src" style="max-width:160px;">
@@ -881,14 +876,15 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
           <label class="fl">연봉 상승률 (%/년)</label>
           <input class="fi mono" id="simq-salGrowth" type="number" value="3" step="0.5">
         </div>
-        <div class="frow">
+        <div class="frow" style="min-width:220px;min-height:92px;">
           <label class="fl">은퇴 후 월 생활비 (원)</label>
           <input class="fi mono" id="simq-rExp" type="number" value="1800000">
           <div class="ka" id="ka-simq-re" style="color:var(--goldl)"></div>
         </div>
-        <div class="frow">
+        <div class="frow" style="min-width:220px;min-height:92px;">
           <label class="fl">물가상승률 (%/년)</label>
           <input class="fi mono" id="simq-inf" type="number" value="2.5" step="0.5">
+          <div class="ka" style="visibility:hidden;">0원</div>
         </div>
       </div>
       <div class="g2" style="align-items:end;">
@@ -1518,7 +1514,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.26 01:03';
+const PUBLISH_STAMP='2026.03.26 19:26';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1563,7 +1559,7 @@ window.onload=()=>{
   setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
 };
 function setTheme(theme){
-  const t=(theme==='mid'||theme==='light')?theme:'dark';
+  const t='dark';
   const root=document.documentElement;
   if(t==='dark')root.removeAttribute('data-theme');
   else root.setAttribute('data-theme',t);
@@ -1571,9 +1567,7 @@ function setTheme(theme){
   const sel=G('uiTheme');if(sel&&sel.value!==t)sel.value=t;
 }
 function applyThemeFromStorage(){
-  let t='dark';
-  try{t=localStorage.getItem('retireSim_theme')||'dark';}catch(e){}
-  setTheme(t);
+  setTheme('dark');
 }
 function initHdrPublish(){
   const el=G('hdr-publish');
@@ -3335,6 +3329,7 @@ function refreshHoldingsViews(acctId){
 
 function renderHoldings(a, slotIdx=null){
   if(!a||!a.holdings?.length)return`<div class="hint" style="padding:5px;">종목 없음. ＋ 종목 버튼으로 추가하세요.</div>`;
+  const isSlotView=(slotIdx!==null&&slotIdx!==undefined);
   const slotTag=(slotIdx===null||slotIdx===undefined)?'m':String(slotIdx);
   const tot=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(cp>0?h.qty*cp:0);},0);
   const totalDivInc=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0?h.qty*cp:0;return s+ev*(h.divYield||0)/100;},0);
@@ -3355,16 +3350,16 @@ function renderHoldings(a, slotIdx=null){
       return `<tr>
         <td><input class="hi sm code-col" value="${h.ticker||''}" oninput="hF('${a.id}',${hi},'ticker',this.value)" style="width:80px;min-width:72px" placeholder="6자리" inputmode="numeric" autocomplete="off"></td>
         <td><input class="hi sm" value="${repairKoreanLabel(h.name||'')}" oninput="hF('${a.id}',${hi},'name',this.value)" style="min-width:120px;max-width:220px;width:100%" placeholder="종목명"></td>
-        <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.qty||0}" oninput="hF('${a.id}',${hi},'qty',+this.value);refH('${a.id}')" style="width:72px"></td>
-        <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.avg||0}" oninput="hF('${a.id}',${hi},'avg',+this.value);refH('${a.id}')" style="width:84px"></td>
-        <td class="r" style="white-space:nowrap;"><input class="hi r sm mono-fig" type="number" value="${h.cp||0}" oninput="hF('${a.id}',${hi},'cp',+this.value);refH('${a.id}')" style="width:84px">
+        <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.qty||0}" ${isSlotView?'readonly':''} oninput="hF('${a.id}',${hi},'qty',+this.value)" onchange="refH('${a.id}')" style="width:72px"></td>
+        <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.avg||0}" ${isSlotView?'readonly':''} oninput="hF('${a.id}',${hi},'avg',+this.value)" onchange="refH('${a.id}')" style="width:84px"></td>
+        <td class="r" style="white-space:nowrap;"><input class="hi r sm mono-fig" type="number" value="${h.cp||0}" ${isSlotView?'readonly':''} oninput="hF('${a.id}',${hi},'cp',+this.value)" onchange="refH('${a.id}')" style="width:84px">
           <button type="button" class="btn btn-sec" style="padding:1px 4px;font-size:9px;margin-left:2px;flex-shrink:0;" onclick="fetchOneH('${a.id}',${hi})">📡</button></td>
         <td class="r divcol mono-fig" style="font-size:11px;">${ws(ev)}</td>
         <td class="r ${rc} mono-fig" style="font-size:11px;">${ret}%</td>
         <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.divYield||0}" step="0.1" oninput="hF('${a.id}',${hi},'divYield',+this.value)" style="width:56px" placeholder="0"></td>
         <td class="r"><input class="hi r sm mono-fig" type="number" value="${getHoldingAllocPct(h,slotIdx)}" step="5" min="0" max="100" oninput="hFSlot('${a.id}',${hi},${slotIdx==null?'null':slotIdx},+this.value)" style="width:52px" title="월납입액 배분%"><div id="hld-mo-hint-${a.id}-${slotTag}-${hi}" style="font-size:9px;color:var(--teal);white-space:nowrap">${a.monthlyContrib>0&&getHoldingAllocPct(h,slotIdx)>0?wf(Math.round(a.monthlyContrib*getHoldingAllocPct(h,slotIdx)/100))+'원':''}</div></td>
         <td class="r dim mono-fig" style="font-size:11px;">${w}%</td>
-        <td><button type="button" class="btn btn-red btn-xs" onclick="splH('${a.id}',${hi})">✕</button></td>
+        <td>${isSlotView?'<span style="font-size:10px;color:var(--t3)">공통</span>':`<button type="button" class="btn btn-red btn-xs" onclick="splH('${a.id}',${hi})">✕</button>`}</td>
       </tr>`;
     }).join('')}</tbody>
     <tfoot><tr>
@@ -3653,7 +3648,7 @@ function renderInvestSlotsEl(acctId){
 function addInvestSlot(acctId){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   if(!a.investSlots)a.investSlots=[{mode:'holdings',startAge:0,endAge:0}];
-  a.investSlots.push({mode:'holdings',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'});
+  a.investSlots.push({mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'});
   renderInvestSlotsEl(acctId);
   toast('✅ 슬롯 추가됨 (슬롯 '+a.investSlots.length+'개)');
 }
@@ -3765,8 +3760,11 @@ function renderInvestSlots(a){
 
 function calcSlotsDivPreview(a, projBal){
   if(!a.investSlots)return 0;
-  return a.investSlots.filter(sl=>sl.mode==='div'&&sl.allocPct&&sl.rate).reduce((sum,sl)=>{
-    const divBal=Math.round(projBal*sl.allocPct/100);
+  const divSlots=(a.investSlots||[]).filter(sl=>sl.mode==='div'&&sl.allocPct&&sl.rate);
+  const totalAlloc=divSlots.reduce((s,sl)=>s+Math.max(0,+sl.allocPct||0),0);
+  return divSlots.reduce((sum,sl)=>{
+    const effPct=totalAlloc>100?((Math.max(0,+sl.allocPct||0)/totalAlloc)*100):(Math.max(0,+sl.allocPct||0));
+    const divBal=Math.round(projBal*effPct/100);
     const annRate=(sl.rateMode||'annual')==='monthly'?sl.rate*12:sl.rate;
     return sum+Math.round(divBal*annRate/100/12);
   },0);
@@ -4541,9 +4539,11 @@ function calcDivPreview(acctId){
   if(!a.divSlots||!a.divSlots.length||a.divSlots.every(sl=>!sl||!sl.allocPct||!sl.rate)){el.style.display='none';el.innerHTML='';return;}
   let totalMonDiv=0,lines=[];
   const freqPerYear={monthly:12,quarterly:4,semiannual:2,annual:1};
+  const totalAlloc=Math.max(0,a.divSlots.reduce((s,sl)=>s+Math.max(0,+sl.allocPct||0),0));
   a.divSlots.forEach((sl,si)=>{
     if(!sl.allocPct||!sl.rate)return;
-    const divBal=Math.round(projBal*sl.allocPct/100);
+    const effPct=totalAlloc>100?((Math.max(0,+sl.allocPct||0)/totalAlloc)*100):(Math.max(0,+sl.allocPct||0));
+    const divBal=Math.round(projBal*effPct/100);
     const annRate=(sl.rateMode||'annual')==='monthly'?sl.rate*12:sl.rate;
     const fpy=freqPerYear[sl.freq||'monthly']||12;
     const perPayment=Math.round(divBal*annRate/100/fpy);
@@ -4553,9 +4553,14 @@ function calcDivPreview(acctId){
     const freqLabel={monthly:'월배당',quarterly:'분기배당',semiannual:'반기배당',annual:'연배당'}[sl.freq||'monthly'];
     const ageLabel=(sl.startAge>0||sl.endAge>0)?` (${sl.startAge||'?'}~${sl.endAge||'?'}세)`:'';
     lines.push(`<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px solid var(--bd);">` +
-      `<span style="color:var(--t2)">설정${si+1} ${freqLabel}${ageLabel} ${sl.allocPct}%×${annRate}%/년</span>` +
+      `<span style="color:var(--t2)">설정${si+1} ${freqLabel}${ageLabel} ${Math.round(effPct*10)/10}%×${annRate}%/년</span>` +
       `<span style="color:var(--teal);font-weight:600">${wf(afterTax)}원/월</span></div>`);
   });
+  if(totalAlloc>100){
+    lines.unshift(`<div class="al al-w" style="font-size:11px;margin:4px 0;">
+      ⚠ 배당 비중 합계 ${Math.round(totalAlloc*10)/10}%로 100%를 초과해, 슬롯별 비중을 100% 기준으로 자동 정규화해 계산했습니다.
+    </div>`);
+  }
   if(!totalMonDiv){el.style.display='none';el.innerHTML='';return;}
   const annualDiv=totalMonDiv*12;
   const overFinanceTax=(annualDiv>20000000)&&!isTaxFree; // 금융소득(이자+배당) 종합과세 판단 기준(참고)
@@ -4700,12 +4705,9 @@ function renderIns(){
         <input class="fi mono" type="text" value="${ins.endDate||''}" placeholder="2030-12-31" maxlength="10" style="font-size:13px;"
           oninput="if(this.value.length>=10&&this.value.match(/^\d{4}-\d{2}-\d{2}$/)){insurances[${i}].endDate=this.value;renderIns()}"
           >
-        <div class="hint">예: 2030-12-31 (년-월-일)</div>
       </div>
-      <div class="frow"><label class="fl">거치기간(개월) <span style="font-size:10px;color:var(--t3)">(완납 후 사용 전 대기)</span></label>
-        <div class="hint" style="margin:-6px 0 6px 0;color:var(--teal);font-size:11px;">(${Math.floor((+ins.deferMonths||0)/12)}년 ${(+ins.deferMonths||0)%12}개월)</div>
-        <input class="fi mono" type="number" value="${ins.deferMonths||0}" min="0" max="240" oninput="insurances[${i}].deferMonths=+this.value;renderIns();">
-        <div class="hint">예: 12 입력 시 완납 후 12개월 뒤부터 재투자/사용 가정</div>
+      <div class="frow"><label class="fl">거치기간(개월) <span id="ins-defer-hint-${i}" style="color:var(--teal);font-size:10px;">(${Math.floor((+ins.deferMonths||0)/12)}년 ${(+ins.deferMonths||0)%12}개월)</span></label>
+        <input class="fi mono" type="number" value="${ins.deferMonths||0}" min="0" max="240" oninput="insurances[${i}].deferMonths=+this.value;const _m=Math.max(0,+this.value||0),_h=document.getElementById('ins-defer-hint-${i}');if(_h)_h.textContent='('+Math.floor(_m/12)+'년 '+(_m%12)+'개월)'">
       </div>
 
       <div class="frow"><label class="fl">완납 후 재투자 계좌</label>
