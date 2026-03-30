@@ -2967,7 +2967,7 @@ function addAcctD(type,bal,mo,rr,active){
     isaElapsed:0,isaJoinDate:'',isaTransferTiming:'maturity',isaPostEvent:'transfer',isaTransferTarget:'',isaManualAge:60,
     irpOnRetire:'keep',irpAccumTarget:'',irpTransferAge:60,
     // 연금수령 옵션
-    pensionStartAge:55,pensionYears:10,pensionMode:'equal', // 연금수령시작나이/기간/방식
+    pensionStartAge:55,pensionYears:10,pensionMode:'equal',pensionAnnualAmount:0, // 연금수령시작나이/기간/방식
     // 월배당 설정 슬롯 (2개)
     investSlots:[
       {mode:'holdings',startAge:0,endAge:0},
@@ -3157,7 +3157,7 @@ function renderAccts(){
           </div>
         </div>
         <div class="frow"><label class="fl">수령 방식</label>
-          <select class="fs" onchange="AP('${a.id}','pensionMode',this.value);renderPensionPlanPreview('${a.id}')">
+          <select class="fs" onchange="onPensionModeChange('${a.id}',this.value)">
             <option value="equal"  ${(a.pensionMode||'equal')==='equal'?'selected':''}>정액 (연도별 동일)</option>
             <option value="limit"  ${a.pensionMode==='limit'?'selected':''}>한도 내 최대수령</option>
             <option value="amount" ${a.pensionMode==='amount'?'selected':''}>금액 지정</option>
@@ -3166,6 +3166,11 @@ function renderAccts(){
             <option value="back"   ${a.pensionMode==='back'?'selected':''}>후반 집중</option>
           </select>
           <div class="al al-s" id="pension-pay-preview-${a.id}" style="font-size:11px;margin-top:6px;"></div>
+        </div>
+        <div class="frow" id="pension-amount-row-${a.id}" style="${a.pensionMode==='amount'?'':'display:none'}">
+          <label class="fl">연 수령 금액 (원)</label>
+          <input class="fi mono" type="number" min="0" step="100000" value="${a.pensionAnnualAmount||0}" oninput="AP('${a.id}','pensionAnnualAmount',Math.max(0,+this.value||0));renderPensionPlanPreview('${a.id}')">
+          <div class="hint">금액 지정 모드에서 매년 이 금액을 우선 적용합니다 (잔액 한도 내).</div>
         </div>
       </div>
       <div class="al al-i" style="font-size:11px;margin-top:6px;">
@@ -3941,7 +3946,7 @@ function checkPensionAge(acctId, age){
 /** Korean label for pension withdrawal mode (현금흐름 이벤트·UI). */
 const PENSION_MODE_KOR={equal:'정액',limit:'한도최대',amount:'금액지정',free:'자유',front:'전반집중',back:'후반집중'};
 function pensionModeKor(m){return PENSION_MODE_KOR[m||'equal']||String(m||'').trim()||'정액';}
-function calcPensionPlanAnnual(baseBal,startAge,curAge,pensionYears,pensionMode){
+function calcPensionPlanAnnual(baseBal,startAge,curAge,pensionYears,pensionMode,pensionAnnualAmount=0){
   const years=Math.max(1,pensionYears===99?30:+pensionYears||10);
   const mode=pensionMode||'equal';
   const start=Math.max(55,+startAge||55);
@@ -3952,7 +3957,9 @@ function calcPensionPlanAnnual(baseBal,startAge,curAge,pensionYears,pensionMode)
   if(mode==='limit'){
     annual=limit1;guide='세무 한도 1차 연도 기준';
   }else if(mode==='amount'){
-    annual=Math.max(0,Math.round((balStart/years)*0.9));guide='지정 수령 기본값(수정 가능)';
+    const picked=Math.max(0,Math.round(+pensionAnnualAmount||0));
+    annual=picked>0?picked:Math.max(0,Math.round((balStart/years)*0.9));
+    guide=picked>0?'사용자 지정 금액':'지정 수령 기본값(수정 가능)';
   }else if(mode==='front'){
     annual=Math.max(0,Math.round((balStart/years)*1.25));guide='전반 집중(초기 1.25배)';
   }else if(mode==='back'){
@@ -3970,7 +3977,7 @@ function renderPensionPlanPreview(acctId){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   const el=G('pension-pay-preview-'+acctId);if(!el)return;
   const curAge=parseInt(Gval('curAge'))||47;
-  const plan=calcPensionPlanAnnual(getAcctProjectedBal(a),a.pensionStartAge,curAge,a.pensionYears,a.pensionMode);
+  const plan=calcPensionPlanAnnual(getAcctProjectedBal(a),a.pensionStartAge,curAge,a.pensionYears,a.pensionMode,a.pensionAnnualAmount);
   const modeLbl=pensionModeKor(a.pensionMode);
   const endAge=(a.pensionYears===99)?'종신형':`${plan.startAge+plan.years-1}세`;
   const totalRecv=Math.round(plan.annual*plan.years);
@@ -3981,6 +3988,12 @@ function renderPensionPlanPreview(acctId){
     `<span style="color:var(--t2)">시작 ${plan.startAge}세${plan.yFromNow>0?` (${plan.yFromNow}년 후)`:''} · 기간 ${plan.years===99?'종신':'약 '+plan.years+'년'} · 종료 ${endAge}</span><br>`+
     `<span style="color:var(--teal)">${totalLabel} · 초기 10년 누적 ${wf(first10)}원</span><br>`+
     `<span style="color:var(--t3)">은퇴시점 추정잔액 ${wf(plan.balStart)}원 | 1차 연도 한도 ${wf(plan.limit1)}원/년 (${plan.guide})</span>`;
+}
+function onPensionModeChange(acctId,mode){
+  AP(acctId,'pensionMode',mode);
+  const row=G('pension-amount-row-'+acctId);
+  if(row)row.style.display=(mode==='amount')?'':'none';
+  renderPensionPlanPreview(acctId);
 }
 /** Sum of estimated annual pension withdrawals at retire age (for scenario hints). */
 function estimateAnnualPensionAtRetireSum(){
@@ -3994,7 +4007,7 @@ function estimateAnnualPensionAtRetireSum(){
     if(cat==='IRP_RET'&&(a.irpOnRetire||'keep')!=='keep')return;
     if(a.irpOnRetire==='toAccum'||a.irpOnRetire==='liquidate')return;
     const bal=getAcctProjectedBal(a);
-    const plan=calcPensionPlanAnnual(bal,a.pensionStartAge||55,curA,a.pensionYears||10,a.pensionMode||'equal');
+    const plan=calcPensionPlanAnnual(bal,a.pensionStartAge||55,curA,a.pensionYears||10,a.pensionMode||'equal',a.pensionAnnualAmount||0);
     if(retA>=plan.startAge)sum+=plan.annual;
   });
   return sum;
@@ -4206,7 +4219,7 @@ function estimateScwAnnualFromPensionSettings(cat){
     if(a.type==='IRP_RETIRE'&&(a.irpOnRetire||'keep')!=='keep')return;
     if(a.irpOnRetire==='toAccum'||a.irpOnRetire==='liquidate')return;
     const base=getScenarioBalAtAge(a,startAge).use;
-    const plan=calcPensionPlanAnnual(base,a.pensionStartAge||55,curA,a.pensionYears||10,a.pensionMode||'equal');
+    const plan=calcPensionPlanAnnual(base,a.pensionStartAge||55,curA,a.pensionYears||10,a.pensionMode||'equal',a.pensionAnnualAmount||0);
     if(startAge>=plan.startAge)sum+=plan.annual;
   });
   return Math.round(sum);
@@ -4894,7 +4907,7 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       if(!['PENSION','IRP','IRP_RET'].includes(cat))return;
       if(cat==='IRP_RET'&&(a.irpOnRetire||'keep')!=='keep')return;
       if(a.irpOnRetire==='toAccum'||a.irpOnRetire==='liquidate')return;
-      const plan=calcPensionPlanAnnual(bal[a.id]||0,a.pensionStartAge,curA,a.pensionYears,a.pensionMode);
+      const plan=calcPensionPlanAnnual(bal[a.id]||0,a.pensionStartAge,curA,a.pensionYears,a.pensionMode,a.pensionAnnualAmount);
       if(age<plan.startAge)return;
       let ann=plan.annual;
       const yNo=Math.max(1,age-plan.startAge+1);
@@ -4940,8 +4953,9 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       const finAssetNow=Math.max(0,active.reduce((s,a)=>s+Math.max(0,(bal[a.id]||0)),0));
       const realEstateNow=parseFloat(Gval('realEstate'))||0;
       // healthInc is user extra input; avoid double-counting pension/other income.
+      // npInc/othInc are already annual values in this simulation loop.
       const annualIncNow=Math.max(
-        npInc*12+othInc*12,
+        npInc+othInc,
         parseFloat(Gval('healthInc'))||0
       );
       hiAutoPay=(estimateHealthMonthly(finAssetNow,realEstateNow,annualIncNow).monthly||0)*12;
@@ -6531,7 +6545,7 @@ function applyProfile(p){
     if(legAvg>0&&roNow===0)Gv('retireOther',String(legAvg));
   }
   dcHoldings=(p.dcHoldings||[]).map(h=>({...h,pb:null}));
-  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpOnRetire:a.irpOnRetire||'keep',irpAccumTarget:a.irpAccumTarget||'',irpTransferAge:a.irpTransferAge??60,isaJoinDate:a.isaJoinDate||'',investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal'}));
+  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpOnRetire:a.irpOnRetire||'keep',irpAccumTarget:a.irpAccumTarget||'',irpTransferAge:a.irpTransferAge??60,isaJoinDate:a.isaJoinDate||'',investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal',pensionAnnualAmount:Math.max(0,Math.round(+(a.pensionAnnualAmount||0)))}));
   loans=p.loans||[];insurances=p.insurances||[];
   lumpEvents=(p.lumpEvents||[]).map(e=>({id:e.id||('le'+Date.now()+Math.floor(Math.random()*999)),age:+e.age||0,amount:+e.amount||0,note:e.note||'목돈 지출'}));
   lumpEvents=lumpEvents.map(e=>({...e,src:e.src||'auto'}));
