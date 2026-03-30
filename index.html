@@ -1721,7 +1721,7 @@ function attachAutoMoneyHints(root){
   });
 }
 /** 2026년 국민연금 일부재취업 등 감액 판단용 A값(전체 가입자 평균 소득월액, 매년 초 갱신) */
-const NP_SOCIAL_AVG_MONTHLY_2026=3083758;
+const NP_SOCIAL_AVG_MONTHLY_2026=3193511;
 /** DC형 연간 납입 간이: 세전 연봉의 1/12(월급 1개월분 상당). 연 전액을 매년 넣으면 약 12배 과대. */
 function dcAnnualContribFromSalary(salY){
   return Math.round(Math.max(0,salY)/12);
@@ -5629,14 +5629,16 @@ function calcHealth(){
     }
   }
   const res=G('health-res');
-  if(res)res.innerHTML=`예상 건강보험료: <b style="color:var(--goldl)">${wf(monthly)}원/월</b> (연 ${wf(monthly*12)}원) | 재산점수 ${aScore.toFixed(0)}점 + 소득점수 ${incScore.toFixed(0)}점<br>🏠 실질 가처분소득: <b style="color:var(--green)">${wf(Math.round(disposable))}원/월</b> (연금+기타 - 건보료 - 생활비)`;
+  if(res)res.innerHTML=`예상 건강보험료(간이): <b style="color:var(--goldl)">${wf(monthly)}원/월</b> (연 ${wf(monthly*12)}원) | 재산점수 ${aScore.toFixed(0)}점 + 소득점수 ${incScore.toFixed(0)}점<br><span style="font-size:11px;color:var(--t3)">※ 지역가입자 기준 간이추정(소득·재산 중심)이며 실제 고지금액과 차이가 날 수 있습니다.</span><br>🏠 실질 가처분소득: <b style="color:var(--green)">${wf(Math.round(disposable))}원/월</b> (연금+기타 - 건보료 - 생활비)`;
 }
 
 function estimateHealthMonthly(finAsset,realEstate,annualInc){
-  const score_unit=208.4;
+  // 2026 간이 기준(지역가입자): 점수당 금액 최신값 반영
+  const score_unit=211.5;
   const incScore=Math.max(0,(annualInc||0)/1000000*2.5);
   const totalAsset=Math.max(0,(finAsset||0)+(realEstate||0));
-  const taxable=Math.max(0,totalAsset-50000000);
+  // 재산 기본공제(간이) 1억 반영
+  const taxable=Math.max(0,totalAsset-100000000);
   let aScore=0;
   if(taxable<=10000000)aScore=taxable/1000000*5;
   else if(taxable<=30000000)aScore=50+(taxable-10000000)/1000000*3;
