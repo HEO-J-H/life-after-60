@@ -4836,6 +4836,14 @@ function getDivIncome(acct, year, curYear, divGrowthRate, currentBal){
   const net=gross*(1-taxRate);
   return{gross:Math.round(gross),net:Math.round(net),taxFree:isTaxFree};
 }
+function getAnnualContribCap(a){
+  const m=AMETA[a.type]||{};
+  let cap=Infinity;
+  if((+m.al||0)>0)cap=Math.min(cap,+m.al);
+  if((+m.ml||0)>0)cap=Math.min(cap,(+m.ml)*12);
+  if((+a.cAnnualLimit||0)>0)cap=Math.min(cap,+a.cAnnualLimit);
+  return cap;
+}
 
 function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate=null){
   const now=new Date();
@@ -5055,13 +5063,13 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       isaA.forEach(a=>{
         // 이전(transfer) 처리된 ISA는 이후 연도 자동 적립을 막는다.
         if(isaTxDone[a.id])return;
-        const c=Math.min(a.monthlyContrib*12,20000000,rem);
+        const c=Math.min(a.monthlyContrib*12,getAnnualContribCap(a),rem);
         yC[a.id]+=c;rem-=c;
       });
       let pil=18000000;
-      penA.forEach(a=>{const c=Math.min(a.monthlyContrib*12,pil,rem);yC[a.id]+=c;rem-=c;pil-=c;});
-      irpA.forEach(a=>{const c=Math.min(a.monthlyContrib*12,pil,rem);yC[a.id]+=c;rem-=c;});
-      frA.forEach( a=>{const c=Math.min(a.monthlyContrib*12,rem);yC[a.id]+=c;rem-=c;});
+      penA.forEach(a=>{const c=Math.min(a.monthlyContrib*12,getAnnualContribCap(a),pil,rem);yC[a.id]+=c;rem-=c;pil-=c;});
+      irpA.forEach(a=>{const c=Math.min(a.monthlyContrib*12,getAnnualContribCap(a),pil,rem);yC[a.id]+=c;rem-=c;});
+      frA.forEach( a=>{const c=Math.min(a.monthlyContrib*12,getAnnualContribCap(a),rem);yC[a.id]+=c;rem-=c;});
     }
     Object.entries(freed).forEach(([id,amt])=>{
       const isLockedIsa=active.some(a=>a.id===id&&(AMETA[a.type]||{}).cat==='ISA'&&isaTxDone[a.id]);
@@ -5084,7 +5092,19 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
         const curBal=(bal[a.id]||0)+(yC[a.id]||0);
         const amt=a.isaPostEvent==='transfer300'?Math.min(curBal,30000000):curBal;
         const tgtA=a.isaTransferTarget?active.find(x=>x.id===a.isaTransferTarget):null;
-        if(tgtA&&a.isaPostEvent!=='liquidate'){bal[tgtA.id]=(bal[tgtA.id]||0)+amt;events.push({label:`ISA→${tgtA.label} ${ws(amt)}`,color:''});}
+        if(tgtA&&a.isaPostEvent!=='liquidate'){
+          bal[tgtA.id]=(bal[tgtA.id]||0)+amt;
+          events.push({label:`ISA→${tgtA.label} ${ws(amt)}`,color:''});
+        }else if(a.isaPostEvent==='liquidate'){
+          // 현금 인출 자금이 시뮬레이션 밖으로 사라지지 않도록 유동계좌로 이동
+          const cashA=active.find(x=>x.id!==a.id&&['FREE','STOCK','SUB'].includes((AMETA[x.type]||{}).cat))||active.find(x=>x.id!==a.id);
+          if(cashA){
+            bal[cashA.id]=(bal[cashA.id]||0)+amt;
+            events.push({label:`${a.label} 현금 인출 ${ws(amt)} → ${cashA.label}`,color:''});
+          }else{
+            events.push({label:`${a.label} 현금 인출 ${ws(amt)} (대상 계좌 없음)`,color:''});
+          }
+        }
         bal[a.id]-=Math.min(bal[a.id]||0,Math.max(0,amt-(yC[a.id]||0)));
         yC[a.id]=Math.max(0,(yC[a.id]||0)-amt);
         if(a.isaTransferTiming!=='maturity')isaTxDone[a.id]=true;
