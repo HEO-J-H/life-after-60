@@ -7,6 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0b1020">
+<link rel="stylesheet" href="./styles.css">
 <style>
 :root{--bg:#05080f;--bg2:#090e18;--bgc:#0c1220;--bgh:#111828;--gold:#c9a84c;--goldl:#e8c96a;--goldd:#7a5c18;--t1:#dde4f0;--t2:#7a8fa8;--t3:#3a5070;--bd:#162236;--bdl:#1e3050;--green:#2dbe74;--red:#e05555;--blue:#3b8fe8;--orange:#e8873b;--purple:#9b6fe0;--teal:#2bbfb0;--ibg:#060a12;--ibd:#1a2e48;--ifocus:#2a4060;}
 *{margin:0;padding:0;box-sizing:border-box;}html{font-size:16px;}
@@ -484,6 +487,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
           <span>연기수령(66~70세)</span><span class="v">연 +7.2%</span>
           <span>핵심 원칙</span><span class="v">나이별 가감률 자동 반영</span>
         </div>
+        <div id="np-age-rule-hint" class="al al-i" style="font-size:11px;margin-top:7px;padding:7px 10px;"></div>
         <div class="np-quick" id="np-quick"></div>
         <div id="np-best-pick" class="al al-s" style="font-size:11px;margin-top:7px;padding:7px 10px;"></div>
         <div class="np-note">
@@ -1514,7 +1518,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.26 19:26';
+const PUBLISH_STAMP='2026.03.30 17:45';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1790,12 +1794,14 @@ function onBirth(){
   Gv('curAge',age);
   const el=G('ka-age');if(el)el.textContent=`만 ${age}세`;
   onRetireAge();
+  renderNP();
 }
 function onAge(){
   const age=parseInt(Gval('curAge'))||47;
   Gv('birthDate',`${new Date().getFullYear()-age}-01-01`);
   const el=G('ka-age');if(el)el.textContent=`만 ${age}세`;
   onRetireAge();
+  renderNP();
 }
 function onRetireAge(){
   const ra=parseInt(Gval('retireAge'))||60;
@@ -2177,12 +2183,43 @@ function calcTarget(){
 }
 
 // ═══════════ NP ═══════════
+function getBirthYearForNP(){
+  const bd=Gval('birthDate');
+  if(/^\d{4}-\d{2}-\d{2}$/.test(bd))return parseInt(bd.slice(0,4),10);
+  const curA=parseInt(Gval('curAge'),10);
+  if(!isNaN(curA)&&curA>0)return new Date().getFullYear()-curA;
+  return null;
+}
+function getNpAgeRuleByBirthYear(y){
+  if(!y||isNaN(y))return {normalAge:65,earlyAge:60,band:'출생연도 미확인'};
+  if(y>=1969)return {normalAge:65,earlyAge:60,band:'1969년생 이후'};
+  if(y>=1965)return {normalAge:64,earlyAge:59,band:'1965~1968년생'};
+  if(y>=1961)return {normalAge:63,earlyAge:58,band:'1961~1964년생'};
+  if(y>=1957)return {normalAge:62,earlyAge:57,band:'1957~1960년생'};
+  if(y>=1953)return {normalAge:61,earlyAge:56,band:'1953~1956년생'};
+  return {normalAge:60,earlyAge:55,band:'1952년생 이전'};
+}
 function renderNP(){
   const base=parseFloat(Gval('npBase'))||1200000;
-  const sel=parseInt(Gval('npAge'))||65;
+  const birthY=getBirthYearForNP();
+  const rule=getNpAgeRuleByBirthYear(birthY);
+  const npAgeRange=G('npAge');
+  if(npAgeRange){
+    npAgeRange.min=String(rule.earlyAge);
+    if((parseInt(npAgeRange.value,10)||rule.normalAge)<rule.earlyAge){
+      npAgeRange.value=String(rule.earlyAge);
+      Gv('npAge',String(rule.earlyAge));
+    }
+  }
+  const sel=Math.max(rule.earlyAge,parseInt(Gval('npAge'))||rule.normalAge);
+  Gv('npAge',String(sel));
   const av=G('npAge-val');if(av)av.textContent=sel+'세';
   const kn=G('ka-np');if(kn)kn.textContent=toKor(base);
   const grid=G('np-grid');if(!grid)return;
+  const ageHint=G('np-age-rule-hint');
+  if(ageHint){
+    ageHint.innerHTML=`출생연도 <b>${birthY||'미확인'}</b> (${rule.band}) · 정상수령 <b>${rule.normalAge}세</b> · 조기수령 가능 <b>${rule.earlyAge}세</b>`;
+  }
 
   // 국민연금 소득세 간이계산
   // 연금소득공제: 연금액 × 40% (900만원 이상 구간)
@@ -2209,13 +2246,13 @@ function renderNP(){
 
   const ded=getNpPensionMonthlyDeduction();
   const earnAvg=getNpEarnBizAvgMonthly();
-  const opts=[
-    {age:55,label:'조기 55세',r:-0.30},
-    {age:60,label:'조기 60세',r:-0.18},
-    {age:65,label:'기본 65세',r:0},
-    {age:67,label:'연기 67세',r:0.144},
-    {age:70,label:'연기 70세',r:0.36}
-  ];
+  const npRate=(age)=>age<rule.normalAge?-(rule.normalAge-age)*0.06:(age-rule.normalAge)*0.072;
+  const rawAges=[rule.earlyAge,Math.max(rule.earlyAge,rule.normalAge-1),rule.normalAge,Math.min(70,rule.normalAge+2),70];
+  const ages=[...new Set(rawAges)].filter(a=>a>=rule.earlyAge&&a<=70).sort((a,b)=>a-b);
+  const opts=ages.map(age=>{
+    const label=age===rule.normalAge?`기본 ${age}세`:(age<rule.normalAge?`조기 ${age}세`:`연기 ${age}세`);
+    return {age,label,r:npRate(age)};
+  });
   const q=G('np-quick');
   if(q){
     q.innerHTML=opts.map(o=>`<button class="qbtn ${sel===o.age?'on':''}" onclick="setNpAgeQuick(${o.age})">${o.age}세</button>`).join('');
@@ -6914,6 +6951,14 @@ function ST(id,btn){
   if(panel)panel.classList.add('on');
   if(btn)btn.classList.add('on');
 }
+</script>
+<script src="./LinkH_Engine.js"></script>
+<script src="./Dashboard.js"></script>
+<script src="./Insurance_Analyzer.js"></script>
+<script>
+window.addEventListener("load",function(){
+  try{initLinkHDashboard();}catch(e){console.error("Link-H bootstrap failed",e);}
+});
 </script>
 </body>
 </html>
