@@ -9,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#0b1020">
-<link rel="stylesheet" href="./styles.css">
 <style>
 :root{--bg:#05080f;--bg2:#090e18;--bgc:#0c1220;--bgh:#111828;--gold:#c9a84c;--goldl:#e8c96a;--goldd:#7a5c18;--t1:#dde4f0;--t2:#7a8fa8;--t3:#3a5070;--bd:#162236;--bdl:#1e3050;--green:#2dbe74;--red:#e05555;--blue:#3b8fe8;--orange:#e8873b;--purple:#9b6fe0;--teal:#2bbfb0;--ibg:#060a12;--ibd:#1a2e48;--ifocus:#2a4060;}
 *{margin:0;padding:0;box-sizing:border-box;}html{font-size:16px;}
@@ -291,23 +290,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 .hld-search-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
 .hld-search-row .fi{min-width:100px;flex:1;}
 /* ===== Accessibility-first redesign (50+) ===== */
-:root{
-  --bg:#071018;
-  --bg2:#0c1724;
-  --bgc:#111f2f;
-  --bgh:#15263a;
-  --gold:#d9b85b;
-  --goldl:#f2d885;
-  --goldd:#8e6d1c;
-  --t1:#f2f6fc;
-  --t2:#c6d4e6;
-  --t3:#8ea5bf;
-  --bd:#27405b;
-  --bdl:#32537a;
-  --ibg:#0b1522;
-  --ibd:#3b5e86;
-  --ifocus:#69a8ff;
-}
+/* Default dark palette: use first :root in <head> (matches https://heo-j-h.github.io/life-after-60/). */
 :root[data-theme="mid"]{
   --bg:#0b1520;--bg2:#122033;--bgc:#18293f;--bgh:#1c314b;
   --gold:#d3b464;--goldl:#efd993;--goldd:#9a7a2a;
@@ -379,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.03.30 19:15</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.03.30 22:07</span></div>
     </div>
     <div class="hdr-sub">실시간 주가·배당 · 절세전략 · AI분석 · 주택연금<br><span style="font-size:11px;color:var(--t3);">허정훈 · <a href="mailto:hjh1014@naver.com" style="color:var(--teal);text-decoration:none;">hjh1014@naver.com</a></span></div>
     <div class="hdr-brief">본 결과는 단순 시뮬레이션이며 실제 수령액과 다를 수 있습니다. 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</div>
@@ -1518,7 +1501,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.30 19:15';
+const PUBLISH_STAMP='2026.03.30 22:07';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
