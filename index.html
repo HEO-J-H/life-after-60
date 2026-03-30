@@ -1644,6 +1644,15 @@ function estimateLumpTax(amount, src, age){
   const pTax=Math.round(amt*(age>=80?0.033:age>=70?0.044:0.055));
   return Math.round(amt*0.6*0.154 + amt*0.2*0 + amt*0.2*(pTax/amt));
 }
+function pensionIncomeTaxRateByAge(age){
+  return age>=80?0.033:age>=70?0.044:0.055;
+}
+function deferredRetireTaxRatioByYearNo(yNo){
+  const y=Math.max(1,Math.round(+yNo||1));
+  if(y>20)return 0.50;
+  if(y>10)return 0.60;
+  return 0.70;
+}
 function resolveLumpAutoSource(activeAccts, balMap){
   const sums={taxable:0,isa:0,pension:0};
   (activeAccts||[]).forEach(a=>{
@@ -4900,8 +4909,8 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     });
     
     let lnPay=0;const events=[];
-    // 연금계좌 수령액 반영 (옵션 기반)
-    let pensionInc=0;
+    // 연금계좌 수령액 반영 (옵션 기반) + 수령세 반영
+    let pensionInc=0,pensionTax=0;
     active.forEach(a=>{
       const cat=(AMETA[a.type]||{}).cat;
       if(!['PENSION','IRP','IRP_RET'].includes(cat))return;
@@ -4921,9 +4930,19 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       }
       ann=Math.max(0,Math.min(Math.round(bal[a.id]||0),Math.round(ann)));
       if(ann<=0)return;
+      let annTax=0;
+      if(cat==='IRP_RET'){
+        // 퇴직IRP(이연퇴직소득) 간이세: 연 인출 기준 퇴직소득세 × 수령연차 계수(70/60/50%)
+        annTax=Math.round((calcRetirementTax(ann).retireTax||0)*deferredRetireTaxRatioByYearNo(yNo));
+      }else{
+        // 연금저축/적립IRP 간이세: 연령별 연금소득세율
+        annTax=Math.round(ann*pensionIncomeTaxRateByAge(age));
+      }
+      const annNet=Math.max(0,ann-annTax);
       bal[a.id]=Math.max(0,(bal[a.id]||0)-ann);
-      pensionInc+=ann;
-      events.push({label:`${a.label} 연금수령 ${ws(ann)} (${pensionModeKor(a.pensionMode)})`,color:'g'});
+      pensionTax+=annTax;
+      pensionInc+=annNet;
+      events.push({label:`${a.label} 연금수령 ${ws(annNet)} (세후, 세금 ${ws(annTax)}, ${pensionModeKor(a.pensionMode)})`,color:'g'});
     });
 
     // 주택연금 소득 반영
@@ -5173,8 +5192,10 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     
     const totA=active.reduce((s,a)=>s+(bal[a.id]||0),0);
     const dcYearContrib=(sevTypeNow==='DC'&&!isRet&&salY>0)?dcAnnualContribFromSalary(salY):0;
+    const divTax=Math.max(0,(totalDivGross||0)-(totalDivNet||0));
     yearly.push({year,age,isRet,totInc,netSal,npInc,othr:othInc,divGross:totalDivGross,divNet:totalDivNet,
       totExp,livExp,lnPay,insPay,hiAutoPay,lumpOut,lumpTax,surplus,dcContrib:dcYearContrib,hpInc:hpMon,
+      pensionTax,divTax,taxTotal:(divTax+lumpTax+pensionTax),
       yC:{...yC},balances:{...bal},totalAssets:totA,events,
       startMonth:i===0?curMon:1});
   }
@@ -5191,10 +5212,12 @@ function genMonthly(yearly){
       insurances.forEach(ins=>{if(!ins.endDate)return;const e=new Date(ins.endDate);if(e.getFullYear()===yr.year&&e.getMonth()+1===m)mEv.push({label:`${ins.name} 완납`,color:'b',freed:ins.monthly});});
       // 해당 연도의 주요 이벤트는 startMonth에 표시
       if(m===startM)yr.events.filter(e=>!e.label?.includes('완납')).forEach(e=>mEv.push(e));
+      const monthlyTax=Math.round((yr.divTax||0)/12)+(m===startM?Math.round(yr.lumpTax||0):0)+Math.round((yr.pensionTax||0)/12);
       months.push({year:yr.year,month:m,age:yr.age,isRet:yr.isRet,
         income:Math.round(yr.totInc/12),expense:Math.round(yr.totExp/12),
         divGross:Math.round(yr.divGross/12),divNet:Math.round(yr.divNet/12),
         lumpTax:(m===startM?Math.round(yr.lumpTax||0):0),
+        pensionTax:Math.round((yr.pensionTax||0)/12),divTax:Math.round((yr.divTax||0)/12),taxTotal:monthlyTax,
         dcContrib:!yr.isRet&&yr.dcContrib>0?Math.round(yr.dcContrib/12):0,
         cf:Math.round((yr.totInc-yr.totExp)/12),totalAssets:yr.totalAssets,events:mEv});
     }
@@ -5763,7 +5786,7 @@ function renderTable(mode){
       const cf=r.totInc-r.totExp;
       const rc=r.age===retA?'ev-r':r.events.length?'ev-e':r.isRet?'retired':'';
       const notes=r.events.map(e=>`<span class="ev-tag${e.color?' '+e.color:''}">${e.label}</span>`).join(' ');
-      return `<tr class="${rc}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td>${active.map(a=>`<td class="dim">${ws(r.balances[a.id]||0)}</td>`).join('')}<td class="tcol">${ws(r.totalAssets)}</td><td class="${r.totInc>0?'pos':'dim'}">${ws(r.totInc)}</td><td class="neg">${ws(r.totExp)}</td><td class="divcol">${ws(r.divNet)}</td><td style="color:var(--red)">${ws(Math.max(0,(r.divGross||0)-(r.divNet||0))+(r.lumpTax||0))}</td>${showDC?`<td style="color:var(--orange);font-family:monospace" title="DC 연간 납입 간이 = 해당 연도 연봉÷12">${r.dcContrib>0?ws(r.dcContrib):'—'}</td>`:''}${showHP?`<td style="color:var(--purple);font-family:monospace">${(r.hpInc||0)>0?ws(r.hpInc/12)+'원/월':'—'}</td>`:''}<td class="${cf>=0?'pos':'neg'}">${ws(cf)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
+      return `<tr class="${rc}"><td class="tc">${r.year}</td><td class="tc">${r.age}세</td>${active.map(a=>`<td class="dim">${ws(r.balances[a.id]||0)}</td>`).join('')}<td class="tcol">${ws(r.totalAssets)}</td><td class="${r.totInc>0?'pos':'dim'}">${ws(r.totInc)}</td><td class="neg">${ws(r.totExp)}</td><td class="divcol">${ws(r.divNet)}</td><td style="color:var(--red)">${ws(r.taxTotal||0)}</td>${showDC?`<td style="color:var(--orange);font-family:monospace" title="DC 연간 납입 간이 = 해당 연도 연봉÷12">${r.dcContrib>0?ws(r.dcContrib):'—'}</td>`:''}${showHP?`<td style="color:var(--purple);font-family:monospace">${(r.hpInc||0)>0?ws(r.hpInc/12)+'원/월':'—'}</td>`:''}<td class="${cf>=0?'pos':'neg'}">${ws(cf)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
     }).join('');
   }else{
     const showDCm=Gval('sevType')==='DC';
@@ -5777,7 +5800,7 @@ function renderTable(mode){
       const notes=r.events.map(e=>`<span class="ev-tag${e.color?' '+e.color:''}">${e.label}${e.freed?` → 월${ws(e.freed)}재투자`:''}</span>`).join(' ');
       const dcCellM=showDCm?('<td style="color:var(--orange);font-family:monospace">'+(r.dcContrib>0?ws(r.dcContrib):'—')+'</td>'):'';
       const hpCellM=showHPm?('<td style="color:var(--purple);font-family:monospace">'+((r.hpInc||0)>0?ws(r.hpInc)+'원':'—')+'</td>'):'';
-      return `<tr class="${rc}"><td class="tc">${r.year}.${String(r.month).padStart(2,'0')}</td><td class="tc">${r.age}세</td><td class="${r.income>0?'pos':'dim'}">${ws(r.income)}</td><td class="neg">${ws(r.expense)}</td><td class="divcol">${ws(r.divNet)}</td><td style="color:var(--red)">${ws(Math.max(0,(r.divGross||0)-(r.divNet||0))+(r.lumpTax||0))}</td>${dcCellM}${hpCellM}<td class="${r.cf>=0?'pos':'neg'}">${ws(r.cf)}</td><td class="tcol">${ws(r.totalAssets)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
+      return `<tr class="${rc}"><td class="tc">${r.year}.${String(r.month).padStart(2,'0')}</td><td class="tc">${r.age}세</td><td class="${r.income>0?'pos':'dim'}">${ws(r.income)}</td><td class="neg">${ws(r.expense)}</td><td class="divcol">${ws(r.divNet)}</td><td style="color:var(--red)">${ws(r.taxTotal||0)}</td>${dcCellM}${hpCellM}<td class="${r.cf>=0?'pos':'neg'}">${ws(r.cf)}</td><td class="tcol">${ws(r.totalAssets)}</td><td class="tl">${notes||'<span class="dim">—</span>'}</td></tr>`;
     }).join('');
   }
 }
