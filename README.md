@@ -10,4 +10,7 @@
 git config core.hooksPath githooks
 ```
 
-이후 `git commit` 시 `githooks/pre-commit`이 현재 시각으로 `PUBLISH_STAMP`를 맞추고 `index.html`을 스테이징합니다.
+이후 동작:
+
+- `git commit`: `githooks/pre-commit`이 **커밋 시각**으로 `PUBLISH_STAMP`와 헤더 정적 `Ver.` 문자열을 맞추고 `index.html`을 스테이징합니다.
+- `git push`: `githooks/pre-push`가 **푸시 직전 시각**으로 다시 맞춘 뒤, 변경이 있으면 **마지막 커밋을 amend**합니다(푸시하는 시각이 화면 `Ver.`와 일치).

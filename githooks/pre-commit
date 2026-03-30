@@ -1,4 +1,7 @@
 #!/bin/sh
 # Auto-update Ver. stamp in index.html before each commit.
 DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+ROOT=$(git rev-parse --show-toplevel)
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$DIR/bump-publish.ps1"
+cd "$ROOT" || exit 0
+git add -u -- index.html 2>/dev/null || git add -- index.html 2>/dev/null || true

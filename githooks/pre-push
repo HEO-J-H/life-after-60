@@ -1,0 +1,11 @@
+#!/bin/sh
+# Refresh Ver. to push-time, then fold into the tip commit being pushed (same tree, new message/hash).
+DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$DIR/bump-publish.ps1"
+cd "$ROOT" || exit 0
+git add -u -- index.html 2>/dev/null || git add -- index.html 2>/dev/null || true
+if git diff --cached --quiet HEAD -- index.html 2>/dev/null; then
+  exit 0
+fi
+git -c core.editor=true commit --amend --no-edit --no-verify
