@@ -41,7 +41,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .fi,.fs{width:100%;background:var(--ibg);border:1px solid var(--ibd);border-radius:6px;color:var(--t1);padding:6px 9px;font-size:14px;font-family:inherit;transition:border-color .18s;}
 .fi:focus,.fs:focus{outline:none;border-color:var(--ifocus);}
 .fi.mono{font-family:'JetBrains Mono',monospace;text-align:right;}
-.ka{font-size:11px;color:var(--goldl);margin-top:2px;min-height:15px;}
+.ka{font-size:11px;color:var(--goldl);margin-top:2px;min-height:15px;text-align:right;}
 .hint{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4;}
 input[type=date]{color-scheme:dark;}
 input[type=checkbox]{accent-color:var(--gold);width:15px;height:15px;cursor:pointer;vertical-align:middle;}
@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 00:29</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 00:34</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -1516,7 +1516,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 00:29';
+const PUBLISH_STAMP='2026.04.02 00:34';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
