@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.03.30 22:07</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.01 23:44</span></div>
     </div>
     <div class="hdr-sub">실시간 주가·배당 · 절세전략 · AI분석 · 주택연금<br><span style="font-size:11px;color:var(--t3);">허정훈 · <a href="mailto:hjh1014@naver.com" style="color:var(--teal);text-decoration:none;">hjh1014@naver.com</a></span></div>
     <div class="hdr-brief">본 결과는 단순 시뮬레이션이며 실제 수령액과 다를 수 있습니다. 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</div>
@@ -1272,7 +1272,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       <div class="card" id="ai-cmp-card" style="display:none;">
         <div class="ctitle">⚡ 내 계획 vs AI 추천</div>
         <div class="cw" style="height:250px;"><canvas id="cmpChart"></canvas></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;" id="cmp-stats"></div>
+        <div id="cmp-stats" style="margin-top:10px;"></div>
       </div>
     </div>
     <div>
@@ -1501,7 +1501,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.03.30 22:07';
+const PUBLISH_STAMP='2026.04.01 23:44';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -6243,9 +6243,16 @@ async function runAICompare(){
       scales:{x:{ticks:{color:'#3a5070',maxTicksLimit:15,font:{size:11}},grid:{color:'rgba(22,34,54,.4)'}},y:{ticks:{color:'#3a5070',font:{size:11},callback:v=>ws(v)},grid:{color:'rgba(22,34,54,.4)'}}}}
   });
   G('cmp-stats').innerHTML=`
-    <div style="overflow:auto;">
-      <table class="st" style="min-width:560px;">
-        <thead><tr><th class="tl">비교 항목</th><th>내 계획</th><th>AI 제안</th><th>차이</th></tr></thead>
+    <div style="width:100%;">
+      <table class="st" style="width:100%;table-layout:fixed;font-size:12px;">
+        <thead>
+          <tr>
+            <th class="tl" style="width:40%;">비교 항목</th>
+            <th style="width:20%;">내 계획</th>
+            <th style="width:20%;">AI 제안</th>
+            <th style="width:20%;">차이</th>
+          </tr>
+        </thead>
         <tbody>
           <tr><td class="tl">은퇴시 총자산</td><td>${ws(mineA)}</td><td style="color:var(--purple)">${ws(aiA)}</td><td class="${diff>=0?'pos':'neg'}">${diff>=0?'+':''}${ws(diff)}</td></tr>
           <tr><td class="tl">은퇴 나이</td><td>${retA}세</td><td>${aiRetA}세</td><td>${aiRetA-retA>=0?'+':''}${aiRetA-retA}세</td></tr>
