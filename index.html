@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 01:09</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 06:53</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -1535,7 +1535,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 01:09';
+const PUBLISH_STAMP='2026.04.02 06:53';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -7028,6 +7028,43 @@ function populateHldTicker(){
     });
   });
   calcHolding();
+}
+
+function onJobTypeChange(){
+  const jt=(Gval('jobType')||'employee');
+  const h=G('jobType-hint');
+  const imh=G('income-mode-hint');
+  const sl=G('salary-label');
+  if(h){
+    if(jt==='employee'){
+      h.textContent='급여소득 중심 직장인 기준입니다. 연봉(세전)과 연봉상승률을 기준으로 월 실수령과 퇴직·연금 납입을 계산합니다.';
+    }else if(jt==='civil'){
+      h.textContent='공무원·교직·군인 등 공적연금 대상자입니다. 공단 예상연금 안내와 퇴직수당을 참고해 공적연금 월수령과 은퇴 후 기타 소득을 입력해 주세요.';
+    }else if(jt==='self'){
+      h.textContent='자영업·프리랜서 등 사업·프리랜스 소득자입니다. 최근 3년 평균 연소득(세전)과 변동성을 고려해 세전 월소득을 넣고, 세부 세금은 종합소득 신고 기준으로 별도 점검하는 것이 좋습니다.';
+    }else{
+      h.textContent='은퇴·무직·전업으로, 현재는 연금·임대·투자소득 등 기타 소득이 중심인 상황입니다. 아래 국민연금·연금·기타 소득 영역에 월소득을 직접 입력해 주세요.';
+    }
+  }
+  if(imh){
+    if(jt==='employee'){
+      imh.innerHTML='💡 <b>연봉</b> = 세전 총급여. 아래 월급 실수령액이 자동계산됩니다.<br><b>연봉 상승률</b>: 통계청 기준 평균 2~4%. 시뮬레이션 전체기간에 복리 반영됩니다.';
+    }else if(jt==='civil'){
+      imh.innerHTML='💡 공무원·교직·군인 등은 공단에서 제공하는 <b>예상 연금액</b>을 참고해 세전 연소득을 입력하고, 퇴직수당·공적연금 수령은 국민연금/연금 카드·목돈 이벤트에서 함께 반영하는 것이 좋습니다.';
+    }else if(jt==='self'){
+      imh.innerHTML='💡 자영업·프리랜서는 <b>최근 3년 평균 연소득(세전)</b>을 넣고, 실제 세금·4대보험은 종합소득세 신고, 건강보험 지역가입자 기준으로 다를 수 있습니다. 이 도구에서는 <b>세전 월소득 흐름</b> 위주로 봅니다.';
+    }else{
+      imh.innerHTML='💡 이미 은퇴했거나 무직인 경우, 이 칸에는 과거 연봉 대신 <b>참고용 은퇴 전 연소득</b> 또는 비워둘 수 있습니다. 실제 현금흐름은 아래 연금·기타 소득, 계좌·시나리오 탭에서 설정합니다.';
+    }
+  }
+  if(sl){
+    if(jt==='employee')sl.textContent='현재 연봉 (원)';
+    else if(jt==='civil')sl.textContent='최근 연간 세전 소득 (원)';
+    else if(jt==='self')sl.textContent='최근 3년 평균 연간 소득 (원)';
+    else sl.textContent='참고용 연간 세전 소득 (원, 선택 입력)';
+  }
+  // 직업군이 바뀌면 소득 계산도 다시 실행해 요약을 최신화
+  onSalary();
 }
 
 /** Refresh holdings overview table + sim comparison strip (no separate yearly table / chart). */
