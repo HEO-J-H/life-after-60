@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 00:34</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 01:09</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -394,7 +394,20 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 
 <!-- ════ 기본정보 ════ -->
 <div id="tab-basic" class="panel on">
-  <div class="g3">
+  <div class="card" style="margin-bottom:10px;">
+    <div class="ctitle">⚙ 직업군 선택</div>
+    <div class="g3" style="margin-bottom:4px;">
+      <label class="fl" style="font-size:12px;">현재 주 소득 형태</label>
+      <select class="fs" id="jobType" onchange="onJobTypeChange()">
+        <option value="employee" selected>직장인 (급여소득)</option>
+        <option value="civil">공무원·교직·군인 등 공적연금 대상</option>
+        <option value="self">자영업·프리랜서</option>
+        <option value="retired">은퇴·무직 (연금·임대·투자소득 중심)</option>
+      </select>
+      <div class="hint" id="jobType-hint" style="grid-column:1/-1;font-size:11px;"></div>
+    </div>
+  </div>
+  <div class="g3" id="basic-grid">
     <div class="card">
       <div class="ctitle">👤 개인 정보</div>
       <div class="g2">
@@ -412,11 +425,16 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     </div>
     <div class="card">
       <div class="ctitle">💰 소득</div>
-      <div class="al al-i" style="font-size:11px;margin-bottom:6px;">
+      <div class="al al-i" id="income-mode-hint" style="font-size:11px;margin-bottom:6px;">
         💡 <b>연봉</b> = 세전 총급여. 아래 월급 실수령액이 자동계산됩니다.<br>
         <b>연봉 상승률</b>: 통계청 기준 평균 2~4%. 시뮬레이션 전체기간에 복리 반영됩니다.
       </div>
-      <div class="frow"><label class="fl">현재 연봉 (원)</label><input class="fi mono" id="salary" type="number" value="50000000" oninput="onSalary()"><div class="ka" id="ka-sal"></div><div id="sal-hint" style="font-size:12px;margin-top:4px;"></div></div>
+      <div class="frow" id="income-main-row">
+        <label class="fl" id="salary-label">현재 연봉 (원)</label>
+        <input class="fi mono" id="salary" type="number" value="50000000" oninput="onSalary()">
+        <div class="ka" id="ka-sal"></div>
+        <div id="sal-hint" style="font-size:12px;margin-top:4px;"></div>
+      </div>
       <div class="g2">
         <div class="frow"><label class="fl">연봉 상승률 (%/년)</label><input class="fi mono" id="salGrowth" type="number" value="3" step="0.5"></div>
         <div class="frow"><label class="fl">급여일 <span style="font-size:10px;color:var(--t2)">(매월 며칠)</span></label>
@@ -1464,6 +1482,7 @@ const PCACHE={};
  */
 const SHEET_REF={
   basic:{
+    jobType:'employee', // employee | civil | self | retired
     birthDate:'1980-01-01',curAge:'46',retireAge:'65',lifeExp:'90',
     salary:'50000000',salGrowth:'3',salaryDay:'25',taxBracket:'low',retireOther:'0',
     mExp:'2000000',rExp:'1800000',inf:'2.5',sw:'4',target:'0',
@@ -1516,7 +1535,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 00:34';
+const PUBLISH_STAMP='2026.04.02 01:09';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1843,8 +1862,22 @@ function syncHldInvestYearsFromProfile(){
 
 // ═══════════ SALARY & TAX ═══════════
 function onSalary(){
+  const jobType=(Gval('jobType')||'employee');
   const sal=parseFloat(Gval('salary'))||0;
   const ks=G('ka-sal');if(ks)ks.textContent=toKor(sal);
+
+  // 직장인(급여소득) 외에는 세부 공제 계산이 달라 복잡하므로,
+  // 현재는 직장인 모드에서만 월 실수령 자동 계산을 제공한다.
+  if(jobType!=='employee'){
+    const sh=G('sal-hint');
+    if(sh){
+      sh.innerHTML='<div class="hint" style="margin-top:4px;">직장인 외 직업군은 실제 세금·4대보험 구조가 달라, 이 도구에서는 <b>세전 월소득</b>만 사용합니다. 상세 실수령은 홈택스/공단 안내를 참고해 주세요.</div>';
+    }
+    window._netMonthly = Math.round(sal/12);
+    window._monthSal = Math.round(sal/12);
+    onSalaryDay();
+    return;
+  }
 
   // ── 월급 기준 계산 (연봉÷12 = 월급)
   const monthSal = Math.round(sal / 12);
@@ -6532,7 +6565,8 @@ function resetAll(){
 // ═══════════ SAVE / LOAD ═══════════
 function getProfile(){
   return{ver:6,
-    b:{birthDate:Gval('birthDate'),curAge:Gval('curAge'),retireAge:Gval('retireAge'),
+    b:{jobType:Gval('jobType')||'employee',
+      birthDate:Gval('birthDate'),curAge:Gval('curAge'),retireAge:Gval('retireAge'),
       lifeExp:Gval('lifeExp'),salary:Gval('salary'),salGrowth:Gval('salGrowth'),
       retireOther:Gval('retireOther'),expOn:G('expOn')?.checked,
       mExp:Gval('mExp'),rExp:Gval('rExp'),inf:Gval('inf'),sw:Gval('sw'),target:Gval('target'),
