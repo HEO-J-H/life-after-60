@@ -17,7 +17,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .etf-ac-item:hover{background:var(--bgh);}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bdl);border-radius:3px;}
 .hdr{background:linear-gradient(135deg,#0a1522,#0f1e35,#0a1522);border-bottom:1px solid var(--goldd);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:300;box-shadow:0 2px 20px #000a;flex-wrap:wrap;}
 .hdr-logo{font-size:18px;font-weight:800;color:var(--goldl);}
-.hdr-sub{color:#9fb2c8;font-size:12px;line-height:1.5;}
+.hdr-sub{color:#9fb2c8;font-size:12px;line-height:1.5;display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
 .hdr-r{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
 .ai-sel{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t1);padding:4px 8px;font-size:12px;font-family:inherit;}
 .theme-sel{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t1);padding:4px 8px;font-size:12px;font-family:inherit;min-width:132px;}
@@ -82,7 +82,7 @@ input[type=range]{accent-color:var(--gold);width:100%;}
 .np-ded-v2 .lbl{font-size:11px;color:var(--t2);}
 .np-ded-v2 .chk{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--t1);}
 .hdr-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.hdr-brief{font-size:10px;line-height:1.35;color:#97aabc;text-align:left;max-width:980px;margin-top:4px;}
+.hdr-brief{display:none;}
 .np-dual{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
 @media(max-width:980px){.np-dual{grid-template-columns:1fr;}}
 /* National pension UX redesign */
@@ -362,10 +362,13 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 00:16</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 00:19</span></div>
     </div>
-    <div class="hdr-sub">실시간 주가·배당 · 절세전략 · AI분석 · 주택연금<br><span style="font-size:11px;color:var(--t3);">허정훈 · <a href="mailto:hjh1014@naver.com" style="color:var(--teal);text-decoration:none;">hjh1014@naver.com</a></span></div>
-    <div class="hdr-brief">본 결과는 단순 시뮬레이션이며 실제 수령액과 다를 수 있습니다. 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</div>
+    <div class="hdr-sub">
+      실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
+      <span style="font-size:11px;color:var(--t3);margin-left:4px;">허정훈 · <a href="mailto:hjh1014@naver.com" style="color:var(--teal);text-decoration:none;">hjh1014@naver.com</a></span>
+      <span style="font-size:11px;color:#97aabc;margin-left:8px;">· 단순 시뮬레이션 결과이며 실제 수령액과 다를 수 있습니다 (계산은 브라우저 Local에서만 수행)</span>
+    </div>
   </div>
   <div class="hdr-r">
     <select id="aiProv" class="ai-sel"><option value="gemini">Gemini (무료)</option><option value="gpt">ChatGPT</option></select>
@@ -1513,7 +1516,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 00:16';
+const PUBLISH_STAMP='2026.04.02 00:19';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
