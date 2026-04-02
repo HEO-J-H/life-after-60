@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:08</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:11</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -1575,7 +1575,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:08';
+const PUBLISH_STAMP='2026.04.02 19:11';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -2436,13 +2436,22 @@ function calcRetirementTax(sev){
   // 퇴직소득세 간이계산 (법령 구조 반영 간이모델, 기준일: LEGAL_REF_AS_OF)
   // 1) 퇴직소득금액 = 퇴직급여 - 근속연수 공제
   // 2) 환산급여 = 퇴직소득금액 * 12 / 근속연수
-  // 3) 환산급여 누진세율 적용 후 * 근속연수/12
+  // 3) 환산급여공제 차감 후 과세표준 산출
+  // 4) 환산 과세표준 누진세율 적용 후 * 근속연수/12
   function retirementServiceDeduction(workYears){
     const y=Math.max(1,Math.floor(workYears||1));
     if(y<=5)return y*1000000;
     if(y<=10)return 5000000 + (y-5)*2000000;
     if(y<=20)return 15000000 + (y-10)*2500000;
     return 40000000 + (y-20)*3000000;
+  }
+  function retirementConvertedDeduction(convertedSalary){
+    const s=Math.max(0,Math.round(convertedSalary||0));
+    if(s<=8000000)return s;
+    if(s<=70000000)return 8000000 + Math.round((s-8000000)*0.60);
+    if(s<=100000000)return 45200000 + Math.round((s-70000000)*0.55);
+    if(s<=300000000)return 61700000 + Math.round((s-100000000)*0.45);
+    return 151700000 + Math.round((s-300000000)*0.35);
   }
   const wy=parseInt(Gval('workYrs'))||15;
   const ra=parseInt(Gval('retireAge'))||60, ca=parseInt(Gval('curAge'))||47;
@@ -2451,15 +2460,20 @@ function calcRetirementTax(sev){
   const taxable=Math.max(0, sev-taxFreeBase);
   // 환산급여 방식 간소화(정확 신고세액 아님)
   const annualEquiv=totalWork>0?taxable/totalWork*12:taxable;
+  const convertedDeduction=Math.min(annualEquiv,retirementConvertedDeduction(annualEquiv));
+  const convertedTaxBase=Math.max(0,Math.round(annualEquiv-convertedDeduction));
   let tax=0;
-  if(annualEquiv<=14000000)       tax=annualEquiv*0.06;
-  else if(annualEquiv<=50000000)  tax=840000+(annualEquiv-14000000)*0.15;
-  else if(annualEquiv<=88000000)  tax=6240000+(annualEquiv-50000000)*0.24;
-  else if(annualEquiv<=150000000) tax=15360000+(annualEquiv-88000000)*0.35;
-  else                            tax=37060000+(annualEquiv-150000000)*0.38;
+  if(convertedTaxBase<=14000000)       tax=convertedTaxBase*0.06;
+  else if(convertedTaxBase<=50000000)  tax=840000+(convertedTaxBase-14000000)*0.15;
+  else if(convertedTaxBase<=88000000)  tax=6240000+(convertedTaxBase-50000000)*0.24;
+  else if(convertedTaxBase<=150000000) tax=15360000+(convertedTaxBase-88000000)*0.35;
+  else if(convertedTaxBase<=300000000) tax=37060000+(convertedTaxBase-150000000)*0.38;
+  else if(convertedTaxBase<=500000000) tax=94060000+(convertedTaxBase-300000000)*0.40;
+  else if(convertedTaxBase<=1000000000)tax=174060000+(convertedTaxBase-500000000)*0.42;
+  else                                 tax=384060000+(convertedTaxBase-1000000000)*0.45;
   // 퇴직소득세 = 산출세액 × 근속연수/12
   const retireTax=Math.round(tax*totalWork/12);
-  return {retireTax, taxFreeBase, taxable, totalWork};
+  return {retireTax, taxFreeBase, taxable, totalWork, annualEquiv:Math.round(annualEquiv), convertedDeduction:Math.round(convertedDeduction), convertedTaxBase};
 }
 function updateSevTargetInfo(){
   const tgt=Gval('sevTarget');
@@ -2475,11 +2489,12 @@ function updateSevTargetInfo(){
     el.className='al al-w';
     el.innerHTML=`⚠️ 연금저축펀드 직접 이전 불가 — 반드시 <b>퇴직IRP → 연금저축 순서</b>로 이전해야 합니다<br>퇴직IRP 이전 후 55세 이후 연금저축으로 통합 가능`;
   } else if(tgt==='CASH'){
-    const{retireTax,taxFreeBase,taxable,totalWork}=calcRetirementTax(sev);
+    const{retireTax,taxFreeBase,taxable,totalWork,annualEquiv,convertedDeduction,convertedTaxBase}=calcRetirementTax(sev);
     const net=sev-retireTax;
     el.className='al al-e';
     el.innerHTML=`💸 <b>현금 수령 시 퇴직소득세 즉시 납부</b><br>`+
       `퇴직금 ${toKor(sev)} | 비과세 공제 ${toKor(taxFreeBase)} | 과세표준 ${toKor(taxable)}<br>`+
+      `환산급여 ${toKor(annualEquiv)} | 환산급여공제 ${toKor(convertedDeduction)} | 환산 과세표준 ${toKor(convertedTaxBase)}<br>`+
       `예상 퇴직소득세: <b style="color:var(--red)">${toKor(retireTax)}</b> | `+
       `<b>실수령액: <span style="color:var(--green)">${toKor(net)}</span></b> (근속${totalWork}년 기준)`;
   }
