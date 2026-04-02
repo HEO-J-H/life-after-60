@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:19</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:20</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -584,6 +584,13 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
           <label class="fl">수령 비교 할인율 (%/년)</label>
           <input class="fi mono" id="sevDiscRate" type="number" value="" step="0.1" placeholder="비워두면 물가상승률 사용" oninput="updateSevTargetInfo()">
           <div class="hint">현재가치 비교 전용 할인율입니다. 미입력 시 기본정보의 물가상승률을 사용합니다.</div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(2)">2%</button>
+            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(3)">3%</button>
+            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(4)">4%</button>
+            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(5)">5%</button>
+            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset('')">기본(물가)</button>
+          </div>
         </div>
         <div id="sev-target-info" class="al al-i" style="font-size:12px;margin-top:4px;"></div>
       </div>
@@ -1580,7 +1587,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:19';
+const PUBLISH_STAMP='2026.04.02 19:20';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -2609,6 +2616,10 @@ ${buildSevCompareTable(pen)}`;
     el.innerHTML+=buildSevCompareTable(pen)+
       `<div class="hint" style="margin-top:6px;">연금수령 비교는 선택 계좌의 연금개시나이·수령기간(계좌설정) 기준 간이값입니다. 예상 절감여지 안내: <b>${wf(deferGuide)}원</b></div>`;
   }
+}
+function setSevDiscRatePreset(v){
+  Gv('sevDiscRate',v===''?'':String(v));
+  updateSevTargetInfo();
 }
 function setNpAgeQuick(age){Gv('npAge',String(age));renderNP();updateRetireOtherHealthHint();}
 function getDCWeightedCAGR(){
