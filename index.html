@@ -363,7 +363,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:33</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:42</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -401,6 +401,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       <label class="fl" style="font-size:12px;">현재 주 소득 형태</label>
       <select class="fs" id="jobType" onchange="onJobTypeChange()">
         <option value="employee" selected>직장인 (급여소득)</option>
+        <option value="researcher">연구원·R&D (과학기술인공제 등)</option>
         <option value="civil">공무원·교직·군인 등 공적연금 대상</option>
         <option value="self">자영업·프리랜서</option>
         <option value="retired">은퇴·무직 (연금·임대·투자소득 중심)</option>
@@ -703,7 +704,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="ctitle">⚔️ 절세 삼총사 — ISA · IRP · 연금저축
       <div class="ctr"><button class="btn btn-sec btn-xs" onclick="G('tax-trio-detail').style.display=G('tax-trio-detail').style.display==='none'?'':'none'">자세히 보기</button></div>
     </div>
-    <p style="font-size:10px;color:var(--t3);margin:0 0 6px 0;">※ 아래는 <b>2026년 1월 기준</b> 조세특례제한법·소득세법 상 <b>흔한 안내 요지</b>입니다. 개인별 소득·합산 공제·연도별 개정은 <a href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스</a>·국세청 해설을 확인하세요.</p>
+    <p style="font-size:10px;color:var(--t3);margin:0 0 6px 0;">※ 법규 요약·기준일은 <code style="font-size:10px;">regulatory-reference.js</code>에서 한곳으로 관리합니다. 적용 시 <b id="legal-ref-file-stamp">—</b> 를 law.go.kr·홈택스·가입 기관 안내와 대조하세요.</p>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
       <div style="background:rgba(59,143,232,.08);border-radius:6px;padding:8px;text-align:center;">
         <div style="font-size:13px;font-weight:700;color:var(--blue)">1️⃣ ISA</div>
@@ -738,6 +739,10 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       <button type="button" class="btn btn-green btn-sm" onclick="addJobSuggestedAccounts()">맞춤 계좌 빠르게 추가</button>
       <span class="hint" style="margin:0;">기본정보 탭의 직업군에 맞춰 없는 유형만 덧붙입니다. 월납입은 예시입니다.</span>
     </div>
+  </div>
+  <div class="card" style="border-color:rgba(59,143,232,.22);">
+    <div class="ctitle">🎯 퇴직연금·IRP 디폴트옵션 &amp; 위험등급</div>
+    <div id="reg-def-opt-body" class="al al-i" style="font-size:12px;line-height:1.6;"></div>
   </div>
   <div class="card" style="border-color:rgba(155,111,224,.25);">
     <div class="ctitle">💴 월 투자 현황 &amp; 🎯 절세 자동배분
@@ -788,6 +793,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         <option value="ISA_GEN">ISA 일반형 — 비과세 200만원</option>
         <option value="ISA_WKR">ISA 서민형 — 비과세 400만원</option>
         <option value="PENSION_FUND">연금저축펀드 — 세액공제 16.5/13.2%</option>
+        <option value="PENSION_SEMA">과학기술인공제 — 연구원·R&amp;D 회원부담 등</option>
         <option value="PENSION_INS">연금저축보험</option>
         <option value="IRP_ACCUM">적립IRP — 추가 세액공제</option>
         <option value="IRP_RETIRE">퇴직IRP</option>
@@ -800,6 +806,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         <option value="GENERAL">일반계좌</option>
       </optgroup>
       <optgroup label="특수">
+        <option value="YELLOW_UMBRELLA">노란우산공제 — 사업자 소득공제</option>
         <option value="YOUTH_LEAP">청년도약계좌</option>
         <option value="DISABLED">장애인전용저축</option>
         <option value="CUSTOM">사용자정의 ★</option>
@@ -1304,6 +1311,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <p style="font-size:12px;color:var(--t2);margin:0 0 10px 0;line-height:1.55;">기본정보의 <b>직업군</b>에 맞춰 낙관·평균·비관·ISA→배당형 수익률을 한 번에 넣습니다. 아래 칸에서 수정한 뒤 <b>시나리오 실행</b>을 누르세요. 공무원·은퇴 프리셋은 위 <b>언제부터 얼마씩 쓸까</b>의 「꺼내기 시작 나이」도 함께 맞춥니다.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('employee')">직장인 · 균형</button>
+      <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('researcher')">연구원·R&D · 균형</button>
       <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('self')">자영업 · 변동성↑</button>
       <button type="button" class="btn btn-sec btn-sm" onclick="addSelfBizLumpExample()">자영업 · 사업정리 목돈(예시)</button>
       <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('civil')">공무원·공적연금 · 보수적</button>
@@ -1479,7 +1487,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 </div>
 
 </div><!-- /main -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="regulatory-reference.js"></script><script>
 // ═══════════ CONSTANTS ═══════════
 const TMAP={
   // 국내 지수
@@ -1517,6 +1525,7 @@ const AMETA={
   ISA_WKR:    {label:'ISA(서민형)',    color:'#5ab0f0', al:20000000, cat:'ISA',     taxFree:4000000},
   PENSION_FUND:{label:'연금저축펀드', color:'#9b6fe0', al:18000000, cat:'PENSION', dm:6000000},
   PENSION_INS: {label:'연금저축보험', color:'#8b5fd0', al:18000000, cat:'PENSION', dm:6000000},
+  PENSION_SEMA:{label:'과학기술인공제(회원)', color:'#0d6b5c', al:18000000, cat:'PENSION', dm:6000000},
   IRP_ACCUM:   {label:'적립IRP',       color:'#e8873b', al:18000000, cat:'IRP',     dm:3000000},
   IRP_RETIRE:  {label:'퇴직IRP',       color:'#2bbfb0', al:0,        cat:'IRP_RET'},
   STOCKS:      {label:'주식계좌',       color:'#e05555', al:0,        cat:'STOCK'},
@@ -1525,6 +1534,7 @@ const AMETA={
   DEPOSIT:     {label:'예금·적금',     color:'#2980b9', al:0,        cat:'FREE'},
   GENERAL:     {label:'일반계좌',       color:'#7f8c8d', al:0,        cat:'FREE'},
   YOUTH_LEAP:  {label:'청년도약',      color:'#27ae60', ml:700000,   cat:'YOUTH'},
+  YELLOW_UMBRELLA:{label:'노란우산공제', color:'#c9a227', al:0,        cat:'FREE'},
   DISABLED:    {label:'장애인전용',    color:'#8e44ad', al:24000000, cat:'DISABLED'},
   CUSTOM:      {label:'사용자정의',    color:'#a06040', al:0,        cat:'CUSTOM'}
 };
@@ -1535,8 +1545,10 @@ const ACCT_INFO={
   'ISA_WKR': '📅 2026.01 기준 안내 | 서민형 등 비과세 한도 확대 요지(별표) | 이전·의무기간은 일반형과 유사하게 검토 | ❌ 연금저축→ISA 불가',
   'PENSION_FUND': '📅 2026.01 기준 안내 | 납입액 소득공제 · IRP와 합산 납입 1,800만 상한 등 | 세액 환산 13.2~16.5%p는 과세표준 구간별 | 55세·가입기간 등 연금수령 요건 | ✅ 적립IRP 이전 | ❌ →ISA, 퇴직IRP 직접 이전 불가',
   'PENSION_INS': '📅 2026.01 기준 안내 | 연금저축과 동일 세제 틀(보험) | 수령 요건·약관 확인 | ✅ 적립IRP 이전',
+  'PENSION_SEMA':'📅 과학기술인공제회 퇴직연금(회원부담 등) | 소득세법·조특법상 연금계좌 공제 요지 — 한도·총급여 요건은 공제회·국세청 | 수령 시 이연퇴직 감면은 조특법',
   'IRP_ACCUM': '📅 2026.01 기준 안내 | 추가 납입 소득공제 연 300만(합산 1,800만 내) | 과세이연 적립 | 중도인출·해지 시 과세 주의 | ❌ →퇴직IRP·ISA 직접 불가',
   'IRP_RETIRE': '📅 2026.01 기준 안내 | 퇴직급여 등 이연 적립 전용 | 수령 시 이연퇴직·기타연금 구분 | ✅ 연금저축(요건)·적립IRP에서 이전 가능 | ❌ →ISA',
+  'YELLOW_UMBRELLA':'📅 소상공인 등 노란우산공제 | 납입액 소득공제(종합소득금액 구간별 한도 차등) | 가입·납입 한도·지급은 공제회 | 본 행은 시뮬 상 일반 저축과 동일 처리',
   'CMA': '💡 수시입출금 | 하루이자 지급 | 이자소득세 15.4% | 제약 없음 (자유로운 이동 가능)',
   'STOCKS': '💡 배당소득세 15.4% | 매매차익 비과세 | ✅이전가능: 자유롭게 다른 계좌로 이전',
   'YOUTH_LEAP': '💡 정부기여금 월 최대 3.3만원 | 비과세 | 5년 유지 조건 | 중도해지 시 기여금 반환',
@@ -1553,7 +1565,7 @@ const PCACHE={};
  */
 const SHEET_REF={
   basic:{
-    jobType:'employee', // employee | civil | self | retired
+    jobType:'employee', // employee | researcher | civil | self | retired
     birthDate:'1980-01-01',curAge:'46',retireAge:'65',lifeExp:'90',
     salary:'50000000',salGrowth:'3',salaryDay:'25',taxBracket:'low',retireOther:'0',
     civilPensionMo:'1800000',civilPensionAuto:true,
@@ -1608,9 +1620,9 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:33';
+const PUBLISH_STAMP='2026.04.02 19:42';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
-const LEGAL_REF_AS_OF='2026-04-02';
+const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
   pensionSeparateTaxAnnual:15000000,
   financeComprehensiveAnnual:20000000,
@@ -1657,6 +1669,10 @@ window.onload=()=>{
   syncRevTargetSlider();
   attachAutoMoneyHints(document);
   onJobTypeChange();
+  if(G('legal-ref-file-stamp')&&window.REGULATORY_REF)
+    G('legal-ref-file-stamp').textContent=REGULATORY_REF.REVIEW_STAMP+' — '+REGULATORY_REF.FILE_NOTE;
+  if(G('reg-def-opt-body')&&window.REGULATORY_REF)
+    G('reg-def-opt-body').innerHTML=REGULATORY_REF.htmlDefaultOptionBlock();
   if(G('lump-amt')&&G('ka-lump-amt'))G('ka-lump-amt').textContent=toKor(parseFloat(Gval('lump-amt'))||0);
   setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
 };
@@ -1949,7 +1965,7 @@ function onSalary(){
 
   // 직장인(급여소득) 외에는 세부 공제 계산이 달라 복잡하므로,
   // 현재는 직장인 모드에서만 월 실수령 자동 계산을 제공한다.
-  if(jobType!=='employee'){
+  if(jobType!=='employee'&&jobType!=='researcher'){
     const sh=G('sal-hint');
     if(sh){
       sh.innerHTML='<div class="hint" style="margin-top:4px;">직장인 외 직업군은 실제 세금·4대보험 구조가 달라, 이 도구에서는 <b>세전 월소득</b>만 사용합니다. 상세 실수령은 홈택스/공단 안내를 참고해 주세요.</div>';
@@ -4532,7 +4548,7 @@ function updateJobScenarioPresetHint(){
   const el=G('job-sc-preset-hint');
   if(!el)return;
   const jt=(Gval('jobType')||'employee');
-  const labels={employee:'직장인',civil:'공무원·교직·군인',self:'자영업·프리랜서',retired:'은퇴·무직'};
+  const labels={employee:'직장인',researcher:'연구원·R&D',civil:'공무원·교직·군인',self:'자영업·프리랜서',retired:'은퇴·무직'};
   el.textContent=`기본정보 직업군: ${labels[jt]||jt}. 프리셋으로 수익률·(일부) 인출 시작 나이를 맞출 수 있습니다.`;
 }
 /** Scenario tab: align sc-opt/sc-avg/sc-pes/sc-div with job-type assumptions; optionally scw-start-age for civil/retired. */
@@ -4541,6 +4557,7 @@ function applyJobScenarioPreset(mode){
   const cur=parseInt(Gval('curAge'),10)||47;
   const presets={
     employee:{opt:'10',avg:'7',pes:'3',div:'6',setScwStart:null,msg:'직장인 균형형으로 맞췄습니다.'},
+    researcher:{opt:'10',avg:'7',pes:'3',div:'6',setScwStart:null,msg:'연구원·R&D(직장인 유사) 균형형으로 맞췄습니다.'},
     self:{opt:'12',avg:'7.5',pes:'2',div:'5.5',setScwStart:null,msg:'매출·이익 변동 가정: 낙관·비관 폭을 넓혔습니다.'},
     civil:{opt:'9',avg:'6.5',pes:'4',div:'5.5',setScwStart:ra,msg:'보수적 수익률 + 「꺼내기 시작 나이」를 은퇴 나이('+ra+'세)에 맞췄습니다.'},
     retired:{opt:'6',avg:'5',pes:'3',div:'4.5',setScwStart:Math.max(65,Math.min(90,cur)),msg:'은퇴 후 소득·지출 중심 가정 + 「꺼내기 시작 나이」를 현재 연령 기준으로 조정했습니다.'}
@@ -6215,16 +6232,12 @@ function doExcel(){
 }
 
 // ═══════════ AI ═══════════
-/** Compact regulatory context for prompts (not legal advice). */
+/** Regulatory snippets live in regulatory-reference.js (update REVIEW_STAMP there). */
 function buildAIRegulatoryBlock(){
   const jt=Gval('jobType')||'employee';
-  const jtK={employee:'직장인(급여소득)',civil:'공무원·교직·군인 등 공적연금 병행',self:'자영업·프리랜서(종합소득)',retired:'은퇴·기타소득 중심'}[jt]||jt;
-  return `[법령·제도 요약 — 2026년 1월 기준 일반 안내, 개인별 상이]
-직업군(기본정보): ${jtK}
-· 연금저축(펀드·보험)·적립IRP: 납입액 소득공제(연간 한도·연금/IRP 합산 납입 상한 등은 소득세법·조세특례제한법)
-· 퇴직IRP: 퇴직급여 등의 이연 적립, 수령 시 이연퇴직·기타연금 과세 구분
-· ISA: 금융투자소득 비과세 한도·의무가입기간·분리과세·금융소득 종합과세와의 관계(조특법)
-답변에는 계좌 유형별로 위를 연결해 설명하고, 확정 세액·법률 자문이 아님을 명시. 홈택스·국세청·가입 기관 최종 확인.`;
+  if(window.REGULATORY_REF&&typeof REGULATORY_REF.buildAIRegulatoryBlock==='function')
+    return REGULATORY_REF.buildAIRegulatoryBlock(jt);
+  return `[법령·제도 요약 — regulatory-reference.js 로드 필요]\n직업군: ${jt}`;
 }
 
 function buildPrompt(){
@@ -7426,36 +7439,17 @@ function onRetiredIncomeInput(){
 function renderJobAcctGuide(){
   const el=G('job-acct-guide');if(!el)return;
   const jt=Gval('jobType')||'employee';
-  const dateRef='<span style="color:var(--t3);font-size:11px;">(안내 기준: <b>2026년 1월</b> 소득세법·조세특례제한법 등 일반 요지 — 개인·연도별로 달라질 수 있음)</span>';
-  const blocks={
-    employee:`<b>직장인(급여소득)</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
-<li><b>두기 좋은 계좌</b>: ISA, 연금저축(펀드·보험), 적립IRP, 퇴직 시 <b>퇴직IRP</b>(퇴직급여 이전·세 이연).</li>
-<li><b>혜택 요지</b>: 연금저축·적립IRP 납입액 <b>소득공제</b>(연간 납입 한도·연금/IRP 합산 <b>1,800만 원</b> 상한 등). ISA는 요건 충족 시 <b>금융투자소득 비과세·분리과세</b> 활용.</li>
-<li><b>주의</b>: 총급여액·합산 공제는 <b>연말정산</b>에서 확정. DC/DB 퇴직연금 실제 이전 가능 여부는 <b>사업장·금융기관</b> 안내 준수.</li>
-</ul>`,
-    civil:`<b>공무원·교직·군인 등(공적연금 병행)</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
-<li><b>두기 좋은 계좌</b>: ISA, 연금저축, 적립IRP, (해당 시) 직장 퇴직연금과 연계한 <b>퇴직IRP</b>.</li>
-<li><b>혜택 요지</b>: 공적연금과 별도로 개인 명의 <b>연금저축·IRP·ISA</b>는 동일한 세법 틀에서 검토(납입·소득 요건은 개인별 상이).</li>
-<li><b>주의</b>: 소득 형태에 따라 연금계좌 공제가 <b>제한</b>되는 경우가 있음 — 국세청 질의·홈택스 확인. 공적연금·퇴직급 수준을 기본정보·시나리오에 반영하는 것이 좋음.</li>
-</ul>`,
-    self:`<b>자영업·프리랜서</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
-<li><b>두기 좋은 계좌</b>: ISA, 연금저축, 적립IRP(개인형 IRP).</li>
-<li><b>혜택 요지</b>: 확정된 <b>종합소득</b>을 전제로 연금계좌 납입분 <b>소득공제</b>. 사업 여유자금은 ISA로 <b>과세이연·비과세 한도</b> 검토.</li>
-<li><b>주의</b>: 필요경비·기장·부인과세에 따라 과세표준이 달라져 공제 효과도 달라짐. <b>4대보험·지역 건강보험</b>료는 별도.</li>
-</ul>`,
-    retired:`<b>은퇴·기타소득 중심</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
-<li><b>두기 좋은 계좌</b>: ISA, 일반 투자·예금, 이미 보유한 <b>연금·IRP 수령</b> 계좌.</li>
-<li><b>혜택 요지</b>: 당해 연도 <b>과세소득</b>이 있을 때만 연금저축 <b>신규 납입 공제</b> 의미가 큼. 무소득 은퇴 시 신규 납입은 저축은 되나 <b>세액 절감</b>은 제한적일 수 있음.</li>
-<li><b>주의</b>: IRP·연금은 <b>수령 시점·연금 형태</b>(이연퇴직vs기타연금 등) 설계가 핵심. 현금흐름은 기본정보의 기타 소득·계좌 탭과 맞출 것.</li>
-</ul>`
-  };
-  el.innerHTML=blocks[jt]||blocks.employee;
+  if(window.REGULATORY_REF&&typeof REGULATORY_REF.buildJobAcctGuideHtml==='function')
+    el.innerHTML=REGULATORY_REF.buildJobAcctGuideHtml(jt);
+  else el.innerHTML='<span class="hint" style="color:var(--orange)">regulatory-reference.js를 불러오면 직업군 안내가 표시됩니다.</span>';
 }
 
 function jobAcctTypesToSuggest(){
   const jt=Gval('jobType')||'employee';
   const hasIsa=accounts.some(a=>a.active&&(AMETA[a.type]||{}).cat==='ISA');
   const hasPen=accounts.some(a=>a.active&&(AMETA[a.type]||{}).cat==='PENSION');
+  const hasSema=accounts.some(a=>a.active&&a.type==='PENSION_SEMA');
+  const hasYellow=accounts.some(a=>a.active&&a.type==='YELLOW_UMBRELLA');
   const hasIrpAccum=accounts.some(a=>a.active&&a.type==='IRP_ACCUM');
   const hasIrpRet=accounts.some(a=>a.active&&a.type==='IRP_RETIRE');
   const toAdd=[];
@@ -7463,6 +7457,16 @@ function jobAcctTypesToSuggest(){
     if(!hasIsa)toAdd.push({type:'ISA_BRK',mo:200000,rr:6.5});
     const hasFree=accounts.some(a=>a.active&&['FREE','STOCK'].includes((AMETA[a.type]||{}).cat));
     if(!hasFree)toAdd.push({type:'DEPOSIT',mo:0,rr:3});
+  }else if(jt==='self'){
+    if(!hasIsa)toAdd.push({type:'ISA_BRK',mo:250000,rr:7});
+    if(!hasPen)toAdd.push({type:'PENSION_FUND',mo:350000,rr:6.5});
+    if(!hasIrpAccum)toAdd.push({type:'IRP_ACCUM',mo:150000,rr:6.5});
+    if(!hasYellow)toAdd.push({type:'YELLOW_UMBRELLA',mo:100000,rr:3.5});
+  }else if(jt==='researcher'){
+    if(!hasIsa)toAdd.push({type:'ISA_BRK',mo:300000,rr:7});
+    if(!hasSema)toAdd.push({type:'PENSION_SEMA',mo:350000,rr:6.5});
+    if(!hasIrpAccum)toAdd.push({type:'IRP_ACCUM',mo:200000,rr:6.5});
+    if(!hasIrpRet)toAdd.push({type:'IRP_RETIRE',mo:0,rr:6.5});
   }else{
     if(!hasIsa)toAdd.push({type:'ISA_BRK',mo:300000,rr:7});
     if(!hasPen)toAdd.push({type:'PENSION_FUND',mo:400000,rr:6.5});
@@ -7493,6 +7497,8 @@ function onJobTypeChange(){
   if(h){
     if(jt==='employee'){
       h.textContent='급여소득 중심 직장인 기준입니다. 연봉(세전)과 연봉상승률을 기준으로 월 실수령과 퇴직·연금 납입을 계산합니다.';
+    }else if(jt==='researcher'){
+      h.textContent='연구개발 인력 등 급여소득을 전제로 합니다. 과학기술인공제회 납입·퇴직연금(DC 등)은 계좌 탭에서 별도 반영하고, 세제는 공제회·국세청 안내를 확인하세요.';
     }else if(jt==='civil'){
       h.textContent='공무원·교직·군인 등 공적연금 대상자입니다. 공단 예상연금 안내와 퇴직수당을 참고해 공적연금 월수령과 은퇴 후 기타 소득을 입력해 주세요.';
     }else if(jt==='self'){
@@ -7504,6 +7510,8 @@ function onJobTypeChange(){
   if(imh){
     if(jt==='employee'){
       imh.innerHTML='💡 <b>연봉</b> = 세전 총급여. 아래 월급 실수령액이 자동계산됩니다.<br><b>연봉 상승률</b>: 통계청 기준 평균 2~4%. 시뮬레이션 전체기간에 복리 반영됩니다.';
+    }else if(jt==='researcher'){
+      imh.innerHTML='💡 직장인과 같이 <b>세전 총보수·월 실수령 자동계산</b>을 사용합니다. <b>과학기술인공제·직장 퇴직연금</b>은 계좌설정에서 유형을 나눠 넣고, DC형은 디폴트옵션·등급은 약관으로 확인하세요.';
     }else if(jt==='civil'){
       imh.innerHTML='💡 공무원·교직·군인 등은 공단에서 제공하는 <b>예상 연금액</b>을 참고해 세전 연소득을 입력하고, 퇴직수당·공적연금 수령은 국민연금/연금 카드·목돈 이벤트에서 함께 반영하는 것이 좋습니다.';
     }else if(jt==='self'){
@@ -7514,6 +7522,7 @@ function onJobTypeChange(){
   }
   if(sl){
     if(jt==='employee')sl.textContent='현재 연봉 (원)';
+    else if(jt==='researcher')sl.textContent='현재 연봉·총보수 (원, 세전)';
     else if(jt==='civil')sl.textContent='최근 연간 세전 보수 (원)';
     else if(jt==='self')sl.textContent='최근 3년 평균 연간 소득 (원)';
     else sl.textContent='참고용 연간 세전 소득 (원, 선택 입력)';
