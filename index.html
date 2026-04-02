@@ -94,6 +94,7 @@ input[type=range]{accent-color:var(--gold);width:100%;}
 .np-quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
 .np-quick .qbtn{padding:4px 9px;border-radius:999px;border:1px solid var(--bdl);background:var(--bgc);color:var(--t2);font-size:11px;cursor:pointer;}
 .np-quick .qbtn.on{color:var(--goldl);border-color:var(--gold);background:rgba(200,168,75,.12);}
+#sev-disc-preset-wrap .sev-disc-preset-btn.on{color:var(--goldl);border-color:var(--gold);background:rgba(200,168,75,.12);font-weight:600;}
 .np-note{margin-top:8px;font-size:11px;color:var(--t2);line-height:1.55;}
 .np-rule{margin-top:10px;padding-top:9px;border-top:1px dashed var(--bd);}
 .np-income{margin-top:10px;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--bgc);}
@@ -362,7 +363,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:20</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:23</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -584,12 +585,12 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
           <label class="fl">수령 비교 할인율 (%/년)</label>
           <input class="fi mono" id="sevDiscRate" type="number" value="" step="0.1" placeholder="비워두면 물가상승률 사용" oninput="updateSevTargetInfo()">
           <div class="hint">현재가치 비교 전용 할인율입니다. 미입력 시 기본정보의 물가상승률을 사용합니다.</div>
-          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
-            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(2)">2%</button>
-            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(3)">3%</button>
-            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(4)">4%</button>
-            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset(5)">5%</button>
-            <button type="button" class="btn btn-sec btn-xs" onclick="setSevDiscRatePreset('')">기본(물가)</button>
+          <div id="sev-disc-preset-wrap" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="2" onclick="setSevDiscRatePreset(2)">2%</button>
+            <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="3" onclick="setSevDiscRatePreset(3)">3%</button>
+            <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="4" onclick="setSevDiscRatePreset(4)">4%</button>
+            <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="5" onclick="setSevDiscRatePreset(5)">5%</button>
+            <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="default" onclick="setSevDiscRatePreset('')">기본(물가)</button>
           </div>
         </div>
         <div id="sev-target-info" class="al al-i" style="font-size:12px;margin-top:4px;"></div>
@@ -1587,7 +1588,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:20';
+const PUBLISH_STAMP='2026.04.02 19:23';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -2487,10 +2488,28 @@ function calcRetirementTax(sev){
   const retireTax=Math.round(tax*totalWork/12);
   return {retireTax, taxFreeBase, taxable, totalWork, annualEquiv:Math.round(annualEquiv), convertedDeduction:Math.round(convertedDeduction), convertedTaxBase};
 }
+function syncSevDiscPresetHighlight(){
+  const wrap=G('sev-disc-preset-wrap');
+  if(!wrap)return;
+  const raw=String(Gval('sevDiscRate')||'').trim();
+  wrap.querySelectorAll('.sev-disc-preset-btn').forEach(b=>{
+    b.classList.remove('on');
+    const d=b.getAttribute('data-sev-disc');
+    if(!d)return;
+    if(d==='default'){
+      if(raw==='')b.classList.add('on');
+    }else{
+      const pv=parseFloat(d);
+      const v=parseFloat(raw);
+      if(raw!==''&&!isNaN(v)&&!isNaN(pv)&&Math.abs(v-pv)<1e-9)b.classList.add('on');
+    }
+  });
+}
 function updateSevTargetInfo(){
   const tgt=Gval('sevTarget');
   const sev=getSev();
   const el=G('sev-target-info');
+  syncSevDiscPresetHighlight();
   if(!el)return;
   const cashBase=calcRetirementTax(sev);
   const cashNationalTax=Math.max(0,Math.round(cashBase.retireTax||0));
