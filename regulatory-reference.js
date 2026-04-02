@@ -118,10 +118,14 @@
     return blocks[jobType] || blocks.employee;
   }
 
+  /** 시뮬 입력용: 위험등급(1~5) → 비보장형 참고 구간 중앙값(연 %). IRP·DC 운용 가정에 공통 사용. */
+  var DEFAULT_OPTION_GRADE_REF_RR = { 1: 3.2, 2: 4.5, 3: 6, 4: 8, 5: 9.5 };
+
   global.REGULATORY_REF = {
     REVIEW_STAMP: REVIEW_STAMP,
     FILE_NOTE:
       '법규 요약은 regulatory-reference.js 한 파일에 모았습니다. 개정 시 이 파일과 REVIEW_STAMP를 우선 갱신하세요.',
+    DEFAULT_OPTION_GRADE_REF_RR: DEFAULT_OPTION_GRADE_REF_RR,
     buildAIRegulatoryBlock: buildAIRegulatoryBlock,
     htmlDefaultOptionBlock: htmlDefaultOptionBlock,
     buildJobAcctGuideHtml: buildJobAcctGuideHtml,
