@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 18:37</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 18:41</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -520,6 +520,18 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
                 <input type="checkbox" id="civilPensionAuto" checked onchange="syncCivilPensionToRetireOther(false)">
                 은퇴 후 기타 월소득에 자동 반영
               </label>
+            </div>
+            <div id="retired-income-row" style="display:none;margin-top:8px;">
+              <label class="fl">은퇴 후 월 고정소득 (원) · 은퇴/무직 모드</label>
+              <div class="ro-input-shell">
+                <input class="fi mono" id="retiredIncomeMo" type="number" value="1200000" oninput="onRetiredIncomeInput()">
+                <div class="ka" id="ka-retired-income"></div>
+              </div>
+              <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2);margin-top:4px;">
+                <input type="checkbox" id="retiredIncomeAuto" checked onchange="syncRetiredIncomeToRetireOther(false)">
+                은퇴 후 기타 월소득에 자동 반영
+              </label>
+              <div class="hint" style="margin-top:4px;">연금·임대·이자 등 고정적으로 들어오는 월소득 합계를 넣어 주세요.</div>
             </div>
             <div id="ro-health-hint" class="ro-health-hint" aria-live="polite"></div>
           </div>
@@ -1497,6 +1509,7 @@ const SHEET_REF={
     birthDate:'1980-01-01',curAge:'46',retireAge:'65',lifeExp:'90',
     salary:'50000000',salGrowth:'3',salaryDay:'25',taxBracket:'low',retireOther:'0',
     civilPensionMo:'1800000',civilPensionAuto:true,
+    retiredIncomeMo:'1200000',retiredIncomeAuto:true,
     mExp:'2000000',rExp:'1800000',inf:'2.5',sw:'4',target:'0',
     npBase:'1200000',npAge:'65',
     sevType:'DC',workYrs:'15',dbSal:'0',manSev:'50000000',sevTarget:'IRP_RETIRE',
@@ -1547,7 +1560,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 18:37';
+const PUBLISH_STAMP='2026.04.02 18:41';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -6581,7 +6594,7 @@ function getProfile(){
     b:{jobType:Gval('jobType')||'employee',
       birthDate:Gval('birthDate'),curAge:Gval('curAge'),retireAge:Gval('retireAge'),
       lifeExp:Gval('lifeExp'),salary:Gval('salary'),salGrowth:Gval('salGrowth'),
-      retireOther:Gval('retireOther'),civilPensionMo:Gval('civilPensionMo'),civilPensionAuto:G('civilPensionAuto')?.checked,expOn:G('expOn')?.checked,
+      retireOther:Gval('retireOther'),civilPensionMo:Gval('civilPensionMo'),civilPensionAuto:G('civilPensionAuto')?.checked,retiredIncomeMo:Gval('retiredIncomeMo'),retiredIncomeAuto:G('retiredIncomeAuto')?.checked,expOn:G('expOn')?.checked,
       mExp:Gval('mExp'),rExp:Gval('rExp'),inf:Gval('inf'),sw:Gval('sw'),target:Gval('target'),
       npBase:Gval('npBase'),npAge:Gval('npAge'),divGrowthRate:Gval('divGrowthRate'),
       sevType:Gval('sevType'),workYrs:Gval('workYrs'),dbSal:Gval('dbSal'),
@@ -7061,6 +7074,35 @@ function onCivilPensionInput(){
   ka(G('civilPensionMo'),'ka-civil-pension');
   syncCivilPensionToRetireOther(true);
 }
+function applyRetiredDefaults(){
+  const curAge=Math.max(0,parseInt(Gval('curAge'))||0);
+  if(curAge>0){
+    Gv('retireAge',String(curAge));
+    onRetireAge();
+  }
+  Gv('salary','0');
+  Gv('salGrowth','0');
+  if(G('ka-sal'))G('ka-sal').textContent=toKor(0);
+  onSalary();
+}
+function syncRetiredIncomeToRetireOther(force){
+  const jt=(Gval('jobType')||'employee');
+  if(jt!=='retired')return;
+  const auto=G('retiredIncomeAuto')?.checked===true;
+  if(!auto)return;
+  const src=Math.max(0,parseFloat(Gval('retiredIncomeMo'))||0);
+  const ro=Math.max(0,parseFloat(Gval('retireOther'))||0);
+  if(force||ro===0){
+    Gv('retireOther',String(Math.round(src)));
+    if(G('ka-ro'))G('ka-ro').textContent=toKor(src);
+    updateRetireOtherHealthHint();
+    renderNP();
+  }
+}
+function onRetiredIncomeInput(){
+  ka(G('retiredIncomeMo'),'ka-retired-income');
+  syncRetiredIncomeToRetireOther(true);
+}
 
 function onJobTypeChange(){
   const jt=(Gval('jobType')||'employee');
@@ -7068,7 +7110,9 @@ function onJobTypeChange(){
   const imh=G('income-mode-hint');
   const sl=G('salary-label');
   const cpr=G('civil-pension-row');
+  const rir=G('retired-income-row');
   if(cpr)cpr.style.display=(jt==='civil')?'':'none';
+  if(rir)rir.style.display=(jt==='retired')?'':'none';
   if(h){
     if(jt==='employee'){
       h.textContent='급여소득 중심 직장인 기준입니다. 연봉(세전)과 연봉상승률을 기준으로 월 실수령과 퇴직·연금 납입을 계산합니다.';
@@ -7077,7 +7121,7 @@ function onJobTypeChange(){
     }else if(jt==='self'){
       h.textContent='자영업·프리랜서 등 사업·프리랜스 소득자입니다. 최근 3년 평균 연소득(세전)과 변동성을 고려해 세전 월소득을 넣고, 세부 세금은 종합소득 신고 기준으로 별도 점검하는 것이 좋습니다.';
     }else{
-      h.textContent='은퇴·무직·전업으로, 현재는 연금·임대·투자소득 등 기타 소득이 중심인 상황입니다. 아래 국민연금·연금·기타 소득 영역에 월소득을 직접 입력해 주세요.';
+      h.innerHTML='은퇴·무직·전업으로, 현재는 연금·임대·투자소득 등 기타 소득이 중심인 상황입니다. <button class="btn btn-sec btn-xs" style="margin-left:6px;" onclick="applyRetiredDefaults()">은퇴자 기본값 적용</button>';
     }
   }
   if(imh){
@@ -7098,6 +7142,7 @@ function onJobTypeChange(){
     else sl.textContent='참고용 연간 세전 소득 (원, 선택 입력)';
   }
   if(jt==='civil')syncCivilPensionToRetireOther(false);
+  if(jt==='retired')syncRetiredIncomeToRetireOther(false);
   // 직업군이 바뀌면 소득 계산도 다시 실행해 요약을 최신화
   onSalary();
 }
