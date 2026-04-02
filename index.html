@@ -363,7 +363,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:23</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:26</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -591,6 +591,14 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
             <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="4" onclick="setSevDiscRatePreset(4)">4%</button>
             <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="5" onclick="setSevDiscRatePreset(5)">5%</button>
             <button type="button" class="btn btn-sec btn-xs sev-disc-preset-btn" data-sev-disc="default" onclick="setSevDiscRatePreset('')">기본(물가)</button>
+          </div>
+          <div class="al al-i" id="sev-disc-guide" style="font-size:11px;margin-top:8px;line-height:1.55;padding:9px 11px;border-radius:8px;">
+            <b style="color:var(--goldl)">사용 팁</b>
+            <ul style="margin:6px 0 0 1em;padding:0;line-height:1.6;">
+              <li><b>처음</b>에는 할인율 칸을 비워 두고 <b>기본(물가)</b>만 켜 두세요. 위 물가상승률과 같은 전제로 미래 연금을 “오늘 돈”으로 환산합니다. 물가를 바꾸면 이 비교도 같이 바뀝니다.</li>
+              <li><b>더 보수적으로</b> 보고 싶다면 <b>3% → 4% → 5%</b> 순으로 눌러 비교해 보세요. 할인율이 높을수록 장기 연금의 현재가치는 작게 나옵니다.</li>
+              <li>표의 숫자는 <b>간이 계산</b>입니다. 실제 세금·수령 순서·상품별 규정은 <a href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스</a>·가입 기관 안내를 꼭 확인하세요.</li>
+            </ul>
           </div>
         </div>
         <div id="sev-target-info" class="al al-i" style="font-size:12px;margin-top:4px;"></div>
@@ -1588,7 +1596,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:23';
+const PUBLISH_STAMP='2026.04.02 19:26';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -1626,7 +1634,7 @@ window.onload=()=>{
   renderAIChat();
   syncSimQuickFromMain();
   updateInfSourceHint();
-  if(G('inf'))G('inf').addEventListener('input',updateInfSourceHint);
+  if(G('inf'))G('inf').addEventListener('input',onInflationInput);
   if(G('simq-rExp'))G('simq-rExp').addEventListener('input',onSimQuickLiveInput);
   if(G('simq-retireAge'))G('simq-retireAge').addEventListener('input',onSimQuickLiveInput);
   if(G('simq-salGrowth'))G('simq-salGrowth').addEventListener('input',onSimQuickLiveInput);
@@ -3050,7 +3058,13 @@ function applyOfficialInflationRef(){
   Gv('inf','2.5');
   calcTarget();
   updateInfSourceHint();
+  updateSevTargetInfo();
   toast('📌 2026 발표자료 기준 2.5%를 적용했습니다.');
+}
+/** 물가 변경 시 힌트 갱신 + 퇴직금 수령 비교(현재가치) 즉시 반영 */
+function onInflationInput(){
+  updateInfSourceHint();
+  updateSevTargetInfo();
 }
 function updateInfSourceHint(){
   const hint=G('inf-src-hint');
@@ -5605,6 +5619,7 @@ function applySimQuickAndRunCore(silent){
     Gv('salGrowth',String(sg));
     Gv('rExp',String(Math.round(re))); if(G('ka-re'))G('ka-re').textContent=toKor(Math.round(re));
     Gv('inf',String(inf));
+    onInflationInput();
 
     if(d!==0){
       accounts.forEach(a=>{
@@ -5642,6 +5657,7 @@ function restoreSimQuickSnapshot(){
     Gv('rExp',String(_simQuickSnapshot.b.rExp||2200000));
     if(G('ka-re'))G('ka-re').textContent=toKor(parseFloat(Gval('rExp'))||0);
     Gv('inf',String(_simQuickSnapshot.b.inf||2.5));
+    onInflationInput();
     _simQuickSnapshot.rr.forEach(o=>{
       const a=accounts.find(x=>x.id===o.id);
       if(a)a.returnRate=o.rr;
