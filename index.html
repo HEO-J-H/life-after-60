@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 18:46</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:08</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -1014,9 +1014,10 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     </div>
     <div class="card" style="border-color:rgba(59,143,232,.3);margin-top:10px;">
       <div class="ctitle">🏥 은퇴 후 건강보험료 추정 (지역가입자)</div>
-      <div class="g3">
+      <div class="g4">
         <div class="frow"><label class="fl">보유 부동산 공시지가 (원)</label><input class="fi mono" id="realEstate" type="number" value="400000000" oninput="ka(this,'ka-re2');calcHealth()"><div class="ka" id="ka-re2"></div></div>
         <div class="frow"><label class="fl">금융자산 (시뮬레이션 자동)</label><div class="fi mono" id="fin-asset" style="background:var(--bg2);cursor:default;color:var(--goldl)">시뮬레이션 후 자동</div></div>
+        <div class="frow"><label class="fl">자동차 가액 (원)</label><input class="fi mono" id="healthCar" type="number" value="0" oninput="ka(this,'ka-hc');calcHealth()"><div class="ka" id="ka-hc"></div></div>
         <div class="frow"><label class="fl">연금·기타 연소득 (원)</label><input class="fi mono" id="healthInc" type="number" value="12000000" oninput="ka(this,'ka-hi');calcHealth()"><div class="ka" id="ka-hi"></div></div>
       </div>
       <div class="g2" style="margin-top:6px;">
@@ -1148,7 +1149,8 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div style="margin-top:12px;">
   <div class="al al-i" style="font-size:11px;line-height:1.6;margin-bottom:12px;padding:10px 12px;">
     <b>근거·유의사항</b> 아래 표는 <b>소득세법</b>(연금소득 제20조의3, 연금소득공제 제47조의2 등), <b>소득세법 시행령</b>(이연퇴직소득세액 계산 제202조의2 등), <b>조세특례제한법</b>(ISA 금융투자소득 비과세·분리과세) 및 공적연금·퇴직연금 사업자가 배포하는 과세체계 안내(예: <a href="https://www.sema.or.kr/sema/main/contents.do?menuNo=200066" target="_blank" rel="noopener">과학기술인공제회 연금 과세체계</a>)를 요약한 것입니다.
-    <b>2024.1.1 이후 발생분부터</b> 연금소득 분리과세 기준액이 <b>연 1,200만→1,500만 원</b>으로 상향된 내용이 반영되어 있습니다. 지방소득세는 별도이며, 상품·가입 시기·인출 사유(부득이한 사유 등)에 따라 달라질 수 있으므로 <a href="https://www.law.go.kr" target="_blank" rel="noopener">국가법령정보센터</a>·<a href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스</a>·가입 기관 안내를 확인하세요. 아래 표는 법 요약이며, 시나리오 실행 후 나오는 <b>「이 결과에 해당하는 안내」</b>는 평균 수익률 시나리오·계좌 설정과 연동됩니다.
+    <b>2024.1.1 이후 발생분부터</b> 연금소득 분리과세 기준액이 <b>연 1,200만→1,500만 원</b>으로 상향된 내용이 반영되어 있습니다. 지방소득세는 별도이며, 상품·가입 시기·인출 사유(부득이한 사유 등)에 따라 달라질 수 있으므로 <a href="https://www.law.go.kr" target="_blank" rel="noopener">국가법령정보센터</a>·<a href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스</a>·가입 기관 안내를 확인하세요. 아래 표는 법 요약이며, 시나리오 실행 후 나오는 <b>「이 결과에 해당하는 안내」</b>는 평균 수익률 시나리오·계좌 설정과 연동됩니다.<br>
+    <span style="color:var(--t3)">법령/해석 반영 기준일(도구 내부): <b id="legal-ref-asof">2026-04-02</b></span>
   </div>
   <div class="card">
     <div class="ctitle">📤 인출 시나리오 — 연금계좌·퇴직IRP에서 돈을 <b>인출·연금수령</b>할 때</div>
@@ -1529,7 +1531,7 @@ const SHEET_REF={
     budget:'500000',dcDirectBal:'0',dcRROverride:'',
     taxReinvest:false,taxReinvestTgt:'',
     expOn:true,hpOn:false,hpPrice:'400000000',hpStartAge:'70',hpMode:'lifetime',healthApplySim:false,healthRetireOnly:true,
-    realEstate:'200000000',healthInc:'0',revTarget:'0',
+    realEstate:'200000000',healthCar:'0',healthInc:'0',revTarget:'0',
   },
   irpRetire:{balance:0,returnRate:6.5},
   extraAccounts:[
@@ -1573,7 +1575,13 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 18:46';
+const PUBLISH_STAMP='2026.04.02 19:08';
+/** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
+const LEGAL_REF_AS_OF='2026-04-02';
+const TAX_RULES={
+  pensionSeparateTaxAnnual:15000000,
+  financeComprehensiveAnnual:20000000,
+};
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1583,6 +1591,7 @@ document.addEventListener('click',e=>{
 });
 window.onload=()=>{
   applyThemeFromStorage();
+  if(G('legal-ref-asof'))G('legal-ref-asof').textContent=LEGAL_REF_AS_OF;
   // 탭 위치 = 헤더 높이에 맞춰 동적 설정
   function fixTabsPos(){
     const hdr=G('main-hdr'),tabs=G('main-tabs');
@@ -1695,9 +1704,9 @@ function estimateLumpTax(amount, src, age){
   if(amt<=0)return 0;
   if(s==='isa')return 0;
   if(s==='taxable')return Math.round(amt*0.154);
-  if(s==='pension')return Math.round(amt*(age>=80?0.033:age>=70?0.044:0.055));
+  if(s==='pension')return Math.round(amt*pensionIncomeTaxRateByAge(age));
   // auto: 일반 60%, ISA 20%, 연금 20% 가중 간이
-  const pTax=Math.round(amt*(age>=80?0.033:age>=70?0.044:0.055));
+  const pTax=Math.round(amt*pensionIncomeTaxRateByAge(age));
   return Math.round(amt*0.6*0.154 + amt*0.2*0 + amt*0.2*(pTax/amt));
 }
 function pensionIncomeTaxRateByAge(age){
@@ -1837,7 +1846,7 @@ function updateRetireOtherHealthHint(){
   const ro=(parseFloat(Gval('retireOther'))||0)*12;
   const npAnn=getNpMonthlyNetAtCurrentSetting()*12;
   const sum=ro+npAnn;
-  const over=sum>20000000;
+  const over=sum>TAX_RULES.financeComprehensiveAnnual;
   el.className='ro-health-hint'+(over?' ro-health-hint--warn':'');
   el.innerHTML=
     '⚠ 참고 국민연금·은퇴 후 기타 월소득 등을 연간으로 합치면 <span class="ro-amt">2,000만 원</span>을 넘는 경우, 건강보험 <b>피부양자 자격</b>·<b>지역가입자</b> 전환 등이 논의될 수 있어요. 직장·지역 공단 안내를 확인하세요.<br>'+
@@ -2424,14 +2433,23 @@ function toggleSev(){
   updateSevTargetInfo();
 }
 function calcRetirementTax(sev){
-  // 퇴직소득세 간이계산 (2024년 기준)
-  // 환산급여 = 퇴직급여 - 비과세 (근속연수×100만원)
+  // 퇴직소득세 간이계산 (법령 구조 반영 간이모델, 기준일: LEGAL_REF_AS_OF)
+  // 1) 퇴직소득금액 = 퇴직급여 - 근속연수 공제
+  // 2) 환산급여 = 퇴직소득금액 * 12 / 근속연수
+  // 3) 환산급여 누진세율 적용 후 * 근속연수/12
+  function retirementServiceDeduction(workYears){
+    const y=Math.max(1,Math.floor(workYears||1));
+    if(y<=5)return y*1000000;
+    if(y<=10)return 5000000 + (y-5)*2000000;
+    if(y<=20)return 15000000 + (y-10)*2500000;
+    return 40000000 + (y-20)*3000000;
+  }
   const wy=parseInt(Gval('workYrs'))||15;
   const ra=parseInt(Gval('retireAge'))||60, ca=parseInt(Gval('curAge'))||47;
   const totalWork=wy+Math.max(0,ra-ca);
-  const taxFreeBase=Math.min(totalWork*1000000, sev); // 근속연수×100만원 공제
+  const taxFreeBase=Math.min(retirementServiceDeduction(totalWork), sev);
   const taxable=Math.max(0, sev-taxFreeBase);
-  // 환산급여 방식 간소화 (실제는 더 복잡하나 근사치)
+  // 환산급여 방식 간소화(정확 신고세액 아님)
   const annualEquiv=totalWork>0?taxable/totalWork*12:taxable;
   let tax=0;
   if(annualEquiv<=14000000)       tax=annualEquiv*0.06;
@@ -4140,11 +4158,11 @@ function buildScenarioInsights(scO,scA,scP,scD){
     if(maxPenY>=21)html=`연금 개시부터 기대수명(<b>${life}세</b>)까지 시뮬하면 최대 <b>${maxPenY}년차</b> 수령 구간이 포함됩니다. 퇴직금 이연분은 장기 구간에서 이연퇴직소득세액의 <b>50%</b> 분리과세가 적용될 수 있습니다. 일시금 인출은 연금형과 세 부담이 달라질 수 있습니다.`;
     else if(maxPenY>=11)html=`연금 수령 <b>10년을 넘는 구간</b>이 포함되면, 퇴직금 이연분에 이연퇴직소득세액의 <b>60%</b> 분리과세가 적용될 수 있는 기간입니다.`;
     else html=`연금 개시 직후~10년차 중심이면, 퇴직금 이연분은 이연퇴직소득세액의 <b>70%</b> 분리과세가 적용되는 경우가 많습니다.`;
-    if(estPenAll>=12000000)html+=`<br><br>연금·IRP 설정으로 은퇴 후 <b>연간 수령 추정 약 ${ws(estPenAll)}원</b>. 합산 시 <b>연 1,500만 원</b> 기준(2024.1.1 이후 분리과세)을 함께 확인하세요.`;
+    if(estPenAll>=TAX_RULES.pensionSeparateTaxAnnual)html+=`<br><br>연금·IRP 설정으로 은퇴 후 <b>연간 수령 추정 약 ${ws(estPenAll)}원</b>. 합산 시 <b>연 1,500만 원</b> 기준(2024.1.1 이후 분리과세)을 함께 확인하세요.`;
     lines.push({title:'📤 인출·퇴직이연 시나리오',html});
   }else if(active.some(a=>['PENSION','IRP'].includes((AMETA[a.type]||{}).cat))){
     let html='연금저축·적립IRP가 있습니다. 연금형 인출 시 연금소득공제·연령별 연금소득세가 적용됩니다.';
-    if(estPenAll>=12000000)html+=` 설정 기준 연간 수령 추정 약 <b>${ws(estPenAll)}원</b> — <b>연 1,500만 원</b>(2024.1.1 이후 분리과세 기준) 부근이면 종합과세 신고 또는 15% 분리과세 선택을 검토할 수 있습니다.`;
+    if(estPenAll>=TAX_RULES.pensionSeparateTaxAnnual)html+=` 설정 기준 연간 수령 추정 약 <b>${ws(estPenAll)}원</b> — <b>연 1,500만 원</b>(2024.1.1 이후 분리과세 기준) 부근이면 종합과세 신고 또는 15% 분리과세 선택을 검토할 수 있습니다.`;
     lines.push({title:'📤 인출 시나리오(연금)',html});
   }
 
@@ -4325,7 +4343,7 @@ function scwPensionLimitRef(balBefore,yearIdx){
 /** 연금 인출액에 대한 연령별 안내용 세부담(공제 전 단순 곱) */
 function scwApproxPensionTaxWon(annual,age){
   if(annual<=0)return{w:0,rateLabel:'—'};
-  const r=age>=80?0.033:age>=70?0.044:0.055;
+  const r=pensionIncomeTaxRateByAge(age);
   return{w:Math.round(annual*r),rateLabel:`약 ${(r*100).toFixed(1)}%×연인출(안내)`};
 }
 function updateJobScenarioPresetHint(){
@@ -4442,7 +4460,7 @@ function renderWithdrawScheduleUI(){
       const{w}=scwApproxPensionTaxWon(annual,age);
       taxPlain=`대략 <b>${ws(w)}</b> 정도 세금이 붙을 수 있다고 흔히 안내돼요(나이 ${age}세·단순 가정). 실제는 더 적을 수 있어요.`;
       if(lim!=null&&annual>lim)note=`이 해에는 법으로 정한 “많이 받아도 되는 상한” <b>${ws(lim)}</b>보다 큰데요. 은행·세무에 물어보세요.`;
-      if(annual>=15000000)note+=(note?'<br>':'')+`연 <b>1,500만 원</b>을 넘는 수령이면 신고 방식을 골라야 할 수 있어요.`;
+      if(annual>=TAX_RULES.pensionSeparateTaxAnnual)note+=(note?'<br>':'')+`연 <b>1,500만 원</b>을 넘는 수령이면 신고 방식을 골라야 할 수 있어요.`;
     }else if(cat==='IRP_RET'){
       const sep=y<=10?70:y<=20?60:50;
       taxPlain=`퇴직금을 연금으로 나눠 받을 때, 처음 10년 / 그다음 10년 / 그 이후에 <b>세금을 나눠 내는 비율</b>이 달라진다고 알려주는 경우가 많아요. 이 해는 대략 <b>${sep}%</b> 구간 안내와 비슷한 시기로 보면 됩니다.`;
@@ -4459,7 +4477,7 @@ function renderWithdrawScheduleUI(){
   const ageA=startAge+idxA-1,ageB=startAge+idxB-1,ageC=startAge+idxC-1;
   const retireRatio=(y)=>y<=10?0.7:y<=20?0.6:0.5;
   const retireTaxOnAnnual=(amt)=>calcRetirementTax(Math.max(0,Math.round(amt))).retireTax;
-  const pensionRate=(age)=>age>=80?0.033:age>=70?0.044:0.055;
+  const pensionRate=(age)=>pensionIncomeTaxRateByAge(age);
   const isaRate=(annual<=2000000)?0:0.099;
   const mkCard=(title,idx,age,retireTxt)=>{
     const retireTax=Math.round(retireTaxOnAnnual(annual)*retireRatio(idx));
@@ -4571,7 +4589,7 @@ function renderDividendUI(){
       plain=`세금 <span class="sdd-fig-tax">${ws(tax)}</span>, 세후 <span class="sdd-fig-yield">${ws(net)}</span>/년`;
       hand=`${ws(net)}/년`;
       sumGenGross+=gross;
-      if(gross>=20000000)extraLi.push(`<b>${a.label}</b>(일반): 연 <b>${ws(gross)}</b> — 금융소득이 크면 <b>추가 신고</b> 검토될 수 있음.`);
+      if(gross>=TAX_RULES.financeComprehensiveAnnual)extraLi.push(`<b>${a.label}</b>(일반): 연 <b>${ws(gross)}</b> — 금융소득이 크면 <b>추가 신고</b> 검토될 수 있음.`);
     }else if(kind==='ISA'){
       const lim=(AMETA[a.type]||{}).taxFree||2000000;
       const{net:n,taxEst}=approxIsaDivNetAnnual(gross,lim);
@@ -4582,8 +4600,8 @@ function renderDividendUI(){
       const t=Math.round(gross*0.154);
       plain=`유지 시 당기 과세 적음 · 현금화 가정 세금 <span class="sdd-fig-tax">${ws(t)}</span>, 세후 <span class="sdd-fig-yield">${ws(gross-t)}</span>/년`;
       hand=`유지 시 0`;
-      if(gross>=15000000){
-        const ex=gross-15000000;
+      if(gross>=TAX_RULES.pensionSeparateTaxAnnual){
+        const ex=gross-TAX_RULES.pensionSeparateTaxAnnual;
         const fifteenPct=Math.round(ex*0.15);
         extraLi.push(`<b>${a.label}</b>: 연 수령을 <b>${ws(gross)}</b>로 보면 1,500만 초과 <b>${ws(ex)}</b> · 단순 15% 가정 시 약 <b>${ws(fifteenPct)}</b> 추가 성격(참고).`);
       }
@@ -4591,7 +4609,7 @@ function renderDividendUI(){
       const t=Math.round(gross*0.154);
       plain=`유지 시 당기 과세 적음 · 현금화 가정 세금 <span class="sdd-fig-tax">${ws(t)}</span>, 세후 <span class="sdd-fig-yield">${ws(gross-t)}</span>/년`;
       hand=`유지 시 0`;
-      if(gross>=15000000)extraLi.push(`<b>${a.label}</b>(퇴직): 연 <b>${ws(gross)}</b> — 다른 연금과 합쳐 1,500만 기준 확인 권장.`);
+      if(gross>=TAX_RULES.pensionSeparateTaxAnnual)extraLi.push(`<b>${a.label}</b>(퇴직): 연 <b>${ws(gross)}</b> — 다른 연금과 합쳐 1,500만 기준 확인 권장.`);
     }
     const cmpGross=Math.round(cmpBase*alloc*yld);
     let cmpTax=0,cmpNet=cmpGross;
@@ -4600,7 +4618,7 @@ function renderDividendUI(){
     else if(kind==='PENSION'||kind==='RETIRE'){cmpTax=Math.round(cmpGross*0.154);cmpNet=cmpGross-cmpTax;}
     rows.push(`<tr><td><b>${a.label}</b></td><td style="font-size:13px;color:var(--t3)">${(AMETA[a.type]||{}).label||a.type}</td><td style="text-align:right;font-family:monospace;font-size:13px">${ws(P)}</td><td class="tc">${(alloc*100).toFixed(0)}% × ${(yld*100).toFixed(1)}%</td><td style="text-align:right;font-family:monospace;font-size:13px"><span class="sdd-fig-yield">${ws(gross)}</span><div style="font-size:11px;color:var(--t3)">월 ${ws(Math.round(gross/12))}</div></td><td style="font-size:13px;line-height:1.5">${plain}</td><td style="text-align:right;font-size:13px;font-weight:600">${hand}</td><td style="text-align:right;font-family:monospace;font-size:12px">${ws(cmpBase)}</td><td style="text-align:right;font-family:monospace;font-size:12px">${ws(cmpGross)}</td><td style="text-align:right;font-family:monospace;font-size:12px;color:var(--red)">${ws(cmpTax)}</td><td style="text-align:right;font-family:monospace;font-size:12px;color:var(--green)">${ws(cmpNet)}</td></tr>`);
   });
-  if(sumGenGross>=20000000)extraLi.push(`일반 계좌만 합치면 연 <b>${ws(sumGenGross)}</b> — 종합과세 해당 여부 확인.`);
+  if(sumGenGross>=TAX_RULES.financeComprehensiveAnnual)extraLi.push(`일반 계좌만 합치면 연 <b>${ws(sumGenGross)}</b> — 종합과세 해당 여부 확인.`);
   tw.innerHTML=`<table class="st st-scenario-tax"><thead><tr><th>계좌</th><th>종류</th><th>${ra}세 잔액</th><th class="tc">배당비중×연율</th><th>연 배당·이자(세전 G)</th><th>세금/세후</th><th>세후 추정액</th><th>비교기준</th><th>비교 세전</th><th style="color:var(--red)">비교 세금</th><th style="color:var(--green)">비교 세후</th></tr></thead><tbody>${rows.join('')}</tbody></table>
 <div class="sch-note" style="margin-top:10px;">합산 세전 G <b>${ws(totalGross)}</b> · 월 기준 약 <b>${ws(Math.round(totalGross/12))}</b></div>`;
   if(extraLi.length){
@@ -4740,7 +4758,7 @@ function calcDivPreview(acctId){
   }
   if(!totalMonDiv){el.style.display='none';el.innerHTML='';return;}
   const annualDiv=totalMonDiv*12;
-  const overFinanceTax=(annualDiv>20000000)&&!isTaxFree; // 금융소득(이자+배당) 종합과세 판단 기준(참고)
+  const overFinanceTax=(annualDiv>TAX_RULES.financeComprehensiveAnnual)&&!isTaxFree; // 금융소득(이자+배당) 종합과세 판단 기준(참고)
   el.style.display='';
   el.innerHTML=lines.join('')+
     `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;">` +
@@ -5604,8 +5622,8 @@ function renderSimRes(tgt,retA){
   const lifeExpN=parseInt(Gval('lifeExp'))||90;
   const w4Annual=Math.round(rA*0.04);
   const w4Monthly=Math.round(w4Annual/12);
-  const pensionTaxRate=retA>=80?0.033:retA>=70?0.044:0.055;
-  const w4Tax=Math.round(w4Annual*(w4Annual>15000000?0.165:pensionTaxRate));
+  const pensionTaxRate=pensionIncomeTaxRateByAge(retA);
+  const w4Tax=Math.round(w4Annual*(w4Annual>TAX_RULES.pensionSeparateTaxAnnual?0.165:pensionTaxRate));
   const w4Net=Math.max(0,w4Annual-w4Tax);
   // 절약으로 연장: 10만원 절약 시 몇 살 연장?
   let extendAge=null;
@@ -5745,7 +5763,7 @@ function calcReverse(){
   const origContribs=accounts.map(a=>a.monthlyContrib);
   const freeIds=accounts.filter(a=>a.active&&['FREE','STOCK'].includes((AMETA[a.type]||{}).cat)).map(a=>a.id);
   const targetAccts=freeIds.length>0?freeIds:accounts.filter(a=>a.active&&(AMETA[a.type]||{}).cat!=='IRP_RET').map(a=>a.id).slice(0,2);
-  let lo=0,hi=20000000,found=null;
+  let lo=0,hi=TAX_RULES.financeComprehensiveAnnual,found=null;
   for(let iter=0;iter<28;iter++){
     const mid=Math.round((lo+hi)/2);
     accounts.forEach((a,i)=>a.monthlyContrib=origContribs[i]);
@@ -5783,9 +5801,10 @@ function calcHealth(){
   const reStr=G('fin-asset')?.textContent||'0';
   const finAsset=parseFloat(reStr.replace(/[^0-9]/g,''))||0;
   const realEstate=parseFloat(Gval('realEstate'))||0;
+  const carValue=parseFloat(Gval('healthCar'))||0;
   const annualInc=parseFloat(Gval('healthInc'))||0;
-  const est=estimateHealthMonthly(finAsset,realEstate,annualInc);
-  const monthly=est.monthly,aScore=est.aScore,incScore=est.incScore;
+  const est=estimateHealthMonthly(finAsset,realEstate,annualInc,carValue);
+  const monthly=est.monthly,aScore=est.aScore,incScore=est.incScore,carScore=est.carScore;
   const npInc=getNpMonthlyNetAtCurrentSetting();
   const otherInc=parseFloat(Gval('retireOther'))||0;
   const expOn=G('expOn')?.checked===true;
@@ -5793,7 +5812,7 @@ function calcHealth(){
   const disposable=Math.max(0,npInc+otherInc-monthly-rExp);
   const depEl=G('health-dep-alert');
   const depBase=npInc*12+otherInc*12;
-  const depOver=depBase>20000000;
+  const depOver=depBase>TAX_RULES.financeComprehensiveAnnual;
   if(depEl){
     if(depBase>0){
       depEl.style.display='';
@@ -5804,10 +5823,10 @@ function calcHealth(){
     }
   }
   const res=G('health-res');
-  if(res)res.innerHTML=`예상 건강보험료(간이): <b style="color:var(--goldl)">${wf(monthly)}원/월</b> (연 ${wf(monthly*12)}원) | 재산점수 ${aScore.toFixed(0)}점 + 소득점수 ${incScore.toFixed(0)}점<br><span style="font-size:11px;color:var(--t3)">※ 지역가입자 기준 간이추정(소득·재산 중심)이며 실제 고지금액과 차이가 날 수 있습니다.</span><br>🏠 실질 가처분소득: <b style="color:var(--green)">${wf(Math.round(disposable))}원/월</b> (연금+기타 - 건보료 - 생활비)`;
+  if(res)res.innerHTML=`예상 건강보험료(간이): <b style="color:var(--goldl)">${wf(monthly)}원/월</b> (연 ${wf(monthly*12)}원) | 재산점수 ${aScore.toFixed(0)}점 + 자동차점수 ${carScore.toFixed(0)}점 + 소득점수 ${incScore.toFixed(0)}점<br><span style="font-size:11px;color:var(--t3)">※ 지역가입자 기준 간이추정(소득·재산·자동차 가액)이며 실제 고지금액과 차이가 날 수 있습니다. 반영 기준일: ${LEGAL_REF_AS_OF}</span><br>🏠 실질 가처분소득: <b style="color:var(--green)">${wf(Math.round(disposable))}원/월</b> (연금+기타 - 건보료 - 생활비)`;
 }
 
-function estimateHealthMonthly(finAsset,realEstate,annualInc){
+function estimateHealthMonthly(finAsset,realEstate,annualInc,carValue=0){
   // 2026 간이 기준(지역가입자): 점수당 금액 최신값 반영
   const score_unit=211.5;
   const incScore=Math.max(0,(annualInc||0)/1000000*2.5);
@@ -5820,8 +5839,13 @@ function estimateHealthMonthly(finAsset,realEstate,annualInc){
   else if(taxable<=100000000)aScore=110+(taxable-30000000)/1000000*2;
   else if(taxable<=500000000)aScore=250+(taxable-100000000)/1000000*0.8;
   else aScore=570+(taxable-500000000)/1000000*0.4;
-  const monthly=Math.round((incScore+aScore)*score_unit);
-  return {monthly,aScore,incScore};
+  // 자동차 점수(간이): 공단 실제 등급·차종 규칙과 다를 수 있어 참고용
+  const car=Math.max(0,carValue||0);
+  let carScore=0;
+  if(car>40000000&&car<=80000000)carScore=20+(car-40000000)/1000000*0.6;
+  else if(car>80000000)carScore=44+(car-80000000)/1000000*0.9;
+  const monthly=Math.round((incScore+aScore+carScore)*score_unit);
+  return {monthly,aScore,incScore,carScore};
 }
 
 // ═══════════ CHARTS & TABLE ═══════════
@@ -6664,7 +6688,7 @@ function getProfile(){
       taxReinvestTgt:Gval('taxReinvestTgt'),budget:Gval('budget'),
       aiProv:Gval('aiProv'),aiKey:G('aiKey')?.value||'',
       scOpt:Gval('sc-opt'),scAvg:Gval('sc-avg'),scPes:Gval('sc-pes'),scDiv:Gval('sc-div'),
-      realEstate:Gval('realEstate'),healthInc:Gval('healthInc'),revTarget:Gval('rev-target'),
+      realEstate:Gval('realEstate'),healthCar:Gval('healthCar'),healthInc:Gval('healthInc'),revTarget:Gval('rev-target'),
       healthApplySim:G('healthApplySim')?.checked,healthRetireOnly:G('healthRetireOnly')?.checked,
       dcDirectBal:Gval('dc-direct-bal'),dcRROverride:Gval('dc-rr-override'),salaryDay:Gval('salaryDay'),hpOn:G('hpOn')?.checked,hpPrice:Gval('hpPrice'),hpStartAge:Gval('hpStartAge'),hpMode:Gval('hpMode')},
     dcHoldings,accounts,loans,insurances,lumpEvents};
