@@ -280,6 +280,12 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 @media(max-width:1100px){.sgrids{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:1fr 1fr;}}
 @media(max-width:700px){.g2,.g3{grid-template-columns:1fr;}.sgrids{grid-template-columns:1fr 1fr;}}
 .inv-slots-block{width:100%;min-width:0;box-sizing:border-box;}
+.legal-asof-note{display:block;color:#8ecfff;font-size:11px;line-height:1.55;border-left:3px solid var(--goldd);padding:6px 10px;margin:6px 0 0 0;background:rgba(80,150,230,.14);border-radius:0 8px 8px 0;}
+.job-type-card{padding:12px 14px!important;margin-bottom:10px!important;}
+.job-type-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0!important;}
+.job-type-row .job-type-lbl{flex:0 0 auto;margin:0!important;font-size:15px!important;line-height:1.3;}
+.job-type-row .job-type-sel{flex:1 1 240px;min-width:min(100%,220px);max-width:100%;margin:0!important;}
+#jobType-hint{margin-top:6px!important;font-size:12px!important;line-height:1.5;}
 .acct-end-wide{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:100%;align-items:start;}
 @media(max-width:900px){.acct-end-wide{grid-template-columns:1fr;}}
 /* 연금저축: ISA 계좌와 동일한 폭·섹션 리듬으로 투자 슬롯 묶음 */
@@ -304,6 +310,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
   --t1:#1b2a3a;--t2:#3a5470;--t3:#6d839b;
   --bd:#d0ddeb;--bdl:#bfd2e5;--ibg:#f7fbff;--ibd:#b5cce3;--ifocus:#2f7de1;
 }
+:root[data-theme="light"] .legal-asof-note{color:#0d4f7a;background:rgba(25,120,200,.12);border-left-color:var(--goldl);}
 html{font-size:18px;}
 body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 .hdr{padding:14px 20px;gap:12px;}
@@ -363,7 +370,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:42</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:56</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -395,19 +402,19 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 
 <!-- ════ 기본정보 ════ -->
 <div id="tab-basic" class="panel on">
-  <div class="card" style="margin-bottom:10px;">
-    <div class="ctitle">⚙ 직업군 선택</div>
-    <div class="g3" style="margin-bottom:4px;">
-      <label class="fl" style="font-size:12px;">현재 주 소득 형태</label>
-      <select class="fs" id="jobType" onchange="onJobTypeChange()">
+  <div class="card job-type-card">
+    <div class="ctitle" style="margin-bottom:8px;">⚙ 직업군 선택</div>
+    <div class="frow job-type-row" style="align-items:center;">
+      <label class="fl job-type-lbl" for="jobType">현재 주 소득 형태</label>
+      <select class="fs job-type-sel" id="jobType" onchange="onJobTypeChange()">
         <option value="employee" selected>직장인 (급여소득)</option>
         <option value="researcher">연구원·R&D (과학기술인공제 등)</option>
         <option value="civil">공무원·교직·군인 등 공적연금 대상</option>
         <option value="self">자영업·프리랜서</option>
         <option value="retired">은퇴·무직 (연금·임대·투자소득 중심)</option>
       </select>
-      <div class="hint" id="jobType-hint" style="grid-column:1/-1;font-size:11px;"></div>
     </div>
+    <div class="hint" id="jobType-hint"></div>
   </div>
   <div class="g3" id="basic-grid">
     <div class="card">
@@ -660,7 +667,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         <input id="dc-quick-code" class="fi" placeholder="종목코드 예) 379810" style="width:150px;padding:4px 8px;font-size:12px;">
         <button class="btn btn-blue btn-sm" onclick="dcQuickAdd()">＋ 조회·추가</button>
         <button class="btn btn-sec btn-sm" id="dcFetchAllBtn" onclick="fetchDCPrices()">🔄 전체 갱신</button>
-        <span style="font-size:11px;color:var(--t2)">종목코드 입력 후 조회·추가 → 현재가·CAGR·배당률 자동반영</span>
+        <span style="font-size:11px;color:var(--t2);max-width:520px;line-height:1.45;">종목코드 입력 후 조회·추가 → <b>현재가·CAGR·배당률</b>은 Yahoo 등 시세 API(브라우저 CORS·프록시)로 가져옵니다. <b>API·네트워크가 막히면</b> 수동 입력만 가능합니다.</span>
       </div>
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
         <div class="frow" style="margin:0;min-width:200px;">
@@ -743,6 +750,22 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
   <div class="card" style="border-color:rgba(59,143,232,.22);">
     <div class="ctitle">🎯 퇴직연금·IRP 디폴트옵션 &amp; 위험등급</div>
     <div id="reg-def-opt-body" class="al al-i" style="font-size:12px;line-height:1.6;"></div>
+    <div id="reg-def-opt-tools" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bdl);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;">
+      <span style="color:var(--t2);font-weight:600;">시뮬 반영:</span>
+      <label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--t2);">
+        <span>참고 등급(1~5)</span>
+        <select class="fi" id="dc-default-grade" style="max-width:72px;padding:6px 8px;font-size:14px;min-height:40px;">
+          <option value="">—</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </label>
+      <button type="button" class="btn btn-sec btn-sm" onclick="applyDefaultOptGradeToIrp()">첫 퇴직IRP 수익률(연%)에 적용</button>
+      <span class="hint" style="margin:0;max-width:100%;">위 표의 <b>비보장형 참고 구간 중앙값</b>을 넣습니다. 여러 계좌면 직접 조정하세요.</span>
+    </div>
   </div>
   <div class="card" style="border-color:rgba(155,111,224,.25);">
     <div class="ctitle">💴 월 투자 현황 &amp; 🎯 절세 자동배분
@@ -805,10 +828,14 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         <option value="DEPOSIT">예금·적금</option>
         <option value="GENERAL">일반계좌</option>
       </optgroup>
+      <optgroup label="복지·서민(요건 확인)">
+        <option value="HOPE_SAVE_I">희망저축계좌 I</option>
+        <option value="HOPE_SAVE_II">희망저축계좌 II</option>
+        <option value="DISABLED">장애인전용저축</option>
+      </optgroup>
       <optgroup label="특수">
         <option value="YELLOW_UMBRELLA">노란우산공제 — 사업자 소득공제</option>
         <option value="YOUTH_LEAP">청년도약계좌</option>
-        <option value="DISABLED">장애인전용저축</option>
         <option value="CUSTOM">사용자정의 ★</option>
       </optgroup>
     </select>
@@ -1535,6 +1562,8 @@ const AMETA={
   GENERAL:     {label:'일반계좌',       color:'#7f8c8d', al:0,        cat:'FREE'},
   YOUTH_LEAP:  {label:'청년도약',      color:'#27ae60', ml:700000,   cat:'YOUTH'},
   YELLOW_UMBRELLA:{label:'노란우산공제', color:'#c9a227', al:0,        cat:'FREE'},
+  HOPE_SAVE_I: {label:'희망저축계좌 I', color:'#3498db', al:0,        cat:'FREE'},
+  HOPE_SAVE_II:{label:'희망저축계좌 II',color:'#2980b9', al:0,        cat:'FREE'},
   DISABLED:    {label:'장애인전용',    color:'#8e44ad', al:24000000, cat:'DISABLED'},
   CUSTOM:      {label:'사용자정의',    color:'#a06040', al:0,        cat:'CUSTOM'}
 };
@@ -1549,6 +1578,8 @@ const ACCT_INFO={
   'IRP_ACCUM': '📅 2026.01 기준 안내 | 추가 납입 소득공제 연 300만(합산 1,800만 내) | 과세이연 적립 | 중도인출·해지 시 과세 주의 | ❌ →퇴직IRP·ISA 직접 불가',
   'IRP_RETIRE': '📅 2026.01 기준 안내 | 퇴직급여 등 이연 적립 전용 | 수령 시 이연퇴직·기타연금 구분 | ✅ 연금저축(요건)·적립IRP에서 이전 가능 | ❌ →ISA',
   'YELLOW_UMBRELLA':'📅 소상공인 등 노란우산공제 | 납입액 소득공제(종합소득금액 구간별 한도 차등) | 가입·납입 한도·지급은 공제회 | 본 행은 시뮬 상 일반 저축과 동일 처리',
+  'HOPE_SAVE_I':'📅 희망저축계좌 I — 소득·가구 요건 등 가입 대상 제한(복지·고용부·은행 안내) | 정부적립·인센티브는 약관·연도별 제도에 따름 | 시뮬은 잔액·납입만 반영',
+  'HOPE_SAVE_II':'📅 희망저축계좌 II — I형과 구분되는 요건·한도(기관 안내) | 시뮬은 잔액·납입만 반영',
   'CMA': '💡 수시입출금 | 하루이자 지급 | 이자소득세 15.4% | 제약 없음 (자유로운 이동 가능)',
   'STOCKS': '💡 배당소득세 15.4% | 매매차익 비과세 | ✅이전가능: 자유롭게 다른 계좌로 이전',
   'YOUTH_LEAP': '💡 정부기여금 월 최대 3.3만원 | 비과세 | 5년 유지 조건 | 중도해지 시 기여금 반환',
@@ -1620,7 +1651,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:42';
+const PUBLISH_STAMP='2026.04.02 19:56';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -3266,11 +3297,11 @@ function addAcctD(type,bal,mo,rr,active){
     // 월배당 설정 슬롯 (2개)
     investSlots:[
       {mode:'holdings',startAge:0,endAge:0},
-      {mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'},
+      {mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''},
     ],
     divSlots:[
-      {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},
-      {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}
+      {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0,divTicker:'',divName:''},
+      {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0,divTicker:'',divName:''}
     ],
     divAllocPct:0,divMonthlyRate:0, // 레거시 (하위호환)
     acctEndAge:'',acctEndAction:'keep',acctEndTarget:'',
@@ -3985,7 +4016,7 @@ function renderInvestSlotsEl(acctId){
 function addInvestSlot(acctId){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   if(!a.investSlots)a.investSlots=[{mode:'holdings',startAge:0,endAge:0}];
-  a.investSlots.push({mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'});
+  a.investSlots.push({mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''});
   renderInvestSlotsEl(acctId);
   toast('✅ 슬롯 추가됨 (슬롯 '+a.investSlots.length+'개)');
 }
@@ -3995,6 +4026,7 @@ function removeInvestSlot(acctId,si){
   renderInvestSlotsEl(acctId);
 }
 function renderInvestSlots(a){
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
   const projBal=getAcctProjectedBal(a);
   const cat=(AMETA[a.type]||{}).cat;
   const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(cat);
@@ -4059,6 +4091,15 @@ function renderInvestSlots(a){
             </select>
             <div class="ka" style="color:var(--teal);font-size:11px;">${afterTax>0?wf(afterTax)+'원/월':''}</div>
           </div>
+          <div class="hld-search-row" style="margin-top:8px;">
+            <input id="divq-${a.id}-${si}" class="fi" placeholder="배당 기준 ETF·주식 (코드 또는 명)" style="padding:4px 8px;font-size:12px;"
+              value="${esc(sl.divTicker?(String(sl.divName||'')+(sl.divName?' · ':'')+sl.divTicker):'')}"
+              data-code="${esc(sl.divTicker||'')}"
+              oninput="void etfAutocomplete('divq-${a.id}-${si}','divqlist-${a.id}-${si}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn btn-blue btn-xs" onclick="quickAddDivFromInput('${a.id}',${si},'divq-${a.id}-${si}')">📡 조회·배당률</button>
+          </div>
+          <div id="divqlist-${a.id}-${si}" style="display:none;"></div>
+          ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;">연동 종목: <b>${esc(sl.divName||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
         </div>
       `:`
         <div style="position:relative;">
@@ -4112,8 +4153,8 @@ function APInvest(acctId,si,field,val){
   if(!a.investSlots)a.investSlots=[{mode:'holdings',startAge:0,endAge:0}];
   while(a.investSlots.length<=si)a.investSlots.push({mode:'holdings',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'});
   a.investSlots[si][field]=val;
-  // divSlots 동기화
-  a.divSlots=a.investSlots.filter(s=>s.mode==='div').map(s=>({allocPct:s.allocPct||0,rate:s.rate||0,rateMode:s.rateMode||'annual',freq:s.freq||'monthly',startAge:s.startAge||0,endAge:s.endAge||0}));
+  // divSlots 동기화 (배당 슬롯 종목 코드·명은 시뮬 계산에는 미사용, 표시·조회용)
+  a.divSlots=a.investSlots.filter(s=>s.mode==='div').map(s=>({allocPct:s.allocPct||0,rate:s.rate||0,rateMode:s.rateMode||'annual',freq:s.freq||'monthly',startAge:s.startAge||0,endAge:s.endAge||0,divTicker:s.divTicker||'',divName:s.divName||''}));
   if(field==='mode') renderInvestSlotsEl(acctId);
   else patchInvestSlotSummary(acctId);
   autoSave();
@@ -4149,6 +4190,51 @@ async function quickAddHFromInput(acctId, inputId){
   if(info.divYield!=null&&info.divYield>0)a.holdings[hi].divYield=info.divYield;
   refreshHoldings(); // 가격 조회 후 재렌더
   toast(info.price?'✅ '+name+' 추가 (현재가 '+wf(info.price)+'원)':'✅ '+name+' 추가됨 (가격 조회 실패)');
+}
+
+async function quickAddDivFromInput(acctId, si, inputId){
+  const inp=G(inputId);if(!inp)return;
+  const rawVal=(inp.value||'').trim();
+  if(!rawVal){toast('종목코드 또는 종목명을 입력하세요');return;}
+  const code=(inp.dataset&&inp.dataset.code)?String(inp.dataset.code).trim():'';
+  const resolved=code||NMAP[rawVal]||(/^\d{6}$/.test(rawVal.replace(/\s/g,''))?rawVal.replace(/\s/g,''):'');
+  if(!resolved){toast('6자리 코드 또는 목록에서 종목을 선택하세요');return;}
+  const name=TMAP[resolved]||rawVal;
+  APInvest(acctId,si,'divTicker',resolved);
+  APInvest(acctId,si,'divName',name);
+  toast('📡 배당률 조회 중...');
+  const info=await fetchStockInfo(resolved);
+  if(info&&info.divYield!=null&&+info.divYield>0)
+    APInvest(acctId,si,'rate',Math.round(+info.divYield*10)/10);
+  inp.value=(name?name+' · ':'')+resolved;
+  if(inp.dataset)inp.dataset.code=resolved;
+  renderInvestSlotsEl(acctId);
+  toast(info&&info.divYield>0?`✅ ${name} 연 배당률 반영(참고)`:'종목은 저장됨. 배당률은 수동 입력하거나 네트워크를 확인하세요.');
+}
+
+function applyDefaultOptGradeToIrp(){
+  const g=parseInt(Gval('dc-default-grade'),10)||0;
+  const map={1:3.2,2:4.5,3:6,4:8,5:9.5};
+  const rr=map[g];
+  if(!rr){toast('1~5 등급을 선택하세요');return;}
+  const t=(accounts||[]).find(a=>a.active&&a.type==='IRP_RETIRE');
+  if(!t){toast('활성 퇴직IRP 계좌가 없습니다.');return;}
+  t.returnRate=rr;
+  renderAccts();
+  try{runSim();}catch(_){}
+  toast(`「${t.label}」수익률을 ${rr}%/년(참고·등급 ${g})로 설정했습니다.`);
+}
+
+function updateSalaryDayHint(){
+  const el=G('salary-day-hint');
+  if(!el)return;
+  const jt=Gval('jobType')||'employee';
+  if(jt==='civil'){
+    el.innerHTML='많은 중앙·지방·교육청이 <b>매월 20일경</b> 급여를 지급합니다(군·경찰·소방 등 기관별 상이). '+
+      '<button type="button" class="btn btn-xs btn-sec" onclick="Gv(\'salaryDay\',\'20\');onSalaryDay();">20일로 맞추기</button>';
+  }else{
+    el.innerHTML='';
+  }
 }
 
 function checkDivRateInline(inp, si, acctId){
@@ -7500,7 +7586,7 @@ function onJobTypeChange(){
     }else if(jt==='researcher'){
       h.textContent='연구개발 인력 등 급여소득을 전제로 합니다. 과학기술인공제회 납입·퇴직연금(DC 등)은 계좌 탭에서 별도 반영하고, 세제는 공제회·국세청 안내를 확인하세요.';
     }else if(jt==='civil'){
-      h.textContent='공무원·교직·군인 등 공적연금 대상자입니다. 공단 예상연금 안내와 퇴직수당을 참고해 공적연금 월수령과 은퇴 후 기타 소득을 입력해 주세요.';
+      h.innerHTML='공무원·교직·군·경찰·소방 등 <b>공적연금</b> 대상입니다. <b>호봉·계급</b>은 기관 봉급표로 정해지나, 이 시뮬은 <b>연간 세전 보수 총액</b>만 쓰므로 급·호봉 칸은 두지 않습니다. 연봉 칸에 예상 연보수를 넣으면 됩니다. 공적연금 월액은 아래 칸·국민연금 카드에 반영하세요.';
     }else if(jt==='self'){
       h.textContent='자영업·프리랜서 등 사업·프리랜스 소득자입니다. 최근 3년 평균 연소득(세전)과 변동성을 고려해 세전 월소득을 넣고, 세부 세금은 종합소득 신고 기준으로 별도 점검하는 것이 좋습니다.';
     }else{
@@ -7533,6 +7619,7 @@ function onJobTypeChange(){
   onSalary();
   try{updateJobScenarioPresetHint();}catch(_){}
   try{renderJobAcctGuide();}catch(_){}
+  try{updateSalaryDayHint();}catch(_){}
 }
 
 /** Refresh holdings overview table + sim comparison strip (no separate yearly table / chart). */
