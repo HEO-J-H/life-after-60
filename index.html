@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 07:03</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 18:37</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -509,6 +509,17 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
             <div class="ro-input-shell">
               <input class="fi mono" id="retireOther" type="number" value="0" oninput="ka(this,'ka-ro');updateRetireOtherHealthHint();renderNP();">
               <div class="ka" id="ka-ro"></div>
+            </div>
+            <div id="civil-pension-row" style="display:none;margin-top:8px;">
+              <label class="fl">공적연금 예상 월수령액 (원) · 공무원/교직/군인 모드</label>
+              <div class="ro-input-shell">
+                <input class="fi mono" id="civilPensionMo" type="number" value="1800000" oninput="onCivilPensionInput()">
+                <div class="ka" id="ka-civil-pension"></div>
+              </div>
+              <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t2);margin-top:4px;">
+                <input type="checkbox" id="civilPensionAuto" checked onchange="syncCivilPensionToRetireOther(false)">
+                은퇴 후 기타 월소득에 자동 반영
+              </label>
             </div>
             <div id="ro-health-hint" class="ro-health-hint" aria-live="polite"></div>
           </div>
@@ -1485,6 +1496,7 @@ const SHEET_REF={
     jobType:'employee', // employee | civil | self | retired
     birthDate:'1980-01-01',curAge:'46',retireAge:'65',lifeExp:'90',
     salary:'50000000',salGrowth:'3',salaryDay:'25',taxBracket:'low',retireOther:'0',
+    civilPensionMo:'1800000',civilPensionAuto:true,
     mExp:'2000000',rExp:'1800000',inf:'2.5',sw:'4',target:'0',
     npBase:'1200000',npAge:'65',
     sevType:'DC',workYrs:'15',dbSal:'0',manSev:'50000000',sevTarget:'IRP_RETIRE',
@@ -1535,7 +1547,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 07:03';
+const PUBLISH_STAMP='2026.04.02 18:37';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -1576,6 +1588,7 @@ window.onload=()=>{
   renderLumpEvents();
   syncRevTargetSlider();
   attachAutoMoneyHints(document);
+  onJobTypeChange();
   if(G('lump-amt')&&G('ka-lump-amt'))G('ka-lump-amt').textContent=toKor(parseFloat(Gval('lump-amt'))||0);
   setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
 };
@@ -6568,7 +6581,7 @@ function getProfile(){
     b:{jobType:Gval('jobType')||'employee',
       birthDate:Gval('birthDate'),curAge:Gval('curAge'),retireAge:Gval('retireAge'),
       lifeExp:Gval('lifeExp'),salary:Gval('salary'),salGrowth:Gval('salGrowth'),
-      retireOther:Gval('retireOther'),expOn:G('expOn')?.checked,
+      retireOther:Gval('retireOther'),civilPensionMo:Gval('civilPensionMo'),civilPensionAuto:G('civilPensionAuto')?.checked,expOn:G('expOn')?.checked,
       mExp:Gval('mExp'),rExp:Gval('rExp'),inf:Gval('inf'),sw:Gval('sw'),target:Gval('target'),
       npBase:Gval('npBase'),npAge:Gval('npAge'),divGrowthRate:Gval('divGrowthRate'),
       sevType:Gval('sevType'),workYrs:Gval('workYrs'),dbSal:Gval('dbSal'),
@@ -6644,7 +6657,7 @@ function applyProfile(p){
     const kaDcBal=G('ka-dc-bal');if(kaDcBal)kaDcBal.textContent=toKor(dcBal);
     calcDB();
   },50);
-  updateTax();updateBudBar();renderNP();onSalary();calcDB();calcTarget();
+  updateTax();updateBudBar();renderNP();onJobTypeChange();calcDB();calcTarget();
   const kra=G('ka-ro'),roI=G('retireOther');if(kra&&roI)kra.textContent=toKor(parseFloat(roI.value)||0);
   if(G('taxReinvest')&&b.taxReinvest!==undefined)G('taxReinvest').checked=!!b.taxReinvest;
   const trt=G('taxReinvestTgt');
@@ -7030,11 +7043,32 @@ function populateHldTicker(){
   calcHolding();
 }
 
+function syncCivilPensionToRetireOther(force){
+  const jt=(Gval('jobType')||'employee');
+  if(jt!=='civil')return;
+  const auto=G('civilPensionAuto')?.checked===true;
+  if(!auto)return;
+  const src=Math.max(0,parseFloat(Gval('civilPensionMo'))||0);
+  const ro=Math.max(0,parseFloat(Gval('retireOther'))||0);
+  if(force||ro===0){
+    Gv('retireOther',String(Math.round(src)));
+    if(G('ka-ro'))G('ka-ro').textContent=toKor(src);
+    updateRetireOtherHealthHint();
+    renderNP();
+  }
+}
+function onCivilPensionInput(){
+  ka(G('civilPensionMo'),'ka-civil-pension');
+  syncCivilPensionToRetireOther(true);
+}
+
 function onJobTypeChange(){
   const jt=(Gval('jobType')||'employee');
   const h=G('jobType-hint');
   const imh=G('income-mode-hint');
   const sl=G('salary-label');
+  const cpr=G('civil-pension-row');
+  if(cpr)cpr.style.display=(jt==='civil')?'':'none';
   if(h){
     if(jt==='employee'){
       h.textContent='급여소득 중심 직장인 기준입니다. 연봉(세전)과 연봉상승률을 기준으로 월 실수령과 퇴직·연금 납입을 계산합니다.';
@@ -7059,10 +7093,11 @@ function onJobTypeChange(){
   }
   if(sl){
     if(jt==='employee')sl.textContent='현재 연봉 (원)';
-    else if(jt==='civil')sl.textContent='최근 연간 세전 소득 (원)';
+    else if(jt==='civil')sl.textContent='최근 연간 세전 보수 (원)';
     else if(jt==='self')sl.textContent='최근 3년 평균 연간 소득 (원)';
     else sl.textContent='참고용 연간 세전 소득 (원, 선택 입력)';
   }
+  if(jt==='civil')syncCivilPensionToRetireOther(false);
   // 직업군이 바뀌면 소득 계산도 다시 실행해 요약을 최신화
   onSalary();
 }
