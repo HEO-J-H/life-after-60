@@ -363,7 +363,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:26</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:33</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -703,23 +703,24 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="ctitle">⚔️ 절세 삼총사 — ISA · IRP · 연금저축
       <div class="ctr"><button class="btn btn-sec btn-xs" onclick="G('tax-trio-detail').style.display=G('tax-trio-detail').style.display==='none'?'':'none'">자세히 보기</button></div>
     </div>
+    <p style="font-size:10px;color:var(--t3);margin:0 0 6px 0;">※ 아래는 <b>2026년 1월 기준</b> 조세특례제한법·소득세법 상 <b>흔한 안내 요지</b>입니다. 개인별 소득·합산 공제·연도별 개정은 <a href="https://www.hometax.go.kr" target="_blank" rel="noopener">홈택스</a>·국세청 해설을 확인하세요.</p>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">
       <div style="background:rgba(59,143,232,.08);border-radius:6px;padding:8px;text-align:center;">
         <div style="font-size:13px;font-weight:700;color:var(--blue)">1️⃣ ISA</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">비과세 200만<br>3년 만기 후<br>연금계좌 이전</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">금융투자소득<br>일반형 순이익 <b>연 200만</b> 비과세 한도 등<br><small style="color:var(--t3)">조특법 별표</small></div>
       </div>
       <div style="background:rgba(155,111,224,.08);border-radius:6px;padding:8px;text-align:center;">
         <div style="font-size:13px;font-weight:700;color:var(--purple)">2️⃣ 연금저축</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">세액공제 최대<br>99만원/년<br>55세+ 연금수령</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">납입액 <b>소득공제</b> 연 <b>600만</b> 한도<br>환급효과는 <b>13.2~16.5%</b>p대<br><small style="color:var(--t3)">55세·가입기간 등 수령 요건</small></div>
       </div>
       <div style="background:rgba(232,135,59,.08);border-radius:6px;padding:8px;text-align:center;">
         <div style="font-size:13px;font-weight:700;color:var(--orange)">3️⃣ IRP</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6">추가공제 49만<br>퇴직금 이전<br>세금 이연</div>
+        <div style="font-size:11px;color:var(--t2);margin-top:3px;line-height:1.6"><b>추가</b> 납입 소득공제 연 <b>300만</b><br>연금·IRP <b>합산 1,800만</b> 상한<br><small style="color:var(--t3)">퇴직IRP는 이전 전용</small></div>
       </div>
     </div>
     <div id="tax-trio-detail" style="display:none;">
       <div class="al al-i" style="font-size:12px;color:var(--t1);">
-        <b>💡 최적 납입 순서</b>: ① ISA(연 2천만) → ② 연금저축(연 600만) → ③ IRP(연 300만)<br><br>
+        <b>💡 납입 우선순위(참고)</b>: 세율·현금흐름·의무가입기간에 따라 최적 순서는 달라질 수 있습니다. 흔히 <b>연금저축·적립IRP(공제)</b>와 <b>ISA(비과세·유동성)</b>를 함께 검토합니다.<br><br>
         <b>💰 인출 순서 (세금 0원 먼저!)</b><br>
         ① <span style="color:var(--green)">과세제외 원금</span> (세금 0%) — 세액공제 안 받은 돈<br>
         ② <span style="color:var(--orange)">이연퇴직소득</span> — 퇴직금 이체금, 세율 퇴직소득세 60~70%<br>
@@ -728,6 +729,14 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         선택: 종합과세(6~45%) vs 분리과세(16.5%) 중 유리한 쪽 선택 가능<br>
         ISA에서 수령하면 비과세 → 이 금액은 1,500만원 계산에서 제외!
       </div>
+    </div>
+  </div>
+  <div class="card" style="border-color:rgba(43,191,176,.28);">
+    <div class="ctitle">🧭 직업군 맞춤 계좌 <span class="badge" style="background:rgba(43,191,176,.2);color:var(--teal)">법령 요약·2026.01</span></div>
+    <div id="job-acct-guide" class="al al-i" style="font-size:12px;line-height:1.6;margin-bottom:8px;"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button type="button" class="btn btn-green btn-sm" onclick="addJobSuggestedAccounts()">맞춤 계좌 빠르게 추가</button>
+      <span class="hint" style="margin:0;">기본정보 탭의 직업군에 맞춰 없는 유형만 덧붙입니다. 월납입은 예시입니다.</span>
     </div>
   </div>
   <div class="card" style="border-color:rgba(155,111,224,.25);">
@@ -769,7 +778,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div id="auto-budget-preview" style="display:none;background:var(--bg2);border-radius:6px;padding:10px;font-size:12px;margin-top:6px;"></div>
   </div>
   <div class="al al-i" style="font-size:12px;margin-bottom:8px;">
-    💡 직접 추가: ① ISA(비과세) → ② 연금저축(세액공제) → ③ IRP(추가공제) 순으로 채우는 게 유리합니다.
+    💡 직접 추가: 세율·현금흐름에 따라 다르지만, 흔히 <b>연금저축·적립IRP(소득공제)</b>와 <b>ISA(비과세 한도·유동성)</b>를 함께 검토합니다. 위 <b>직업군 맞춤 계좌</b> 참고(2026.01 기준 안내).
   </div>
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
     <select class="fs" id="newAcct" style="max-width:300px;">
@@ -1332,7 +1341,8 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
           <b>Gemini (무료)</b> → <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">aistudio.google.com</a> (AIza...)<br>
           <b>ChatGPT</b> → <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--blue)">platform.openai.com</a> (sk-...)<br>
           <span style="color:var(--orange)">⚠ <b>AI 작동 조건</b>: HTML 파일을 PC에 저장 후 Chrome/Edge로 직접 실행하거나, Netlify/Vercel 등에 배포해야 합니다.<br>
-          claude.ai·미리보기 환경에서는 외부 API가 CORS로 차단됩니다.</span>
+          claude.ai·미리보기 환경에서는 외부 API가 CORS로 차단됩니다.</span><br>
+          <span style="color:var(--t2);font-size:11px;margin-top:6px;display:inline-block;"><b>안정화 팁</b>: 종합 분석은 1~2분 걸릴 수 있습니다. <b>「AI 추천 vs 내 계획」</b>은 분석 후 JSON이 있을 때 빠릅니다. 재무 상담은 <b>짧은 질문을 여러 번</b> 나누는 것이 응답 품질에 유리합니다. 제도 설명은 <b>2026년 1월 기준</b> 일반 안내이며 확정 세액은 홈택스로 확인하세요.</span>
         </div>
         <div class="frow"><label class="fl">분석 중점</label>
           <select class="fs" id="aiFocus">
@@ -1363,7 +1373,9 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       </div>
       <div class="card" id="ai-cmp-card" style="display:none;">
         <div class="ctitle">⚡ 내 계획 vs AI 추천</div>
+        <p class="hint" style="margin:0 0 8px 0;">① <b>AI 분석 시작</b>으로 JSON 제안을 받은 뒤 ② 이 비교를 실행하세요. 그래프는 시뮬 기준이며, 해설은 참고용입니다 <span style="color:var(--t3)">(2026.01 제도 일반 안내)</span>.</p>
         <div class="cw" style="height:250px;"><canvas id="cmpChart"></canvas></div>
+        <div id="ai-cmp-narrative" style="display:none;margin-top:10px;"></div>
         <div id="cmp-stats" style="margin-top:10px;"></div>
       </div>
     </div>
@@ -1518,13 +1530,13 @@ const AMETA={
 };
 const DIV_TAX_RATE=0.154; // 일반계좌 배당소득세 15.4%
 const ACCT_INFO={
-  'ISA_BRK': '💡 비과세 200만원 | 연 2천만원 한도 | 3년 만기 가능 | ✅이전가능: 연금저축·IRP (만기후, 10% 추가세액공제) | ❌이전불가: ISA→연금저축→ISA 순환 불가',
-  'ISA_GEN': '💡 비과세 200만원 | 연 2천만원 한도 | ✅이전가능: 연금저축·IRP | ❌이전불가: 연금저축→ISA 불가',
-  'ISA_WKR': '💡 비과세 400만원 (서민형) | ✅이전가능: 연금저축·IRP | ❌이전불가: 연금저축→ISA 불가',
-  'PENSION_FUND': '💡 세액공제 13.2~16.5% | IRP 포함 연 1800만원 | 55세+5년 조건 충족 시 연금수령 (3.3~5.5%) | ✅이전가능: 적립IRP← / ❌이전불가: 연금저축→ISA, →퇴직IRP 직접불가',
-  'PENSION_INS': '💡 세액공제 13.2~16.5% | 55세+5년 조건 충족 시 연금수령 | ✅이전가능: 적립IRP← | ❌이전불가: ISA→',
-  'IRP_ACCUM': '💡 추가 세액공제 최대 300만원 | 연 1800만원 한도 | 55세+5년 연금수령 | ✅이전가능: 연금저축→ | ❌이전불가: →퇴직IRP, →ISA, 중도해지 시 16.5%',
-  'IRP_RETIRE': '💡 퇴직금 이전 전용 | ✅이전가능: 연금저축→(55세이후), 적립IRP→ | ❌이전불가: →ISA | DC/DB형에서 자동 연동',
+  'ISA_BRK': '📅 2026.01 기준 안내 | 금융투자소득 비과세 한도(일반형 순이익 200만 등) | 납입 상한 등 조특법 | 의무가입기간·만기 이후 연금계좌 이전 시 추가 공제 등은 세법·기관 안내 | ❌ ISA↔연금 순환 제한',
+  'ISA_GEN': '📅 2026.01 기준 안내 | 일반형 ISA — 중개형 등 유형별 약관 확인 | ✅ 만기 후 연금저축·IRP 이전 가능(요건) | ❌ 연금저축→ISA 불가',
+  'ISA_WKR': '📅 2026.01 기준 안내 | 서민형 등 비과세 한도 확대 요지(별표) | 이전·의무기간은 일반형과 유사하게 검토 | ❌ 연금저축→ISA 불가',
+  'PENSION_FUND': '📅 2026.01 기준 안내 | 납입액 소득공제 · IRP와 합산 납입 1,800만 상한 등 | 세액 환산 13.2~16.5%p는 과세표준 구간별 | 55세·가입기간 등 연금수령 요건 | ✅ 적립IRP 이전 | ❌ →ISA, 퇴직IRP 직접 이전 불가',
+  'PENSION_INS': '📅 2026.01 기준 안내 | 연금저축과 동일 세제 틀(보험) | 수령 요건·약관 확인 | ✅ 적립IRP 이전',
+  'IRP_ACCUM': '📅 2026.01 기준 안내 | 추가 납입 소득공제 연 300만(합산 1,800만 내) | 과세이연 적립 | 중도인출·해지 시 과세 주의 | ❌ →퇴직IRP·ISA 직접 불가',
+  'IRP_RETIRE': '📅 2026.01 기준 안내 | 퇴직급여 등 이연 적립 전용 | 수령 시 이연퇴직·기타연금 구분 | ✅ 연금저축(요건)·적립IRP에서 이전 가능 | ❌ →ISA',
   'CMA': '💡 수시입출금 | 하루이자 지급 | 이자소득세 15.4% | 제약 없음 (자유로운 이동 가능)',
   'STOCKS': '💡 배당소득세 15.4% | 매매차익 비과세 | ✅이전가능: 자유롭게 다른 계좌로 이전',
   'YOUTH_LEAP': '💡 정부기여금 월 최대 3.3만원 | 비과세 | 5년 유지 조건 | 중도해지 시 기여금 반환',
@@ -1596,7 +1608,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:26';
+const PUBLISH_STAMP='2026.04.02 19:33';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -6203,6 +6215,18 @@ function doExcel(){
 }
 
 // ═══════════ AI ═══════════
+/** Compact regulatory context for prompts (not legal advice). */
+function buildAIRegulatoryBlock(){
+  const jt=Gval('jobType')||'employee';
+  const jtK={employee:'직장인(급여소득)',civil:'공무원·교직·군인 등 공적연금 병행',self:'자영업·프리랜서(종합소득)',retired:'은퇴·기타소득 중심'}[jt]||jt;
+  return `[법령·제도 요약 — 2026년 1월 기준 일반 안내, 개인별 상이]
+직업군(기본정보): ${jtK}
+· 연금저축(펀드·보험)·적립IRP: 납입액 소득공제(연간 한도·연금/IRP 합산 납입 상한 등은 소득세법·조세특례제한법)
+· 퇴직IRP: 퇴직급여 등의 이연 적립, 수령 시 이연퇴직·기타연금 과세 구분
+· ISA: 금융투자소득 비과세 한도·의무가입기간·분리과세·금융소득 종합과세와의 관계(조특법)
+답변에는 계좌 유형별로 위를 연결해 설명하고, 확정 세액·법률 자문이 아님을 명시. 홈택스·국세청·가입 기관 최종 확인.`;
+}
+
 function buildPrompt(){
   const retA=parseInt(Gval('retireAge'))||60,rRow=simY.find(r=>r.age===retA);
   const tgt=parseFloat(Gval('target'))||0,sw=(parseFloat(Gval('sw'))||4)/100;
@@ -6215,7 +6239,9 @@ function buildPrompt(){
     : `목표자산:자동(안전인출률 ${Math.round(sw*1000)/10}% 기준)`;
   const focus=(Gval('aiFocus')||'overall');
   const isOverall=focus==='overall';
-  return `당신은 AI 재무설계사입니다. 분석: ${focMap[focus]||'종합'}
+  return `${buildAIRegulatoryBlock()}
+
+당신은 한국 세제·연금 제도에 익숙한 AI 재무설계사입니다. 분석: ${focMap[focus]||'종합'}
 
 반드시 지켜야 할 출력 규칙:
 - 전반적 종합분석이면 반드시 "리포트 형식"으로 작성 (짧은 요약 금지)
@@ -6258,7 +6284,7 @@ ${isOverall?`아래 섹션 제목을 그대로 사용해 보고서 형태로 작
 [상위1% 운용 전략]
 [실행 로드맵(즉시/1년/은퇴전)]
 [다음 실행 3가지]
-분량: 최소 1,400자 이상(반드시 충족).`:`1. 📊 포트폴리오 등급(A~F) + 핵심근거 3줄
+분량: 약 900~1,600자(9개 섹션 각각 최소 2~3문장, 잘리지 않게).`:`1. 📊 포트폴리오 등급(A~F) + 핵심근거 3줄
 2. ⚠️ 핵심 위험 요소
 3. 💡 개선 제안 3~5가지
 4. 🎯 은퇴 달성 가능성
@@ -6289,7 +6315,7 @@ async function callAI(prompt,opts={}){
     const method=String((opts&&opts.method)||'GET').toUpperCase();
     const isPost=method!=='GET'&&method!=='HEAD';
     const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),isPost?90000:50000);
+    const tid=setTimeout(()=>ctrl.abort(),isPost?120000:55000);
     try{
       const r=await fetch(url,{...opts,signal:ctrl.signal,mode:'cors'});
       clearTimeout(tid);
@@ -6336,7 +6362,7 @@ async function callAI(prompt,opts={}){
           {method:'POST',headers:{'Content-Type':'application/json'},
            body:JSON.stringify({
              contents:[{role:'user',parts:[{text:prompt}]}],
-             generationConfig:{maxOutputTokens:4200,temperature:0.7}
+             generationConfig:{maxOutputTokens:8192,temperature:0.55}
            })}
         );
 
@@ -6391,7 +6417,7 @@ async function callAI(prompt,opts={}){
       const resp=await safeFetch('https://api.openai.com/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-        body:JSON.stringify({model:'gpt-3.5-turbo',messages:[{role:'user',content:prompt}],max_tokens:3500})
+        body:JSON.stringify({model:'gpt-3.5-turbo',messages:[{role:'user',content:prompt}],max_tokens:4096})
       });
       let d;
       try{d=await resp.json();}catch(je){showErr(`❌ ChatGPT: 응답 파싱 실패 (HTTP ${resp.status})`);return null;}
@@ -6434,10 +6460,12 @@ async function runAI(){
   const looksBroken=t=>{
     if(!t)return true;
     const s=sanitizeReport(t);
-    if(s.length<(isOverall?1200:260))return true;
+    if(s.length<(isOverall?860:240))return true;
     if(isOverall){
       const req=['[종합판정]','[좋은 점]','[문제점]','[수치 진단]','[세무/절세 진단]','[계좌별 처방]','[상위1% 운용 전략]','[실행 로드맵(즉시/1년/은퇴전)]','[다음 실행 3가지]'];
-      if(req.some(k=>!s.includes(k)))return true;
+      const miss=req.filter(k=>!s.includes(k)).length;
+      if(miss>2)return true;
+      if(miss>=1&&s.length<1050)return true;
     }
     return false;
   };
@@ -6469,10 +6497,10 @@ async function runAI(){
     return b1.order.filter(h=>merged[h]).map(h=>`${h}\n${merged[h]}`).join('\n\n').trim();
   };
   setAIProgress(56,'응답 품질 검증');
-  // 느리더라도 완성도 우선: 최대 4회 재시도 + 섹션 병합
-  for(let attempt=1;attempt<=4&&looksBroken(text);attempt++){
-    setAIProgress(60+attempt*8,`품질 보정 ${attempt}/4`);
-    const retryPrompt=buildPrompt()+`\n\n재요청(${attempt}/4): 이전 응답이 형식 불완전/중복/짤림입니다. ${isOverall?'섹션 9개를 정확히 1회씩만 작성하고, 누락 섹션 없이 완결 문장으로 종료하세요.':'중복 없이 완결 문장으로 작성하세요.'}`;
+  // 과도한 재시도는 시간 초과를 유발 → 최대 2회만 보정
+  for(let attempt=1;attempt<=2&&looksBroken(text);attempt++){
+    setAIProgress(60+attempt*12,`품질 보정 ${attempt}/2`);
+    const retryPrompt=buildPrompt()+`\n\n재요청(${attempt}/2): 이전 응답이 형식 불완전/중복/짤림입니다. ${isOverall?'9개 섹션 제목을 빠짐없이 1회씩, 문단만 덧붙이고 중복 금지.':'중복 없이 완결 문장으로 작성.'}`;
     const retry=await callAI(retryPrompt);
     if(retry){
       const merged=mergeOverallNoDup(sanitizeReport(text),sanitizeReport(retry));
@@ -6545,9 +6573,37 @@ function normalizeOverallReport(text,isOverall){
   return order.filter(h=>bucket[h]).map(h=>`${h}\n${bucket[h]}`).join('\n\n');
 }
 function parseAIPlan(text){try{const m=text.match(/```json\s*([\s\S]*?)\s*```/);if(!m)return;aiPlan=JSON.parse(m[1]);}catch(e){aiPlan=null;}}
+
+/** Short narrative after compare chart (uses same API key). */
+async function runAICompareNarrative(ctx){
+  const nar=G('ai-cmp-narrative');
+  if(!nar)return;
+  const key=(G('aiKey')?.value||'').trim();
+  if(!key){nar.style.display='none';return;}
+  nar.style.display='';
+  nar.innerHTML='<div class="al al-i blink" style="font-size:12px;">AI가 비교 요지를 짧게 정리하는 중…</div>';
+  const acctLines=accounts.filter(a=>a.active).map(a=>`${a.label}(${a.type}) 월${wf(a.monthlyContrib)}`);
+  const prompt=`${buildAIRegulatoryBlock()}
+
+당신은 한국 연금·세제를 설명하는 조력자입니다. 법률 자문·확정 세액이 아님을 전제로 답하세요.
+아래 수치는 이미 시뮬레이션으로 계산되었습니다. 「내 계획」과 「AI 제안」의 격차 원인을 **5문장 이내**로만 설명하세요. 연금저축·IRP·ISA 중 최소 2가지 유형을 짚을 것. 불릿·JSON·장문 금지.
+
+직업군: ${Gval('jobType')}
+은퇴: 내 ${ctx.retA}세 vs 제안 ${ctx.aiRetA}세 | 은퇴시점 자산: ${ws(ctx.mineA)} vs ${ws(ctx.aiA)} (차이 ${ws(ctx.diff)})
+AI JSON: ${JSON.stringify(aiPlan)}
+계좌: ${acctLines.join('; ')||'없음'}`;
+  const ans=await callAI(prompt,{errTargetId:'ai-cmp-narrative'});
+  if(!ans)return;
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  nar.innerHTML=`<div class="al al-i" style="font-size:12px;line-height:1.65;border:1px solid var(--bdl);border-radius:8px;padding:10px;"><b style="color:var(--goldl)">AI 비교 해설</b> <span style="font-size:10px;color:var(--t3)">(참고·2026.01)</span><br>${esc(ans).replace(/\n/g,'<br>')}</div>`;
+}
+
 async function runAICompare(){
   if(!simY.length){alert('시뮬레이션을 먼저 실행하세요');return;}
-  if(!aiPlan){const key=(G('aiKey')?.value||'').trim();if(!key){alert('API Key를 입력하세요');return;}await runAI();if(!aiPlan){toast('⚠ AI 추천값 파싱 실패');return;}}
+  if(!aiPlan){
+    toast('「AI 분석 시작」을 먼저 실행해 제안(JSON)을 받은 뒤 비교해 주세요. 한 번에 분석·비교하면 시간이 오래 걸립니다.');
+    return;
+  }
   const origC=accounts.map(a=>a.monthlyContrib);
   const retA=parseInt(Gval('retireAge'))||60;
   if(aiPlan.isa_monthly)accounts.filter(a=>(AMETA[a.type]||{}).cat==='ISA').forEach(a=>a.monthlyContrib=aiPlan.isa_monthly);
@@ -6594,6 +6650,7 @@ async function runAICompare(){
       </table>
     </div>`;
   toast(diff>0?`🤖 AI 추천으로 ${toKor(diff)} 더 모을 수 있습니다!`:'현재 계획이 AI 추천과 유사합니다');
+  await runAICompareNarrative({mineA,aiA,diff,retA,aiRetA});
 }
 function buildSuggs(){
   const active=accounts.filter(a=>a.active);
@@ -6751,7 +6808,7 @@ function undoLastSuggestion(){
 function renderAIChat(){
   const box=G('ai-chat-box');if(!box)return;
   if(!aiChatHist.length){
-    box.innerHTML='<div class="ai-chat-msg a">고객님, 반갑습니다! 은퇴 시뮬레이션 내부의 AI입니다. 천천히 같이 풀어가요. 예: "월 30만원만 가능하면 어디부터 손보면 좋을까요?"</div>';
+    box.innerHTML='<div class="ai-chat-msg a"><b>은퇴 시뮬 AI</b>입니다. <b>한 번에 한 가지 주제</b>로 짧게 질문해 주세요(응답이 더 안정적입니다).<br>예: "ISA랑 연금저축 중 어느 쪽을 먼저 채울까?" / "월 30만만 넣을 때 배분 추천"</div>';
     return;
   }
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -6768,31 +6825,36 @@ async function askAIAdvisor(){
   const st=G('ai-chat-status');if(st)st.textContent='AI 상담 답변 생성 중...';
   const retA=parseInt(Gval('retireAge'))||60,rRow=simY.find(r=>r.age===retA);
   const ctx=(G('ai-resp')?.textContent||'').slice(0,4500);
-  const history=aiChatHist.slice(-8).map(m=>`${m.role==='user'?'USER':'AI'}: ${m.text}`).join('\n');
+  const history=aiChatHist.slice(-6).map(m=>`${m.role==='user'?'USER':'AI'}: ${m.text}`).join('\n');
   const hasISA=accounts.some(a=>a.active&&(AMETA[a.type]||{}).cat==='ISA');
   const loanBal=(loans||[]).reduce((s,l)=>s+(+l.balance||0),0);
   const loanRate=loanBal>0?(loans||[]).reduce((s,l)=>s+(+l.balance||0)*(+l.rate||0),0)/loanBal:0;
   const invBal=accounts.filter(a=>a.active).reduce((s,a)=>s+(+a.balance||0),0);
   const invRate=invBal>0?accounts.filter(a=>a.active).reduce((s,a)=>s+(+a.balance||0)*(+a.returnRate||0),0)/invBal:0;
-  const prompt=`당신은 은퇴시뮬 내부의 AI입니다.
-영화 her처럼 따뜻하고 감성적으로 대화를 이어가되, 내용은 실무적으로 정확하세요.
-한 번에 제안을 너무 많이 하지 말고, 핵심 1~2개만 제시하세요.
-매 답변 첫 줄은 반드시 다음 문장으로 시작하세요:
-"고객님, 반갑습니다! 은퇴 시뮬레이션 내부의 AI입니다."
-마지막에는 실행 팁 1~2개만 주세요.
-현재 맥락:
+  const turnIdx=aiChatHist.filter(m=>m.role==='user').length;
+  const greetRule=turnIdx<=1
+    ? '첫 답변만 인사 한 줄: "안녕하세요, 은퇴 시뮬 AI입니다." 이후 턴에서는 인사 생략.'
+    : '이전 턴이 있으므로 인사 생략, 바로 본론.';
+  const acctSum=accounts.filter(a=>a.active).map(a=>`${a.label}:${(AMETA[a.type]||{}).label||a.type}`).join(', ');
+  const prompt=`${buildAIRegulatoryBlock()}
+
+당신은 은퇴시뮬 안의 **대화형** 재무 코치입니다.
+${greetRule}
+규칙: 사용자 질문 **하나의 핵심**에만 답한다(다른 주제는 "다음에 질문해 주세요" 한 줄). 분량 **350~550자**. 따뜻한 톤, 과장·공포 금지. 법률 자문 아님.
+2026.01 기준으로 연금저축·IRP·ISA·퇴직IRP 차이를 **질문과 직접 연결**해 1~2문장 인용 수준으로만 짚는다.
+
+맥락:
 - 은퇴목표 ${retA}세, 은퇴시점 추정자산 ${toKor(rRow?.totalAssets||0)}
-- 부채 잔액 ${toKor(loanBal)} / 가중평균 금리 ${loanRate.toFixed(2)}%
-- 투자자산 ${toKor(invBal)} / 가중평균 기대수익률 ${invRate.toFixed(2)}%
-- 기존 분석 요약:
-${ctx||'(없음)'}
-- 대화 이력:
+- 부채 ${toKor(loanBal)} / 금리 ${loanRate.toFixed(2)}% · 투자 ${toKor(invBal)} / 기대수익 ${invRate.toFixed(2)}%
+- 활성 계좌: ${acctSum||'없음'} · ISA: ${hasISA?'있음':'없음'}
+- 분석 요약(참고): ${ctx.slice(0,1200)||'(없음)'}
+- 최근 대화:
 ${history}
-- ISA 계좌 보유 여부: ${hasISA?'있음':'없음'}
 
-사용자 최신 질문: ${q}
+최신 질문: ${q}
 
-응답 마지막에 아래 JSON을 포함(없으면 0/false):
+마지막에 **한 가지**만 되물어 다음 턴을 이어가라.
+선택: 실행에 도움이 되면 아래 JSON을 **추가**(해당 없으면 생략 가능):
 \`\`\`json
 {"isa_monthly":숫자,"pension_monthly":숫자,"irp_monthly":숫자,"create_isa":true/false}
 \`\`\``;
@@ -6804,8 +6866,8 @@ ${history}
     const m=text.match(/```json\s*([\s\S]*?)\s*```/);
     if(m){plan=JSON.parse(m[1]);text=text.replace(m[0],'').trim();}
   }catch(_){}
-  const greet='고객님, 반갑습니다! 은퇴 시뮬레이션 내부의 AI입니다.';
-  if(text && !text.startsWith(greet))text=`${greet}\n${text}`;
+  const greet='안녕하세요, 은퇴 시뮬 AI입니다.';
+  if(aiChatHist.filter(m=>m.role==='assistant').length===0 && text && !text.includes('은퇴 시뮬'))text=`${greet}\n${text}`;
   aiChatHist.push({role:'assistant',text,plan});
   renderAIChat();
   if(st)st.textContent='';
@@ -6815,7 +6877,7 @@ ${history}
 const _origAP=window.AP;
 // (autosave is hooked into AP, addAcct, renderLoans, etc. below)
 
-function clearAI(){G('ai-resp').innerHTML='<span style="color:var(--t3)">AI 분석 결과가 여기 표시됩니다.</span>';G('ai-suggs').style.display='none';G('ai-cmp-card').style.display='none';_lastSuggProfile=null;aiChatHist=[];renderAIChat();const ub=G('ai-sugg-undo-btn');if(ub)ub.style.display='none';const pw=G('ai-progress-wrap');if(pw)pw.style.display='none';if(cmpChartObj){cmpChartObj.destroy();cmpChartObj=null;}}
+function clearAI(){G('ai-resp').innerHTML='<span style="color:var(--t3)">AI 분석 결과가 여기 표시됩니다.</span>';G('ai-suggs').style.display='none';G('ai-cmp-card').style.display='none';const cn=G('ai-cmp-narrative');if(cn){cn.style.display='none';cn.innerHTML='';}_lastSuggProfile=null;aiChatHist=[];renderAIChat();const ub=G('ai-sugg-undo-btn');if(ub)ub.style.display='none';const pw=G('ai-progress-wrap');if(pw)pw.style.display='none';if(cmpChartObj){cmpChartObj.destroy();cmpChartObj=null;}}
 
 // ═══════════ RESET ═══════════
 function resetAll(){
@@ -7361,6 +7423,64 @@ function onRetiredIncomeInput(){
   syncRetiredIncomeToRetireOther(true);
 }
 
+function renderJobAcctGuide(){
+  const el=G('job-acct-guide');if(!el)return;
+  const jt=Gval('jobType')||'employee';
+  const dateRef='<span style="color:var(--t3);font-size:11px;">(안내 기준: <b>2026년 1월</b> 소득세법·조세특례제한법 등 일반 요지 — 개인·연도별로 달라질 수 있음)</span>';
+  const blocks={
+    employee:`<b>직장인(급여소득)</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
+<li><b>두기 좋은 계좌</b>: ISA, 연금저축(펀드·보험), 적립IRP, 퇴직 시 <b>퇴직IRP</b>(퇴직급여 이전·세 이연).</li>
+<li><b>혜택 요지</b>: 연금저축·적립IRP 납입액 <b>소득공제</b>(연간 납입 한도·연금/IRP 합산 <b>1,800만 원</b> 상한 등). ISA는 요건 충족 시 <b>금융투자소득 비과세·분리과세</b> 활용.</li>
+<li><b>주의</b>: 총급여액·합산 공제는 <b>연말정산</b>에서 확정. DC/DB 퇴직연금 실제 이전 가능 여부는 <b>사업장·금융기관</b> 안내 준수.</li>
+</ul>`,
+    civil:`<b>공무원·교직·군인 등(공적연금 병행)</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
+<li><b>두기 좋은 계좌</b>: ISA, 연금저축, 적립IRP, (해당 시) 직장 퇴직연금과 연계한 <b>퇴직IRP</b>.</li>
+<li><b>혜택 요지</b>: 공적연금과 별도로 개인 명의 <b>연금저축·IRP·ISA</b>는 동일한 세법 틀에서 검토(납입·소득 요건은 개인별 상이).</li>
+<li><b>주의</b>: 소득 형태에 따라 연금계좌 공제가 <b>제한</b>되는 경우가 있음 — 국세청 질의·홈택스 확인. 공적연금·퇴직급 수준을 기본정보·시나리오에 반영하는 것이 좋음.</li>
+</ul>`,
+    self:`<b>자영업·프리랜서</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
+<li><b>두기 좋은 계좌</b>: ISA, 연금저축, 적립IRP(개인형 IRP).</li>
+<li><b>혜택 요지</b>: 확정된 <b>종합소득</b>을 전제로 연금계좌 납입분 <b>소득공제</b>. 사업 여유자금은 ISA로 <b>과세이연·비과세 한도</b> 검토.</li>
+<li><b>주의</b>: 필요경비·기장·부인과세에 따라 과세표준이 달라져 공제 효과도 달라짐. <b>4대보험·지역 건강보험</b>료는 별도.</li>
+</ul>`,
+    retired:`<b>은퇴·기타소득 중심</b> ${dateRef}<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">
+<li><b>두기 좋은 계좌</b>: ISA, 일반 투자·예금, 이미 보유한 <b>연금·IRP 수령</b> 계좌.</li>
+<li><b>혜택 요지</b>: 당해 연도 <b>과세소득</b>이 있을 때만 연금저축 <b>신규 납입 공제</b> 의미가 큼. 무소득 은퇴 시 신규 납입은 저축은 되나 <b>세액 절감</b>은 제한적일 수 있음.</li>
+<li><b>주의</b>: IRP·연금은 <b>수령 시점·연금 형태</b>(이연퇴직vs기타연금 등) 설계가 핵심. 현금흐름은 기본정보의 기타 소득·계좌 탭과 맞출 것.</li>
+</ul>`
+  };
+  el.innerHTML=blocks[jt]||blocks.employee;
+}
+
+function jobAcctTypesToSuggest(){
+  const jt=Gval('jobType')||'employee';
+  const hasIsa=accounts.some(a=>a.active&&(AMETA[a.type]||{}).cat==='ISA');
+  const hasPen=accounts.some(a=>a.active&&(AMETA[a.type]||{}).cat==='PENSION');
+  const hasIrpAccum=accounts.some(a=>a.active&&a.type==='IRP_ACCUM');
+  const hasIrpRet=accounts.some(a=>a.active&&a.type==='IRP_RETIRE');
+  const toAdd=[];
+  if(jt==='retired'){
+    if(!hasIsa)toAdd.push({type:'ISA_BRK',mo:200000,rr:6.5});
+    const hasFree=accounts.some(a=>a.active&&['FREE','STOCK'].includes((AMETA[a.type]||{}).cat));
+    if(!hasFree)toAdd.push({type:'DEPOSIT',mo:0,rr:3});
+  }else{
+    if(!hasIsa)toAdd.push({type:'ISA_BRK',mo:300000,rr:7});
+    if(!hasPen)toAdd.push({type:'PENSION_FUND',mo:400000,rr:6.5});
+    if(!hasIrpAccum)toAdd.push({type:'IRP_ACCUM',mo:200000,rr:6.5});
+    if((jt==='employee'||jt==='civil')&&!hasIrpRet)toAdd.push({type:'IRP_RETIRE',mo:0,rr:6.5});
+  }
+  return toAdd;
+}
+
+function addJobSuggestedAccounts(){
+  const list=jobAcctTypesToSuggest();
+  if(!list.length){toast('이 직업군에 맞는 주요 계좌 유형이 이미 있습니다.');return;}
+  const lines=list.map(x=>`· ${AMETA[x.type]?.label||x.type}${x.mo?` (예시 월납 ${wf(x.mo)}원)`:' (월납 없음·퇴직이전용)'}`);
+  if(!confirm(`다음 계좌를 추가할까요?\n\n${lines.join('\n')}\n\n월납입은 예시입니다. 직접 조정하세요.`))return;
+  list.forEach(x=>addAcctD(x.type,0,x.mo,x.rr,true));
+  toast('맞춤 계좌를 추가했습니다.');
+}
+
 function onJobTypeChange(){
   const jt=(Gval('jobType')||'employee');
   const h=G('jobType-hint');
@@ -7403,6 +7523,7 @@ function onJobTypeChange(){
   // 직업군이 바뀌면 소득 계산도 다시 실행해 요약을 최신화
   onSalary();
   try{updateJobScenarioPresetHint();}catch(_){}
+  try{renderJobAcctGuide();}catch(_){}
 }
 
 /** Refresh holdings overview table + sim comparison strip (no separate yearly table / chart). */
