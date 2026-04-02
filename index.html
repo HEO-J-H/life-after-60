@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:13</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:15</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -1575,7 +1575,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:13';
+const PUBLISH_STAMP='2026.04.02 19:15';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -2485,17 +2485,46 @@ function updateSevTargetInfo(){
   const cashLocalTax=Math.round(cashNationalTax*0.1);
   const cashTotalTax=cashNationalTax+cashLocalTax;
   const cashNet=Math.max(0,sev-cashTotalTax);
+  function getSevPensionPlan(){
+    const ra=parseInt(Gval('retireAge'))||60;
+    const tgtAcct=accounts.find(a=>a.active&&((tgt==='IRP_ACCUM'&&a.type==='IRP_ACCUM')||(tgt!=='IRP_ACCUM'&&a.type==='IRP_RETIRE')));
+    const startAge=Math.max(55,Math.min(90,parseInt(tgtAcct?.pensionStartAge)||ra));
+    const years=Math.max(1,Math.min(30,parseInt(tgtAcct?.pensionYears)||10));
+    return {startAge,years};
+  }
+  function calcDeferredPensionRouteTax(totalSev){
+    const plan=getSevPensionPlan();
+    const annualGross=plan.years>0?Math.max(0,Math.round((totalSev||0)/plan.years)):0;
+    let nat=0;
+    for(let y=1;y<=plan.years;y++){
+      const yearNat=Math.round(calcRetirementTax(annualGross).retireTax*deferredRetireTaxRatioByYearNo(y));
+      nat+=yearNat;
+    }
+    const local=Math.round(nat*0.1);
+    const total=nat+local;
+    return {plan,annualGross,nat,local,total,net:Math.max(0,totalSev-total)};
+  }
+  function buildSevCompareTable(pen){
+    return `<div style="margin-top:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg2);font-size:11px;line-height:1.5">
+  <b style="color:var(--t1)">수령 방식 비교(간이)</b>
+  <div class="sim-wrap" style="margin-top:6px;">
+    <table class="st" style="font-size:11px;">
+      <thead><tr><th>방식</th><th>가정</th><th style="color:var(--red)">국세</th><th style="color:var(--red)">지방세(10%)</th><th style="color:var(--red)">합계세금</th><th style="color:var(--green)">예상 실수령</th></tr></thead>
+      <tbody>
+        <tr><td>일시금(즉시)</td><td>지금 전액 수령</td><td>${wf(cashNationalTax)}원</td><td>${wf(cashLocalTax)}원</td><td>${wf(cashTotalTax)}원</td><td>${wf(cashNet)}원</td></tr>
+        <tr><td>연금수령(이연)</td><td>${pen.plan.startAge}세 시작 · ${pen.plan.years}년 균등(연 ${wf(pen.annualGross)}원)</td><td>${wf(pen.nat)}원</td><td>${wf(pen.local)}원</td><td>${wf(pen.total)}원</td><td>${wf(pen.net)}원</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>`;
+  }
   if(tgt==='IRP_RETIRE'||tgt==='IRP_ACCUM'){
-    const{retireTax,totalWork}=cashBase;
-    const deferred=Math.max(0,Math.round(retireTax||0)); // 국세 기준 이연 규모(간이)
+    const{totalWork}=cashBase;
+    const pen=calcDeferredPensionRouteTax(sev);
     const deferGuide=Math.round(cashTotalTax*0.35);
     el.className='al al-s';
     el.innerHTML=`✅ <b>퇴직IRP/IRP 이전 시 퇴직소득세 이연</b><br>퇴직금 ${wf(sev)}원 전액 이전 → 연금수령 시 세율 3.3~5.5% (퇴직소득세의 30~40% 절감)<br>현금 즉시수령 기준(간이): 국세 <b>${wf(cashNationalTax)}원</b> + 지방소득세(10%) <b>${wf(cashLocalTax)}원</b> = <b>${wf(cashTotalTax)}원</b><br>예상 절감세액(안내): <b style="color:var(--goldl)">${wf(deferGuide)}원 이상</b> (근속${totalWork}년 기준)
-<div style="margin-top:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg2);font-size:11px;line-height:1.5">
-  <b style="color:var(--t1)">수령 방식 비교(간이)</b><br>
-  · 일시금(지금): 세금합계 ${wf(cashTotalTax)}원 → 실수령 ${wf(cashNet)}원<br>
-  · IRP/연금수령: 현재 시점 즉시납부 0원(이연), 이후 연차별 분할과세(연금소득세/이연퇴직소득세) 적용
-</div>`;
+${buildSevCompareTable(pen)}`;
   } else if(tgt==='PENSION_FUND'){
     el.className='al al-w';
     el.innerHTML=`⚠️ 연금저축펀드 직접 이전 불가 — 반드시 <b>퇴직IRP → 연금저축 순서</b>로 이전해야 합니다<br>퇴직IRP 이전 후 55세 이후 연금저축으로 통합 가능`;
@@ -2505,6 +2534,7 @@ function updateSevTargetInfo(){
     const localTax=Math.round(nationalTax*0.1);
     const totalTax=nationalTax+localTax;
     const net=Math.max(0,sev-totalTax);
+    const pen=calcDeferredPensionRouteTax(sev);
     const deferGuide=Math.round(totalTax*0.35);
     el.className='al al-e';
     el.innerHTML=`💸 <b>현금 수령 시 퇴직소득세 즉시 납부</b><br>`+
@@ -2512,11 +2542,8 @@ function updateSevTargetInfo(){
       `환산급여 ${toKor(annualEquiv)} | 환산급여공제 ${toKor(convertedDeduction)} | 환산 과세표준 ${toKor(convertedTaxBase)}<br>`+
       `예상 세금: 퇴직소득세(국세) <b style="color:var(--red)">${toKor(nationalTax)}</b> + 지방소득세(10%) <b style="color:var(--red)">${toKor(localTax)}</b> = <b style="color:var(--red)">${toKor(totalTax)}</b> | `+
       `<b>실수령액: <span style="color:var(--green)">${toKor(net)}</span></b> (근속${totalWork}년 기준)`;
-    el.innerHTML+=`<div style="margin-top:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg2);font-size:11px;line-height:1.5">
-  <b style="color:var(--t1)">수령 방식 비교(간이)</b><br>
-  · 일시금(지금): 세금합계 ${wf(totalTax)}원 → 실수령 ${wf(net)}원<br>
-  · IRP/연금수령: 현재 즉시납부 0원(이연) + 향후 분할과세, 예상 절감여지 안내 ${wf(deferGuide)}원
-</div>`;
+    el.innerHTML+=buildSevCompareTable(pen)+
+      `<div class="hint" style="margin-top:6px;">연금수령 비교는 선택 계좌의 연금개시나이·수령기간(계좌설정) 기준 간이값입니다. 예상 절감여지 안내: <b>${wf(deferGuide)}원</b></div>`;
   }
 }
 function setNpAgeQuick(age){Gv('npAge',String(age));renderNP();updateRetireOtherHealthHint();}
