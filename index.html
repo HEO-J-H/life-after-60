@@ -20,7 +20,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .hdr-sub{color:#9fb2c8;font-size:12px;line-height:1.5;display:flex;flex-wrap:wrap;gap:4px;align-items:center;}
 .hdr-head-block{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;max-width:100%;}
 .hdr-title-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;width:100%;justify-content:flex-start;}
-.hdr-note-green{color:var(--green);font-size:12px;font-weight:600;line-height:1.45;flex:0 1 auto;}
+.hdr-note-green{color:var(--green);font-size:12px;font-weight:600;line-height:1.45;flex:0 1 auto;min-width:0;max-width:100%;text-align:left;padding-left:12px;box-sizing:border-box;}
 .hdr-ver{font-size:11px;color:#87a5c8;font-weight:600;margin-left:0;white-space:nowrap;}
 .hdr-r{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
 .ai-sel{background:var(--ibg);border:1px solid var(--ibd);border-radius:5px;color:var(--t1);padding:4px 8px;font-size:12px;font-family:inherit;}
@@ -342,7 +342,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 .hdr{padding:14px 20px;gap:12px;}
 .hdr-logo{font-size:23px;line-height:1.25;}
 .hdr-sub{font-size:14px;line-height:1.6;}
-.hdr-note-green{font-size:14px;line-height:1.6;}
+.hdr-note-green{font-size:14px;line-height:1.6;padding-left:14px;}
 .hdr-ver{font-size:12px;}
 .hdr-brief{font-size:12px;line-height:1.55;}
 .tabs{top:74px;padding:0 20px;}
@@ -400,13 +400,13 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·시뮬 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.02 21:54</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.02 22:00</span>
         <span class="hdr-note-green">· 단순 시뮬레이션 결과이며 실제 수령액과 다를 수 있습니다</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·계산 안내">
         <span>실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·</span>
         <span style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:4px;">허정훈 · <a href="mailto:hjh1014@naver.com" style="color:#87a5c8;text-decoration:none;">hjh1014@naver.com</a></span>
-        <span class="hdr-note-green">(계산은 브라우저 Local에서만 수행)</span>
+        <span class="hdr-note-green">모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
     </div>
   </div>
@@ -1703,7 +1703,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 21:54';
+const PUBLISH_STAMP='2026.04.02 22:00';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
