@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:15</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:16</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -1575,7 +1575,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:15';
+const PUBLISH_STAMP='2026.04.02 19:16';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -2504,7 +2504,27 @@ function updateSevTargetInfo(){
     const total=nat+local;
     return {plan,annualGross,nat,local,total,net:Math.max(0,totalSev-total)};
   }
+  function findBreakEvenPensionYears(totalSev,maxYears=30){
+    const sevAmt=Math.max(0,Math.round(totalSev||0));
+    const cap=Math.max(1,Math.min(60,Math.round(maxYears||30)));
+    for(let y=1;y<=cap;y++){
+      const annualGross=Math.round(sevAmt/y);
+      let nat=0;
+      for(let yn=1;yn<=y;yn++){
+        nat+=Math.round(calcRetirementTax(annualGross).retireTax*deferredRetireTaxRatioByYearNo(yn));
+      }
+      const total=nat+Math.round(nat*0.1);
+      if(total<=cashTotalTax){
+        return {years:y,totalTax:total,net:Math.max(0,sevAmt-total)};
+      }
+    }
+    return null;
+  }
   function buildSevCompareTable(pen){
+    const be=findBreakEvenPensionYears(sev,30);
+    const beHtml=be
+      ? `<div class="hint" style="margin-top:6px;">손익분기 수령기간(세금 기준): <b>${be.years}년 이상</b>이면 연금수령 총세금이 일시금 대비 같거나 낮아지는 것으로 추정됩니다 (해당 기간 세금 ${wf(be.totalTax)}원).</div>`
+      : `<div class="hint" style="margin-top:6px;">손익분기 수령기간(세금 기준): 현재 간이모델에서 30년 이내 구간에서는 일시금보다 낮아지지 않았습니다.</div>`;
     return `<div style="margin-top:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg2);font-size:11px;line-height:1.5">
   <b style="color:var(--t1)">수령 방식 비교(간이)</b>
   <div class="sim-wrap" style="margin-top:6px;">
@@ -2516,6 +2536,7 @@ function updateSevTargetInfo(){
       </tbody>
     </table>
   </div>
+  ${beHtml}
 </div>`;
   }
   if(tgt==='IRP_RETIRE'||tgt==='IRP_ACCUM'){
