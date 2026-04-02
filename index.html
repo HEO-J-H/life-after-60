@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 18:41</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 18:46</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -1267,6 +1267,19 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="g4" id="sc-stats"></div>
     <div class="card"><div class="ctitle">📋 시나리오별 비교표</div><div class="sim-wrap"><table class="st"><thead id="sc-th"></thead><tbody id="sc-tb"></tbody></table></div></div>
   </div>
+  <div class="card" style="border-color:rgba(200,168,75,.35);">
+    <div class="ctitle">🧭 직업군 맞춤 빠른 설정 <span style="font-size:12px;font-weight:500;color:var(--t3)">(4가지 수익률 가정)</span></div>
+    <p style="font-size:12px;color:var(--t2);margin:0 0 10px 0;line-height:1.55;">기본정보의 <b>직업군</b>에 맞춰 낙관·평균·비관·ISA→배당형 수익률을 한 번에 넣습니다. 아래 칸에서 수정한 뒤 <b>시나리오 실행</b>을 누르세요. 공무원·은퇴 프리셋은 위 <b>언제부터 얼마씩 쓸까</b>의 「꺼내기 시작 나이」도 함께 맞춥니다.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('employee')">직장인 · 균형</button>
+      <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('self')">자영업 · 변동성↑</button>
+      <button type="button" class="btn btn-sec btn-sm" onclick="addSelfBizLumpExample()">자영업 · 사업정리 목돈(예시)</button>
+      <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('civil')">공무원·공적연금 · 보수적</button>
+      <button type="button" class="btn btn-sec btn-sm" onclick="applyJobScenarioPreset('retired')">은퇴·무직 · 소득형</button>
+      <button type="button" class="btn btn-gold btn-sm" style="margin-left:auto;" onclick="applyJobScenarioPresetFromBasic()">기본정보 직업군에 맞추기</button>
+    </div>
+    <p id="job-sc-preset-hint" class="hint" style="margin-top:8px;margin-bottom:0;"></p>
+  </div>
   <div class="card">
     <div class="ctitle">🎲 시나리오 비교 설정</div>
     <div class="g4">
@@ -1560,7 +1573,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 18:41';
+const PUBLISH_STAMP='2026.04.02 18:46';
 
 // ═══════════ INIT ═══════════
 document.addEventListener('click',e=>{
@@ -4315,7 +4328,55 @@ function scwApproxPensionTaxWon(annual,age){
   const r=age>=80?0.033:age>=70?0.044:0.055;
   return{w:Math.round(annual*r),rateLabel:`약 ${(r*100).toFixed(1)}%×연인출(안내)`};
 }
+function updateJobScenarioPresetHint(){
+  const el=G('job-sc-preset-hint');
+  if(!el)return;
+  const jt=(Gval('jobType')||'employee');
+  const labels={employee:'직장인',civil:'공무원·교직·군인',self:'자영업·프리랜서',retired:'은퇴·무직'};
+  el.textContent=`기본정보 직업군: ${labels[jt]||jt}. 프리셋으로 수익률·(일부) 인출 시작 나이를 맞출 수 있습니다.`;
+}
+/** Scenario tab: align sc-opt/sc-avg/sc-pes/sc-div with job-type assumptions; optionally scw-start-age for civil/retired. */
+function applyJobScenarioPreset(mode){
+  const ra=parseInt(Gval('retireAge'),10)||60;
+  const cur=parseInt(Gval('curAge'),10)||47;
+  const presets={
+    employee:{opt:'10',avg:'7',pes:'3',div:'6',setScwStart:null,msg:'직장인 균형형으로 맞췄습니다.'},
+    self:{opt:'12',avg:'7.5',pes:'2',div:'5.5',setScwStart:null,msg:'매출·이익 변동 가정: 낙관·비관 폭을 넓혔습니다.'},
+    civil:{opt:'9',avg:'6.5',pes:'4',div:'5.5',setScwStart:ra,msg:'보수적 수익률 + 「꺼내기 시작 나이」를 은퇴 나이('+ra+'세)에 맞췄습니다.'},
+    retired:{opt:'6',avg:'5',pes:'3',div:'4.5',setScwStart:Math.max(65,Math.min(90,cur)),msg:'은퇴 후 소득·지출 중심 가정 + 「꺼내기 시작 나이」를 현재 연령 기준으로 조정했습니다.'}
+  };
+  const cfg=presets[mode]||presets.employee;
+  Gv('sc-opt',cfg.opt);Gv('sc-avg',cfg.avg);Gv('sc-pes',cfg.pes);Gv('sc-div',cfg.div);
+  if(cfg.setScwStart!=null){
+    const sa=G('scw-start-age');
+    if(sa){
+      sa.value=String(Math.max(45,Math.min(90,cfg.setScwStart)));
+      try{refreshScwAcctPick();scheduleScwUI();}catch(_){}
+    }
+  }
+  updateJobScenarioPresetHint();
+  toast('🧭 '+cfg.msg);
+}
+function applyJobScenarioPresetFromBasic(){
+  applyJobScenarioPreset(Gval('jobType')||'employee');
+}
+/** Add a sample lump-sum outflow at retire age for self-employed business wind-down (simulation tab list). */
+function addSelfBizLumpExample(){
+  const ra=parseInt(Gval('retireAge'),10)||60;
+  if(ra<=0){toast('은퇴 나이를 확인해 주세요.');return;}
+  const amount=50000000;
+  if(lumpEvents.some(e=>e.age===ra&&(e.note||'').indexOf('사업 정리')>=0)){
+    toast('이미 비슷한 사업 정리 예시 목돈이 있습니다.');
+    return;
+  }
+  lumpEvents.push({id:'le'+Date.now()+Math.floor(Math.random()*1000),age:ra,amount,note:'사업 정리·자산처분(예시)',src:'auto'});
+  lumpEvents.sort((a,b)=>a.age-b.age);
+  renderLumpEvents();
+  runSim();
+  toast('시뮬레이션 탭 목돈 지출에 사업 정리 예시를 추가했습니다.');
+}
 function initScenarioWidgets(){
+  updateJobScenarioPresetHint();
   const sa=G('scw-start-age');
   if(sa){const ra=parseInt(Gval('retireAge'),10)||60;if(!sa.value||sa.value==='60')sa.value=String(ra);}
   const scwA=G('scw-annual'),scwK=G('ka-scw-annual');if(scwA&&scwK)scwK.textContent=toKor(parseFloat(scwA.value)||0);
@@ -7145,6 +7206,7 @@ function onJobTypeChange(){
   if(jt==='retired')syncRetiredIncomeToRetireOther(false);
   // 직업군이 바뀌면 소득 계산도 다시 실행해 요약을 최신화
   onSalary();
+  try{updateJobScenarioPresetHint();}catch(_){}
 }
 
 /** Refresh holdings overview table + sim comparison strip (no separate yearly table / chart). */
