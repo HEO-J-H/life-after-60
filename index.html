@@ -362,7 +362,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:17</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 19:19</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -579,6 +579,11 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
             <option value="PENSION_FUND">연금저축펀드 (퇴직IRP 경유 필수)</option>
             <option value="CASH">💰 현금 수령 — 퇴직소득세 즉시 납부</option>
           </select>
+        </div>
+        <div class="frow" style="margin-top:6px;">
+          <label class="fl">수령 비교 할인율 (%/년)</label>
+          <input class="fi mono" id="sevDiscRate" type="number" value="" step="0.1" placeholder="비워두면 물가상승률 사용" oninput="updateSevTargetInfo()">
+          <div class="hint">현재가치 비교 전용 할인율입니다. 미입력 시 기본정보의 물가상승률을 사용합니다.</div>
         </div>
         <div id="sev-target-info" class="al al-i" style="font-size:12px;margin-top:4px;"></div>
       </div>
@@ -1527,7 +1532,7 @@ const SHEET_REF={
     retiredIncomeMo:'1200000',retiredIncomeAuto:true,
     mExp:'2000000',rExp:'1800000',inf:'2.5',sw:'4',target:'0',
     npBase:'1200000',npAge:'65',
-    sevType:'DC',workYrs:'15',dbSal:'0',manSev:'50000000',sevTarget:'IRP_RETIRE',
+    sevType:'DC',workYrs:'15',dbSal:'0',manSev:'50000000',sevTarget:'IRP_RETIRE',sevDiscRate:'',
     budget:'500000',dcDirectBal:'0',dcRROverride:'',
     taxReinvest:false,taxReinvestTgt:'',
     expOn:true,hpOn:false,hpPrice:'400000000',hpStartAge:'70',hpMode:'lifetime',healthApplySim:false,healthRetireOnly:true,
@@ -1575,7 +1580,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 19:17';
+const PUBLISH_STAMP='2026.04.02 19:19';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF='2026-04-02';
 const TAX_RULES={
@@ -2549,7 +2554,9 @@ function updateSevTargetInfo(){
   }
   function buildSevCompareTable(pen){
     const be=findBreakEvenPensionYears(sev,30);
-    const disc=Math.max(0,(parseFloat(Gval('inf'))||3))/100;
+    const discRaw=parseFloat(Gval('sevDiscRate'));
+    const discBase=isNaN(discRaw)?(parseFloat(Gval('inf'))||3):discRaw;
+    const disc=Math.max(0,discBase)/100;
     const pvNowCash=cashNet;
     const pvPlan=calcPensionPvRoute(sev,pen.plan.years,pen.plan.startAge,disc);
     const bePv=findBreakEvenByPv(sev,30,disc);
@@ -6802,7 +6809,7 @@ function getProfile(){
       mExp:Gval('mExp'),rExp:Gval('rExp'),inf:Gval('inf'),sw:Gval('sw'),target:Gval('target'),
       npBase:Gval('npBase'),npAge:Gval('npAge'),divGrowthRate:Gval('divGrowthRate'),
       sevType:Gval('sevType'),workYrs:Gval('workYrs'),dbSal:Gval('dbSal'),
-      manSev:Gval('manSev'),sevTarget:Gval('sevTarget'),
+      manSev:Gval('manSev'),sevTarget:Gval('sevTarget'),sevDiscRate:Gval('sevDiscRate'),
       taxBracket:Gval('taxBracket'),taxReinvest:G('taxReinvest')?.checked,
       taxReinvestTgt:Gval('taxReinvestTgt'),budget:Gval('budget'),
       aiProv:Gval('aiProv'),aiKey:G('aiKey')?.value||'',
