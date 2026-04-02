@@ -283,10 +283,10 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 .legal-asof-note{display:block;color:#8ecfff;font-size:11px;line-height:1.55;border-left:3px solid var(--goldd);padding:6px 10px;margin:6px 0 0 0;background:rgba(80,150,230,.14);border-radius:0 8px 8px 0;}
 .job-type-card{position:relative;padding:14px 16px!important;margin-bottom:0!important;}
 #jobType-hint{margin-top:10px!important;font-size:13px!important;line-height:1.55;color:var(--t2);}
-.basic-layout-top{display:grid;grid-template-columns:minmax(300px,40%) 1fr;gap:14px;align-items:start;margin-bottom:14px;}
-@media(max-width:1024px){.basic-layout-top{grid-template-columns:1fr;}}
-.basic-col-left{display:flex;flex-direction:column;gap:12px;}
-.basic-col-right{display:flex;flex-direction:column;gap:12px;}
+.basic-layout-top{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start;margin-bottom:14px;}
+@media(max-width:1180px){.basic-layout-top{grid-template-columns:1fr;}}
+.basic-col-job-personal{display:flex;flex-direction:column;gap:12px;min-width:0;}
+.basic-layout-top > .card{min-width:0;}
 .basic-subtitle{margin:0 0 12px 0;font-size:15px;color:var(--t2);font-weight:600;}
 .basic-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
 .job-type-chips{display:flex;flex-wrap:wrap;gap:8px;}
@@ -294,12 +294,14 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 .job-type-chip:hover{border-color:var(--bdl);color:var(--t1);}
 .job-type-chip.on,.job-type-chip[aria-pressed="true"]{border-color:var(--gold);color:var(--goldl);background:rgba(200,168,75,.14);box-shadow:0 0 0 1px rgba(200,168,75,.2);}
 .basic-personal-card .personal-dob-age{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(min-width:1181px){.basic-layout-top .basic-personal-card .personal-dob-age{grid-template-columns:1fr;}}
 @media(max-width:600px){.basic-personal-card .personal-dob-age{grid-template-columns:1fr;}}
 .basic-personal-card .ka-age-gold{color:var(--goldl);font-weight:700;font-size:15px;margin-top:6px;min-height:22px;}
 .retire-age-summary{color:var(--goldl);font-weight:700;font-size:clamp(15px,1.05vw,17px);}
 .basic-retire-lbl{display:block;margin:0 0 8px 0;line-height:1.5;font-size:15px;font-weight:700;color:var(--t1);}
 .basic-retire-row{margin-top:4px;}
 .basic-life-np-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-top:6px;align-items:end;}
+@media(min-width:1181px){.basic-layout-top .basic-life-np-grid{grid-template-columns:1fr;}}
 @media(max-width:600px){.basic-life-np-grid{grid-template-columns:1fr;}}
 .basic-np-block .fl{margin-bottom:8px;}
 input[type=range].basic-range{width:100%;height:8px;accent-color:var(--gold);margin-top:4px;}
@@ -387,7 +389,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-title-row">
-      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 21:21</span></div>
+      <div class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터 <span id="hdr-publish" style="font-size:11px;color:#87a5c8;font-weight:600;margin-left:6px;white-space:nowrap;">Ver. 2026.04.02 21:27</span></div>
     </div>
     <div class="hdr-sub">
       실시간 주가·배당 · 절세전략 · AI분석 · 주택연금 ·
@@ -420,7 +422,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <!-- ════ 기본정보 ════ -->
 <div id="tab-basic" class="panel on">
   <div class="basic-layout-top" id="basic-grid">
-    <div class="basic-col-left">
+    <div class="basic-col-job-personal">
       <div class="card job-type-card">
         <div class="ctitle" style="margin-bottom:6px;">⚙ 직업군 선택</div>
         <p class="basic-subtitle">현재 주 소득 형태</p>
@@ -467,7 +469,6 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         </div>
       </div>
     </div>
-    <div class="basic-col-right">
     <div class="card">
       <div class="ctitle">💰 소득</div>
       <div class="al al-i" id="income-mode-hint" style="font-size:11px;margin-bottom:6px;">
@@ -516,7 +517,6 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
         </div>
         <div class="frow"><label class="fl">목표 자산 (원) <span style="font-size:10px;color:var(--t2)">(0=자동)</span></label><input class="fi mono" id="target" type="number" value="0" oninput="ka(this,'ka-tgt')"><div class="ka" id="ka-tgt"></div><div class="hint" id="target-hint"></div></div>
       </div>
-    </div>
     </div>
   </div>
 
@@ -1689,7 +1689,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 21:21';
+const PUBLISH_STAMP='2026.04.02 21:27';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
