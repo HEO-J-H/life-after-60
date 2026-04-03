@@ -304,8 +304,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 .job-type-chip{border:2px solid var(--bd);background:var(--ibg);color:var(--t2);padding:10px 14px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;line-height:1.25;transition:border-color .15s,background .15s,color .15s;}
 .job-type-chip:hover{border-color:var(--bdl);color:var(--t1);}
 .job-type-chip.on,.job-type-chip[aria-pressed="true"]{border-color:var(--gold);color:var(--goldl);background:rgba(200,168,75,.14);box-shadow:0 0 0 1px rgba(200,168,75,.2);}
-.basic-personal-card .personal-dob-age{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(min-width:1181px){.basic-layout-top .basic-personal-card .personal-dob-age{grid-template-columns:1fr;}}
+.basic-personal-card .personal-dob-age{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;align-items:start;}
 @media(max-width:600px){.basic-personal-card .personal-dob-age{grid-template-columns:1fr;}}
 .basic-personal-card .ka-age-gold{color:var(--goldl);font-weight:700;font-size:15px;margin-top:6px;min-height:22px;}
 .retire-age-summary{color:var(--goldl);font-weight:700;font-size:clamp(15px,1.05vw,17px);}
@@ -406,7 +405,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 00:31</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 00:44</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1583,7 +1582,7 @@ const TMAP={
   '069500':'KODEX 200','102110':'TIGER 200','278540':'KODEX MSCI Korea TR','114800':'KODEX 인버스',
   '251340':'KODEX 코스닥150','219390':'TIGER 코스닥150','229200':'KODEX 코스닥150 레버리지',
   // 미국 S&P500
-  '360750':'TIGER 미국S&P500','261240':'KODEX 미국S&P500TR','411060':'ACE 미국S&P500',
+  '360200':'ACE 미국S&P500','360750':'TIGER 미국S&P500','261240':'KODEX 미국S&P500TR',
   '148020':'KINDEX 미국S&P500','379780':'TIGER 미국S&P500TR','449190':'SOL 미국S&P500',
   // 미국 나스닥
   '379810':'KODEX 나스닥100','133690':'TIGER 미국나스닥100','367380':'TIGER 미국나스닥100TR',
@@ -1601,8 +1600,8 @@ const TMAP={
   // 채권
   '232080':'TIGER 미국채10년선물','458730':'KODEX 미국30년국채','304660':'TIGER 미국달러단기채권',
   '476540':'ACE 미국30년국채액티브','453730':'KODEX 미국채울트라30년선물(H)',
-  // 원자재/리츠
-  '329200':'TIGER 금은선물(H)','411060':'ACE 미국리츠','352560':'TIGER 미국리츠부동산',
+  // 원자재/리츠·금
+  '411060':'ACE KRX금현물','329200':'TIGER 금은선물(H)','352560':'TIGER 미국리츠부동산','181480':'ACE 미국부동산리츠(합성 H)',
   // 인도/베트남/기타
   '241180':'TIGER 베트남VN30(합성)','236350':'TIGER 인도니프티50',
   '381170':'TIGER 차이나CSI300','192090':'TIGER 차이나A레버리지(합성)',
@@ -1718,7 +1717,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 00:31';
+const PUBLISH_STAMP='2026.04.04 00:44';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -3035,7 +3034,7 @@ function renderDCTable(){
       :`<button type="button" class="btn btn-sec" style="padding:1px 5px;font-size:10px;" onclick="fetchDCOne(${i})">조회</button>`;
     return `<tr>
       <td><input class="hi sm code-col" value="${h.ticker||''}" placeholder="6자리" inputmode="numeric" autocomplete="off" oninput="dcF(${i},'ticker',this.value)" style="width:82px;min-width:72px"></td>
-      <td><input class="hi sm" value="${repairKoreanLabel(h.name||'')}" placeholder="종목명" oninput="dcF(${i},'name',this.value)" style="min-width:130px;max-width:240px;width:100%"></td>
+      <td><input class="hi sm" value="${attrEsc(resolveStockLabel(h.ticker,h.name))}" placeholder="종목명" oninput="dcF(${i},'name',this.value)" style="min-width:130px;max-width:240px;width:100%"></td>
       <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.qty||0}" oninput="dcF(${i},'qty',+this.value);renderDCTable()" style="width:72px"></td>
       <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.avg||0}" oninput="dcF(${i},'avg',+this.value);renderDCTable()" style="width:78px"></td>
       <td class="r" style="white-space:nowrap;">
@@ -3136,21 +3135,46 @@ function getYfCandidates(c){
   return [t];
 }
 
-/** Fix UTF-8 bytes misinterpreted as Latin-1 (common via some CORS proxies). */
+/** Escape for HTML attribute values (input value=, etc.). */
+function attrEsc(s){
+  return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+/** Prefer canonical TMAP name when 6-digit KRX code is known (fixes bad cache / mojibake in saved profiles). */
+function resolveStockLabel(ticker,name){
+  const t=String(ticker||'').replace(/\D/g,'');
+  if(t.length===6&&TMAP[t])return TMAP[t];
+  return repairKoreanLabel(String(name||''));
+}
+/** Fix UTF-8 bytes misinterpreted as Latin-1 (common via some CORS proxies). Also recover mixed mojibake. */
 function repairKoreanLabel(s){
   if(s==null||s==='')return'';
   const str=String(s);
-  if(/[\uAC00-\uD7A3]/.test(str))return str;
-  try{
-    const b=new Uint8Array(str.length);
-    for(let i=0;i<str.length;i++){
-      const c=str.charCodeAt(i);
-      if(c>255)return str;
-      b[i]=c;
-    }
-    const out=new TextDecoder('utf-8',{fatal:false}).decode(b);
-    if(/[\uAC00-\uD7A3]/.test(out))return out.replace(/\uFFFD/g,'');
-  }catch(e){}
+  const hangulCount=t=>((t.match(/[\uAC00-\uD7A3]/g))||[]).length;
+  const latinMojibake=/[\u00C0-\u024F\u0192\u01FC]/;
+  function tryLatin1Utf8(input){
+    try{
+      const b=new Uint8Array(input.length);
+      for(let i=0;i<input.length;i++){
+        const c=input.charCodeAt(i);
+        if(c>255)return null;
+        b[i]=c;
+      }
+      const out=new TextDecoder('utf-8',{fatal:false}).decode(b).replace(/\uFFFD/g,'');
+      return out;
+    }catch(e){return null;}
+  }
+  if(hangulCount(str)===0){
+    const dec=tryLatin1Utf8(str);
+    if(dec&&hangulCount(dec)>0)return dec;
+    return str;
+  }
+  const dec=tryLatin1Utf8(str);
+  if(dec){
+    const h0=hangulCount(str),h1=hangulCount(dec);
+    if(h1>h0)return dec;
+    if(str.includes('\uFFFD')&&h1>=h0)return dec;
+    if(latinMojibake.test(str)&&h1>=h0)return dec;
+  }
   return str;
 }
 
@@ -3793,7 +3817,7 @@ function renderHoldings(a, slotIdx=null){
       const w=tot>0?(ev/tot*100).toFixed(1):'0';
       return `<tr>
         <td><input class="hi sm code-col" value="${h.ticker||''}" oninput="hF('${a.id}',${hi},'ticker',this.value)" style="width:80px;min-width:72px" placeholder="6자리" inputmode="numeric" autocomplete="off"></td>
-        <td><input class="hi sm" value="${repairKoreanLabel(h.name||'')}" oninput="hF('${a.id}',${hi},'name',this.value)" style="min-width:120px;max-width:220px;width:100%" placeholder="종목명"></td>
+        <td><input class="hi sm" value="${attrEsc(resolveStockLabel(h.ticker,h.name))}" oninput="hF('${a.id}',${hi},'name',this.value)" style="min-width:120px;max-width:220px;width:100%" placeholder="종목명"></td>
         <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.qty||0}" ${isSlotView?'readonly':''} oninput="hF('${a.id}',${hi},'qty',+this.value)" onchange="refH('${a.id}')" style="width:72px"></td>
         <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.avg||0}" ${isSlotView?'readonly':''} oninput="hF('${a.id}',${hi},'avg',+this.value)" onchange="refH('${a.id}')" style="width:84px"></td>
         <td class="r" style="white-space:nowrap;"><input class="hi r sm mono-fig" type="number" value="${h.cp||0}" ${isSlotView?'readonly':''} oninput="hF('${a.id}',${hi},'cp',+this.value)" onchange="refH('${a.id}')" style="width:84px">
@@ -4078,7 +4102,7 @@ async function etfAutocomplete(inputId, listId){
 function selectETF(inputId, listId, code, name){
   const inp=G(inputId);
   if(inp){
-    inp.value=repairKoreanLabel(name);
+    inp.value=resolveStockLabel(code,name);
     inp.dataset.code=code;
   }
   const list=G(listId);if(list)list.style.display='none';
@@ -4169,13 +4193,13 @@ function renderInvestSlots(a){
           </div>
           <div class="hld-search-row" style="margin-top:8px;">
             <input id="divq-${a.id}-${si}" class="fi" placeholder="배당 기준 ETF·주식 (코드 또는 명)" style="padding:4px 8px;font-size:12px;"
-              value="${esc(sl.divTicker?(String(sl.divName||'')+(sl.divName?' · ':'')+sl.divTicker):'')}"
+              value="${esc(sl.divTicker?(resolveStockLabel(sl.divTicker,sl.divName)+' · '+sl.divTicker):'')}"
               data-code="${esc(sl.divTicker||'')}"
               oninput="void etfAutocomplete('divq-${a.id}-${si}','divqlist-${a.id}-${si}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
             <button type="button" class="btn btn-blue btn-xs" onclick="quickAddDivFromInput('${a.id}',${si},'divq-${a.id}-${si}')">📡 조회·배당률</button>
           </div>
           <div id="divqlist-${a.id}-${si}" style="display:none;"></div>
-          ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;">연동 종목: <b>${esc(sl.divName||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
+          ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;">연동 종목: <b>${esc(resolveStockLabel(sl.divTicker,sl.divName)||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
         </div>
       `:`
         <div style="position:relative;">
@@ -4250,7 +4274,7 @@ async function quickAddHFromInput(acctId, inputId){
   const rawVal=(inp.value||'').trim();
   if(!rawVal){toast('종목명 또는 코드를 입력하세요');return;}
   const code=inp.dataset.code||(NMAP[rawVal]||rawVal);
-  const name=TMAP[code]||rawVal;
+  const name=TMAP[code]||repairKoreanLabel(rawVal);
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   a.holdings.push({ticker:code,name,qty:0,avg:0,cp:0,divYield:0,cagr:null});
   inp.value='';
@@ -4275,7 +4299,7 @@ async function quickAddDivFromInput(acctId, si, inputId){
   const code=(inp.dataset&&inp.dataset.code)?String(inp.dataset.code).trim():'';
   const resolved=code||NMAP[rawVal]||(/^\d{6}$/.test(rawVal.replace(/\s/g,''))?rawVal.replace(/\s/g,''):'');
   if(!resolved){toast('6자리 코드 또는 목록에서 종목을 선택하세요');return;}
-  const name=TMAP[resolved]||rawVal;
+  const name=TMAP[resolved]||repairKoreanLabel(rawVal);
   APInvest(acctId,si,'divTicker',resolved);
   APInvest(acctId,si,'divName',name);
   toast('📡 배당률 조회 중...');
