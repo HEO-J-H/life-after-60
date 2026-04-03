@@ -123,6 +123,8 @@ input[type=range]{accent-color:var(--gold);width:100%;}
 .atog.open{transform:rotate(180deg);}
 .abody{padding:13px;display:none;border-top:1px solid var(--bd);}
 .abody.open{display:block;}
+.acct-adv-details summary{user-select:none;}
+.acct-adv-details summary:hover{color:var(--goldl);}
 /* HOLDINGS TABLE */
 .ht{width:100%;border-collapse:collapse;font-size:12px;}
 .ht th{background:#04080e;color:var(--t2);padding:5px 6px;text-align:left;font-size:11px;font-weight:500;border-bottom:1px solid var(--bd);}
@@ -405,7 +407,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:44</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 02:28</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1717,7 +1719,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 01:44';
+const PUBLISH_STAMP='2026.04.04 02:28';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -3803,23 +3805,40 @@ function renderAccts(){
         <span class="atog" id="atog-${a.id}">▼</span>
       </div>
       <div class="abody" id="ab-${a.id}">
-        <div class="g4" style="margin-bottom:10px;">
-          <div class="frow"><label class="fl">현재 잔액(원)</label>
-            <input class="fi mono" id="bal-${a.id}" type="number" value="${Math.round(a.balance)}" oninput="AP('${a.id}','balance',+this.value);updateBudBar();G('ka-bal-${a.id}').textContent=toKor(+this.value);${a.type==='IRP_RETIRE'&&Gval('sevType')==='DC'?"const dbi=G('dc-direct-bal');if(dbi&&!parseFloat(dbi.value)){dbi.value=this.value;G('ka-dc-bal').textContent=toKor(+this.value);}":''}">
-            <div class="ka" id="ka-bal-${a.id}">${toKor(a.balance)}</div></div>
-          <div class="frow"><label class="fl">월 납입액(원)</label>
-            ${isIRPR?`<div class="fi mono" style="background:var(--bg2);cursor:default;color:var(--t2);font-size:12px;">퇴직금 이전 전용</div>`:
-              `<input class="fi mono" id="mc-${a.id}" type="number" value="${a.monthlyContrib}" oninput="AP('${a.id}','monthlyContrib',+this.value);updateBudBar();G('ka-mc-${a.id}').textContent=toKor(+this.value)">
-               <div class="ka" id="ka-mc-${a.id}">${toKor(a.monthlyContrib)}</div>`}
-            ${(m.al||0)>0?`<div class="hint">연한도: ${wf(m.al)}원</div>`:''}</div>
-          <div class="frow"><label class="fl">예상 수익률(%/년) <span id="rr-hint-${a.id}" style="font-size:10px;color:var(--teal)"></span></label>
-            <input class="fi mono" id="rr-${a.id}" type="number" value="${a.returnRate}" step="0.5" oninput="AP('${a.id}','returnRate',+this.value)">
-            <button class="btn btn-sec" style="margin-top:4px;padding:2px 8px;font-size:11px;" onclick="applyCAGRtoAcct('${a.id}')">종목CAGR 적용</button></div>
-          <div class="frow"><label class="fl">세액공제</label>
-            <div id="tax-${a.id}" style="padding:6px 9px;background:var(--ibg);border-radius:6px;font-size:13px;color:var(--goldl);">—</div></div>
+        <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:4px;">📈 이 계좌 보유 종목</div>
+        <div class="hint" style="font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.45;">표에서 종목을 추가·수정합니다. <b>잔액·월납입·수익률</b>은 아래 <b>계좌 설정</b>을 펼쳐 입력하세요.</div>
+        <div style="position:relative;margin-bottom:10px;">
+          <div class="hld-search-row">
+            <input id="hqcode-${a.id}" class="fi" placeholder="국내·해외·ETF 검색 후 추가" style="padding:4px 9px;font-size:12px;"
+              oninput="void etfAutocomplete('hqcode-${a.id}','hqlist-main-${a.id}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
+            <button type="button" class="btn btn-blue btn-xs" onclick="quickAddHFromInput('${a.id}','hqcode-${a.id}')">＋ 추가</button>
+            <button type="button" class="btn btn-sec btn-xs" onclick="quickAddH('${a.id}')">📡조회추가</button>
+          </div>
+          <div id="hqlist-main-${a.id}" style="display:none;"></div>
         </div>
-        ${ACCT_INFO[a.type]?`<div class="al al-i" style="font-size:11px;margin-bottom:8px;padding:7px 10px;">${ACCT_INFO[a.type]}</div>`:''}
-        ${extra}
+        <div id="hl-${a.id}" style="margin-bottom:12px;"></div>
+        <details class="acct-adv-details" style="margin-bottom:12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg2);overflow:hidden;">
+          <summary style="cursor:pointer;padding:10px 12px;font-size:13px;font-weight:700;color:var(--t2);list-style-position:outside;">⚙ 계좌 설정 <span style="font-weight:400;font-size:11px;color:var(--t3)">(잔액·납입·수익률·옵션)</span></summary>
+          <div style="padding:12px;border-top:1px solid var(--bd);">
+            <div class="g4" style="margin-bottom:10px;">
+              <div class="frow"><label class="fl">현재 잔액(원)</label>
+                <input class="fi mono" id="bal-${a.id}" type="number" value="${Math.round(a.balance)}" oninput="AP('${a.id}','balance',+this.value);updateBudBar();G('ka-bal-${a.id}').textContent=toKor(+this.value);${a.type==='IRP_RETIRE'&&Gval('sevType')==='DC'?"const dbi=G('dc-direct-bal');if(dbi&&!parseFloat(dbi.value)){dbi.value=this.value;G('ka-dc-bal').textContent=toKor(+this.value);}":''}">
+                <div class="ka" id="ka-bal-${a.id}">${toKor(a.balance)}</div></div>
+              <div class="frow"><label class="fl">월 납입액(원)</label>
+                ${isIRPR?`<div class="fi mono" style="background:var(--bg2);cursor:default;color:var(--t2);font-size:12px;">퇴직금 이전 전용</div>`:
+                  `<input class="fi mono" id="mc-${a.id}" type="number" value="${a.monthlyContrib}" oninput="AP('${a.id}','monthlyContrib',+this.value);updateBudBar();G('ka-mc-${a.id}').textContent=toKor(+this.value)">
+                   <div class="ka" id="ka-mc-${a.id}">${toKor(a.monthlyContrib)}</div>`}
+                ${(m.al||0)>0?`<div class="hint">연한도: ${wf(m.al)}원</div>`:''}</div>
+              <div class="frow"><label class="fl">예상 수익률(%/년) <span id="rr-hint-${a.id}" style="font-size:10px;color:var(--teal)"></span></label>
+                <input class="fi mono" id="rr-${a.id}" type="number" value="${a.returnRate}" step="0.5" oninput="AP('${a.id}','returnRate',+this.value)">
+                <button class="btn btn-sec" style="margin-top:4px;padding:2px 8px;font-size:11px;" onclick="applyCAGRtoAcct('${a.id}')">종목CAGR 적용</button></div>
+              <div class="frow"><label class="fl">세액공제</label>
+                <div id="tax-${a.id}" style="padding:6px 9px;background:var(--ibg);border-radius:6px;font-size:13px;color:var(--goldl);">—</div></div>
+            </div>
+            ${ACCT_INFO[a.type]?`<div class="al al-i" style="font-size:11px;margin-bottom:8px;padding:7px 10px;">${ACCT_INFO[a.type]}</div>`:''}
+            ${extra}
+          </div>
+        </details>
         ${isPension?'<div class="pension-inv-isa">':''}
         <hr class="d">
         <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px;">📊 투자 슬롯 설정
@@ -3842,6 +3861,7 @@ function renderAccts(){
     errDiv.innerHTML='⚠ 계좌 표시 오류: '+(a.label||a.id)+' — '+err.message;
     list.appendChild(errDiv);
   }});
+  accounts.forEach(a=>{ try{refreshHoldingsViews(a.id);}catch(e){} });
   updateTax();updateBudBar();
   accounts.forEach(a=>{
     if(G('pension-pay-preview-'+a.id))renderPensionPlanPreview(a.id);
