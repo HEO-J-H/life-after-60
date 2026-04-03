@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>은퇴 현금흐름 시뮬레이터</title>
+<title>은퇴 현금흐름 시뮬레이터 · index_001 로컬</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -399,6 +399,8 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
   .fi,.fs{font-size:16px;min-height:44px;}
   .btn{font-size:15px;}
 }
+.local-001-strip{font-size:12px;padding:6px 16px;background:rgba(232,135,59,.18);border-bottom:1px solid rgba(232,135,59,.45);color:var(--orange);text-align:center;line-height:1.45;}
+.local-001-strip code{color:var(--goldl);background:rgba(0,0,0,.2);padding:1px 6px;border-radius:4px;}
 </style>
 </head>
 <body>
@@ -407,7 +409,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 03:06</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 02:28 · index_001</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -428,6 +430,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <button class="btn btn-gold btn-lg" onclick="runSim()">▶ 시뮬레이션</button>
   </div>
 </div>
+<div class="local-001-strip" role="status" aria-live="polite">⚠ <b>로컬 검증본</b> <code style="font-size:11px;">index_001.html</code> — 배포·공유는 <code style="font-size:11px;">index.html</code> 기준으로 하세요.</div>
 <div class="tabs" id="main-tabs">
   <button class="tab on"  onclick="ST('basic',this)">📋 기본정보</button>
   <button class="tab"     onclick="ST('accts',this)">💳 계좌설정</button>
@@ -1719,7 +1722,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 03:06';
+const PUBLISH_STAMP='2026.04.04 02:28 · index_001-local';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
