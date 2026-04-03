@@ -31,6 +31,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .tab{padding:10px 15px;background:none;border:none;border-bottom:2px solid transparent;color:var(--t2);cursor:pointer;font-size:14px;font-family:inherit;white-space:nowrap;transition:all .18s;}
 .tab:hover{color:var(--t1);}
 .tab.on{color:var(--goldl);border-bottom-color:var(--gold);}
+.tab-cafe-link{display:inline-flex;align-items:center;gap:6px;margin:4px 0 4px 4px;padding:6px 12px 6px 8px;border-radius:6px;background:rgba(3,199,90,.12);border:1px solid rgba(3,199,90,.35);color:#9ee6b8;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;align-self:center;font-family:inherit;transition:border-color .18s,color .18s,background .18s;}
+.tab-cafe-link:hover{color:#c8f5d8;background:rgba(3,199,90,.2);border-color:#03C75A;}
+.tab-cafe-link:focus-visible{outline:2px solid #03C75A;outline-offset:2px;}
+.tab-cafe-link .naver-mark{flex-shrink:0;display:block;}
 .main{padding:14px 16px;max-width:1800px;margin:0 auto;}
 .panel{display:none;}.panel.on{display:block;}
 .card{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:13px;margin-bottom:12px;}
@@ -347,6 +351,8 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 .hdr-brief{font-size:12px;line-height:1.55;}
 .tabs{top:74px;padding:0 20px;}
 .tab{font-size:17px;padding:14px 18px;border-bottom-width:3px;}
+.tab-cafe-link{font-size:14px;padding:8px 14px 8px 10px;}
+.tab-cafe-link .naver-mark{width:20px;height:20px;}
 .main{padding:18px 20px;}
 .card{border-radius:12px;padding:18px;margin-bottom:14px;}
 .ctitle{font-size:19px;font-weight:800;margin-bottom:12px;}
@@ -400,7 +406,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.02 22:10</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 00:31</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -429,6 +435,10 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
   <button class="tab"     onclick="ST('scenario',this)">🎲 시나리오</button>
   <button class="tab"     onclick="ST('holdings',this)">📦 투자수익 분석</button>
   <button class="tab"     onclick="ST('ai',this)">🤖 AI 평가·상담</button>
+  <a class="tab-cafe-link" href="https://cafe.naver.com/lifeafter60" target="_blank" rel="noopener noreferrer" aria-label="네이버 카페 은퇴 현금흐름 시뮬레이터 바로가기" title="네이버 카페 — 은퇴 현금흐름 시뮬레이터">
+    <svg class="naver-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect width="20" height="20" rx="4" fill="#03C75A"/><path fill="#fff" d="M5.5 5h2.9l3.1 4.6V5h2.9v10h-2.9l-3.1-4.6V15H5.5V5z"/></svg>
+    <span>네이버 카페</span>
+  </a>
 </div>
 <div class="main">
 
@@ -1708,7 +1718,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.02 22:10';
+const PUBLISH_STAMP='2026.04.04 00:31';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
