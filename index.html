@@ -405,7 +405,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:00</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:10</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1717,7 +1717,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 01:00';
+const PUBLISH_STAMP='2026.04.04 01:10';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -3772,7 +3772,7 @@ function renderAccts(){
         ${isPension?'<div class="pension-inv-isa">':''}
         <hr class="d">
         <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px;">📊 투자 슬롯 설정
-          <span style="font-size:11px;font-weight:400;color:var(--t3)">(보유종목 또는 배당설정 선택)</span>
+          <span style="font-size:11px;font-weight:400;color:var(--t3)">(보유 종목 · 월투자% · 배당 비중·주기)</span>
           ${a.monthlyContrib>0?`<div class="al al-i" style="font-size:11px;margin-top:6px;margin-bottom:0;">
             💡 월납입 <b style="color:var(--goldl)">${wf(a.monthlyContrib)}원</b>이 적립됩니다.
             종목을 추가하고 <b>배분(%)</b>을 입력하면 이 금액이 자동 분산 투자됩니다.<br>
@@ -4212,8 +4212,35 @@ function renderInvestSlots(a){
         </select>`:''}
         ${si>0?`<button class="btn btn-red btn-xs" onclick="removeInvestSlot('${a.id}',${si})">✕</button>`:''}
       </div>
-      <div style="font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.45;">같은 슬롯에서 <b>보유 종목</b>과 <b>배당 가정</b>(가상 비중·수익률)을 함께 둘 수 있습니다. 배당 비중·배당률을 0으로 두면 종목만 씁니다.</div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.45;">같은 슬롯에서 종목 표와 함께 <b>배당 비중·주기</b>를 씁니다(은퇴 시점 잔액 기준 참고 현금흐름). 비중·배당률을 0으로 두면 배당 추정은 꺼집니다.</div>
       <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px;">📈 보유 종목</div>
+      <div class="g3" style="font-size:12px;align-items:flex-end;margin-bottom:8px;">
+        <div class="frow"><label class="fl">배당 비중(%)</label>
+          <input class="fi mono" type="number" value="${sl.allocPct||0}" min="0" max="100" step="5" style="max-width:80px;"
+            oninput="APInvest('${a.id}',${si},'allocPct',+this.value);calcDivPreview('${a.id}')">
+          <div class="ka" style="color:var(--goldl);font-size:11px;">${divBal>0?wf(divBal)+'원':''}</div>
+        </div>
+        <div class="frow"><label class="fl">배당률</label>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+            <input class="fi mono" type="number" value="${sl.rate||0}" step="0.1" style="width:74px;min-width:74px;"
+              oninput="APInvest('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
+            <select class="fi" style="min-width:74px;max-width:86px;" onchange="APInvest('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
+              <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>%/년</option>
+              <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>%/월</option>
+            </select>
+          </div>
+          <div class="hint" style="font-size:10px;margin-top:2px;">표의 종목 <b>배당률%</b>와 별개(잔액×비중×이 율).</div>
+        </div>
+        <div class="frow"><label class="fl">배당 주기</label>
+          <select class="fi" style="max-width:100px;" onchange="APInvest('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
+            <option value="monthly" ${(sl.freq||'monthly')==='monthly'?'selected':''}>월배당</option>
+            <option value="quarterly" ${sl.freq==='quarterly'?'selected':''}>분기배당</option>
+            <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
+            <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
+          </select>
+          <div class="ka" style="color:var(--teal);font-size:11px;">${afterTax>0?wf(afterTax)+'원/월':''}</div>
+        </div>
+      </div>
       <div style="position:relative;">
         <div class="hld-search-row" style="margin-bottom:6px;">
           <input id="${hqId}" class="fi" placeholder="종목명 또는 코드 검색" style="padding:4px 9px;font-size:12px;"
@@ -4224,43 +4251,15 @@ function renderInvestSlots(a){
         <div id="${hqListId}" style="display:none;"></div>
       </div>
       <div id="hl-${a.id}-${si}">${renderHoldings(a,si)}</div>
-      <hr class="d" style="margin:12px 0;opacity:.55">
-      <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;">💰 배당 가정 <span style="font-weight:400;color:var(--t3)">(은퇴 시점 예상 자산 대비 비중·참고 배당률)</span></div>
-      <div class="g3" style="font-size:12px;">
-        <div class="frow"><label class="fl">배당 비중(%)</label>
-          <input class="fi mono" type="number" value="${sl.allocPct||0}" min="0" max="100" step="5" style="max-width:80px;"
-            oninput="APInvest('${a.id}',${si},'allocPct',+this.value);calcDivPreview('${a.id}')">
-          <div class="ka" style="color:var(--goldl);font-size:11px;">${divBal>0?wf(divBal)+'원':''}</div>
-        </div>
-        <div class="frow"><label class="fl">배당률</label>
-          <div style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap;">
-            <input class="fi mono" type="number" value="${sl.rate||0}" step="0.1" style="width:74px;min-width:74px;"
-              oninput="APInvest('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
-            <select class="fi" style="min-width:74px;max-width:86px;" onchange="APInvest('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
-              <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>%/년</option>
-              <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>%/월</option>
-            </select>
-          </div>
-        </div>
-        <div class="frow"><label class="fl">배당주기</label>
-          <select class="fi" style="max-width:100px;" onchange="APInvest('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
-            <option value="monthly" ${(sl.freq||'monthly')==='monthly'?'selected':''}>월배당</option>
-            <option value="quarterly" ${sl.freq==='quarterly'?'selected':''}>분기배당</option>
-            <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
-            <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
-          </select>
-          <div class="ka" style="color:var(--teal);font-size:11px;">${afterTax>0?wf(afterTax)+'원/월':''}</div>
-        </div>
-        <div class="hld-search-row" style="margin-top:8px;grid-column:1/-1;">
-          <input id="divq-${a.id}-${si}" class="fi" placeholder="배당률 조회용 ETF·주식 (코드 또는 명)" style="padding:4px 8px;font-size:12px;"
-            value="${esc(sl.divTicker?(resolveStockLabel(sl.divTicker,sl.divName)+' · '+sl.divTicker):'')}"
-            data-code="${esc(sl.divTicker||'')}"
-            oninput="void etfAutocomplete('divq-${a.id}-${si}','divqlist-${a.id}-${si}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
-          <button type="button" class="btn btn-blue btn-xs" onclick="quickAddDivFromInput('${a.id}',${si},'divq-${a.id}-${si}')">📡 조회·배당률</button>
-        </div>
-        <div id="divqlist-${a.id}-${si}" style="display:none;grid-column:1/-1;"></div>
-        ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;grid-column:1/-1;">참고 종목: <b>${esc(resolveStockLabel(sl.divTicker,sl.divName)||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
+      <div class="hld-search-row" style="margin-top:8px;">
+        <input id="divq-${a.id}-${si}" class="fi" placeholder="배당률 자동입력 — 코드 또는 명 (선택)" style="padding:4px 8px;font-size:12px;"
+          value="${esc(sl.divTicker?(resolveStockLabel(sl.divTicker,sl.divName)+' · '+sl.divTicker):'')}"
+          data-code="${esc(sl.divTicker||'')}"
+          oninput="void etfAutocomplete('divq-${a.id}-${si}','divqlist-${a.id}-${si}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
+        <button type="button" class="btn btn-blue btn-xs" onclick="quickAddDivFromInput('${a.id}',${si},'divq-${a.id}-${si}')">📡 조회·넣기</button>
       </div>
+      <div id="divqlist-${a.id}-${si}" style="display:none;"></div>
+      ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;">참고: <b>${esc(resolveStockLabel(sl.divTicker,sl.divName)||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
     </div>`;
   }
   const totalDiv=isTaxFree?calcSlotsDivPreview(a,projBal):Math.round(calcSlotsDivPreview(a,projBal)*0.846);
