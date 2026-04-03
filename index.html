@@ -405,7 +405,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:10</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:30</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1717,7 +1717,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 01:10';
+const PUBLISH_STAMP='2026.04.04 01:30';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -3237,13 +3237,61 @@ async function fetchFromProxy(url){
 function emptyInvestSlot(){
   return {startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''};
 }
-function slotHasVirtualDiv(sl){
+function legacySlotHasVirtualDiv(sl){
   return sl&&(+sl.allocPct||0)>0&&(+sl.rate||0)>0;
 }
+function accountHasHoldingsSlotDiv(a){
+  const hs=a.holdings||[], slots=a.investSlots||[];
+  return hs.some(h=>slots.some((_,si)=>getHoldingDivAllocPct(h,si)>0&&(+h.divYield||0)>0));
+}
+function migrateLegacyInvestSlotDivToHoldings(a){
+  const hs=a.holdings||[];
+  if(!hs.length)return;
+  (a.investSlots||[]).forEach((sl,si)=>{
+    const ap=+sl.allocPct||0, rt=+sl.rate||0;
+    if(ap<=0||rt<=0)return;
+    if(hs.some(h=>getHoldingDivAllocPct(h,si)>0)){
+      sl.allocPct=0;sl.rate=0;sl.divTicker='';sl.divName='';
+      return;
+    }
+    setHoldingDivAllocPct(hs[0],si,ap);
+    if(!(+hs[0].divYield||0))hs[0].divYield=rt;
+    setHoldingDivFreq(hs[0],si,sl.freq||'monthly');
+    sl.allocPct=0;sl.rate=0;sl.divTicker='';sl.divName='';
+  });
+}
+function pickDominantDivFreqForSlot(hs, si){
+  const w={monthly:0,quarterly:0,semiannual:0,annual:0};
+  hs.forEach(h=>{
+    const da=getHoldingDivAllocPct(h,si);
+    if(da<=0)return;
+    const f=getHoldingDivFreq(h,si);
+    if(w[f]!=null)w[f]+=da;
+  });
+  let best='monthly',mx=0;
+  Object.keys(w).forEach(k=>{if(w[k]>mx){mx=w[k];best=k;}});
+  return best;
+}
 function syncDivSlotsFromInvestSlots(a){
-  a.divSlots=(a.investSlots||[]).map(s=>({
-    allocPct:+s.allocPct||0,rate:+s.rate||0,rateMode:s.rateMode||'annual',freq:s.freq||'monthly',
-    startAge:+s.startAge||0,endAge:+s.endAge||0,divTicker:s.divTicker||'',divName:s.divName||''}));
+  migrateLegacyInvestSlotDivToHoldings(a);
+  a.divSlots=(a.investSlots||[]).map((sl,si)=>{
+    const hs=a.holdings||[];
+    const tAlloc=hs.reduce((s,h)=>s+getHoldingDivAllocPct(h,si),0);
+    const effAlloc=Math.min(100,tAlloc);
+    let grossWY=0,wfSum=0;
+    hs.forEach(h=>{
+      const da=getHoldingDivAllocPct(h,si);
+      const dy=+h.divYield||0;
+      if(da>0&&dy>0){grossWY+=da*dy;wfSum+=da;}
+    });
+    const rate=wfSum>0?Math.round((grossWY/wfSum)*100)/100:0;
+    const freq=pickDominantDivFreqForSlot(hs,si);
+    return{
+      allocPct:effAlloc,rate,rateMode:'annual',freq,
+      startAge:+sl.startAge||0,endAge:+sl.endAge||0,
+      divTicker:'',divName:''
+    };
+  });
 }
 function normalizeInvestSlotsForAccount(a){
   if(!a.investSlots||!a.investSlots.length)a.investSlots=[emptyInvestSlot(),emptyInvestSlot()];
@@ -3370,8 +3418,11 @@ async function fetchOneH(acctId, hi){
   const info=await fetchStockInfo(h.ticker);
   if(info.price)a.holdings[hi].cp=info.price;
   if(info.cagr)a.holdings[hi].cagr=info.cagr;
-  if(info.divYield!==undefined)a.holdings[hi].divYield=info.divYield;
+  if(info.divYield!=null&&+info.divYield>0)a.holdings[hi].divYield=Math.round(+info.divYield*10)/10;
   refreshHoldingsViews(acctId);
+  calcDivPreview(acctId);
+  renderInvestSlotsEl(acctId);
+  autoSave();
 }
 
 // ═══════════ COMMON HOLDINGS ═══════════
@@ -3772,7 +3823,7 @@ function renderAccts(){
         ${isPension?'<div class="pension-inv-isa">':''}
         <hr class="d">
         <div style="font-size:13px;font-weight:700;color:var(--t2);margin-bottom:8px;">📊 투자 슬롯 설정
-          <span style="font-size:11px;font-weight:400;color:var(--t3)">(보유 종목 · 월투자% · 배당 비중·주기)</span>
+          <span style="font-size:11px;font-weight:400;color:var(--t3)">(표: 배당 비중·배당률·주기 · 월투자%)</span>
           ${a.monthlyContrib>0?`<div class="al al-i" style="font-size:11px;margin-top:6px;margin-bottom:0;">
             💡 월납입 <b style="color:var(--goldl)">${wf(a.monthlyContrib)}원</b>이 적립됩니다.
             종목을 추가하고 <b>배분(%)</b>을 입력하면 이 금액이 자동 분산 투자됩니다.<br>
@@ -3832,8 +3883,37 @@ function setHoldingAllocPct(h, slotIdx, v){
   h.allocPctBySlot[slotIdx]=n;
   if(slotIdx===0)h.allocPct=n; // keep backward compatibility
 }
+/** Dividend slice of projected balance for sim (per slot), % of account at retire — not same as portfolio weight column. */
+function getHoldingDivAllocPct(h, slotIdx){
+  if(slotIdx===null||slotIdx===undefined)return +(h.divAllocPct||0);
+  if(h.divAllocBySlot&&h.divAllocBySlot[slotIdx]!=null&&!isNaN(+h.divAllocBySlot[slotIdx]))return +h.divAllocBySlot[slotIdx];
+  if(slotIdx===0&&h.divAllocPct!=null&&!isNaN(+h.divAllocPct))return +h.divAllocPct;
+  return 0;
+}
+function setHoldingDivAllocPct(h, slotIdx, v){
+  const n=Math.max(0,Math.min(100,+(v||0)));
+  if(slotIdx===null||slotIdx===undefined){h.divAllocPct=n;return;}
+  if(!h.divAllocBySlot)h.divAllocBySlot={};
+  h.divAllocBySlot[slotIdx]=n;
+  if(slotIdx===0)h.divAllocPct=n;
+}
+function getHoldingDivFreq(h, slotIdx){
+  if(slotIdx===null||slotIdx===undefined)return String(h.divFreq||'monthly');
+  if(h.divFreqBySlot&&h.divFreqBySlot[slotIdx]!=null)return String(h.divFreqBySlot[slotIdx]||'monthly');
+  if(slotIdx===0&&h.divFreq)return String(h.divFreq);
+  return 'monthly';
+}
+function setHoldingDivFreq(h, slotIdx, v){
+  const allowed=['monthly','quarterly','semiannual','annual'];
+  const x=allowed.includes(v)?v:'monthly';
+  if(slotIdx===null||slotIdx===undefined){h.divFreq=x;return;}
+  if(!h.divFreqBySlot)h.divFreqBySlot={};
+  h.divFreqBySlot[slotIdx]=x;
+  if(slotIdx===0)h.divFreq=x;
+}
 function refreshHoldingsViews(acctId){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
+  syncDivSlotsFromInvestSlots(a);
   const main=G('hl-'+acctId);if(main)main.innerHTML=renderHoldings(a);
   (a.investSlots||[]).forEach((_,si)=>{
     const slEl=G('hl-'+acctId+'-'+si);if(slEl)slEl.innerHTML=renderHoldings(a,si);
@@ -3843,17 +3923,30 @@ function refreshHoldingsViews(acctId){
 }
 
 function renderHoldings(a, slotIdx=null){
-  if(!a||!a.holdings?.length)return`<div class="hint" style="padding:5px;">종목 없음. ＋ 종목 버튼으로 추가하세요.</div>`;
+  if(!a||!a.holdings?.length)return`<div class="hint" style="padding:5px;">종목 없음. ＋ 추가로 검색·추가하세요.</div>`;
   const isSlotView=(slotIdx!==null&&slotIdx!==undefined);
   const slotTag=(slotIdx===null||slotIdx===undefined)?'m':String(slotIdx);
   const tot=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(cp>0?h.qty*cp:0);},0);
   const totalDivInc=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0?h.qty*cp:0;return s+ev*(h.divYield||0)/100;},0);
+  const projBal=isSlotView?getAcctProjectedBal(a):0;
+  const monthlyPre=isSlotView?calcMonthlyDivForSlotPretax(a,slotIdx,projBal):0;
+  const cat=(AMETA[a.type]||{}).cat;
+  const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(cat);
+  const monthlySlotAfter=isSlotView?(isTaxFree?monthlyPre:Math.round(monthlyPre*0.846)):0;
+  const tDivAllocSum=a.holdings.reduce((s,h)=>s+getHoldingDivAllocPct(h,slotIdx),0);
+  const freqSel=(cur)=>`<option value="monthly" ${(cur||'monthly')==='monthly'?'selected':''}>월</option>
+            <option value="quarterly" ${cur==='quarterly'?'selected':''}>분기</option>
+            <option value="semiannual" ${cur==='semiannual'?'selected':''}>반기</option>
+            <option value="annual" ${cur==='annual'?'selected':''}>연</option>`;
   return `<div class="hld-tbl-wrap" style="overflow-x:auto;">
-  <table class="ht" style="min-width:680px;table-layout:auto;">
+  <table class="ht" style="min-width:980px;table-layout:auto;">
     <thead><tr>
       <th style="width:88px">코드</th><th style="min-width:120px">종목명</th>
       <th class="r">수량</th><th class="r">평단(원)</th><th class="r">현재가(원)</th>
-      <th class="r">평가금액</th><th class="r">수익률</th><th class="r">배당률%</th>
+      <th class="r">평가금액</th><th class="r">수익률</th>
+      <th class="r" title="은퇴 예상 잔액 중 이 종목 배당에 반영할 비중(%)">배당 비중(%)</th>
+      <th class="r">배당률%</th>
+      <th class="r" title="지급 주기(표시·참고)">배당 주기</th>
       <th class="r" title="월납입액 중 이 종목에 투자할 비율">월투자%</th>
       <th class="r">비중</th><th></th>
     </tr></thead>
@@ -3862,6 +3955,8 @@ function renderHoldings(a, slotIdx=null){
       const ret=h.avg>0&&h.cp>0?((h.cp-h.avg)/h.avg*100).toFixed(1):'—';
       const rc=parseFloat(ret)>0?'pos':parseFloat(ret)<0?'neg':'dim';
       const w=tot>0?(ev/tot*100).toFixed(1):'0';
+      const df=getHoldingDivFreq(h,slotIdx);
+      const sInp=slotIdx==null?'null':slotIdx;
       return `<tr>
         <td><input class="hi sm code-col" value="${h.ticker||''}" oninput="hF('${a.id}',${hi},'ticker',this.value)" style="width:80px;min-width:72px" placeholder="6자리" inputmode="numeric" autocomplete="off"></td>
         <td><input class="hi sm" value="${attrEsc(resolveStockLabel(h.ticker,h.name))}" oninput="hF('${a.id}',${hi},'name',this.value)" style="min-width:120px;max-width:220px;width:100%" placeholder="종목명"></td>
@@ -3871,18 +3966,28 @@ function renderHoldings(a, slotIdx=null){
           <button type="button" class="btn btn-sec" style="padding:1px 4px;font-size:9px;margin-left:2px;flex-shrink:0;" onclick="fetchOneH('${a.id}',${hi})">📡</button></td>
         <td class="r divcol mono-fig" style="font-size:11px;">${ws(ev)}</td>
         <td class="r ${rc} mono-fig" style="font-size:11px;">${ret}%</td>
-        <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.divYield||0}" step="0.1" oninput="hF('${a.id}',${hi},'divYield',+this.value)" style="width:56px" placeholder="0"></td>
-        <td class="r"><input class="hi r sm mono-fig" type="number" value="${getHoldingAllocPct(h,slotIdx)}" step="5" min="0" max="100" oninput="hFSlot('${a.id}',${hi},${slotIdx==null?'null':slotIdx},+this.value)" style="width:52px" title="월납입액 배분%"><div id="hld-mo-hint-${a.id}-${slotTag}-${hi}" style="font-size:9px;color:var(--teal);white-space:nowrap">${a.monthlyContrib>0&&getHoldingAllocPct(h,slotIdx)>0?wf(Math.round(a.monthlyContrib*getHoldingAllocPct(h,slotIdx)/100))+'원':''}</div></td>
+        <td class="r"><input class="hi r sm mono-fig" type="number" value="${getHoldingDivAllocPct(h,slotIdx)}" step="5" min="0" max="100" oninput="hFSlotDiv('${a.id}',${hi},${sInp},+this.value)" style="width:52px" title="은퇴잔액 대비 배당 비중"></td>
+        <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.divYield||0}" step="0.1" oninput="hF('${a.id}',${hi},'divYield',+this.value)" style="width:56px" placeholder="0" title="연 배당률(%)"></td>
+        <td class="r"><select class="fi sm" style="max-width:76px;padding:2px 4px;font-size:11px;" onchange="hFSlotFreq('${a.id}',${hi},${sInp},this.value)">${freqSel(df)}</select></td>
+        <td class="r"><input class="hi r sm mono-fig" type="number" value="${getHoldingAllocPct(h,slotIdx)}" step="5" min="0" max="100" oninput="hFSlot('${a.id}',${hi},${sInp},+this.value)" style="width:52px" title="월납입액 배분%"><div id="hld-mo-hint-${a.id}-${slotTag}-${hi}" style="font-size:9px;color:var(--teal);white-space:nowrap">${a.monthlyContrib>0&&getHoldingAllocPct(h,slotIdx)>0?wf(Math.round(a.monthlyContrib*getHoldingAllocPct(h,slotIdx)/100))+'원':''}</div></td>
         <td class="r dim mono-fig" style="font-size:11px;">${w}%</td>
-        <td>${isSlotView?'<span style="font-size:10px;color:var(--t3)">공통</span>':`<button type="button" class="btn btn-red btn-xs" onclick="splH('${a.id}',${hi})">✕</button>`}</td>
+        <td><button type="button" class="btn btn-red btn-xs" onclick="splH('${a.id}',${hi})" title="삭제">✕</button></td>
       </tr>`;
     }).join('')}</tbody>
     <tfoot><tr>
       <td colspan="5" style="text-align:right;font-size:11px;color:var(--t2);padding:4px 5px;">합계 평가금액</td>
       <td class="r tcol mono-fig" style="padding:4px 5px;">${ws(tot)}</td>
+      <td></td>
+      <td class="r" style="font-size:11px;padding:4px 5px;">${tDivAllocSum>0?`<span style="color:${tDivAllocSum===100?'var(--green)':tDivAllocSum>100?'var(--red)':'var(--orange)'}">합 ${Math.round(tDivAllocSum*10)/10}%</span>`:'—'}</td>
       <td style="text-align:right;font-size:11px;color:var(--teal);padding:4px 5px;">연배당 ${ws(totalDivInc)}</td>
+      <td></td>
       <td class="r" id="hld-foot-pct-${a.id}-${slotTag}" style="font-size:11px;padding:4px 5px;">${(()=>{const tPct=a.holdings.reduce((s,h)=>s+getHoldingAllocPct(h,slotIdx),0);return tPct>0?`<span style="color:${tPct===100?'var(--green)':tPct>100?'var(--red)':'var(--orange)'}">합계 ${tPct}%${tPct===100?' ✅':tPct>100?' ⚠ 초과':' ⚠'}</span>`:'';})()}</td>
       <td colspan="2"></td>
+    </tr>
+    ${isSlotView?`<tr>
+      <td colspan="9" style="text-align:right;font-size:11px;color:var(--t2);padding:6px 5px;line-height:1.4;">은퇴 예상 잔액 <b>${wf(projBal)}원</b> 기준 · 이 슬롯 월배당(세후·참고)</td>
+      <td colspan="4" class="r" style="padding:6px 5px;font-size:12px;color:var(--teal);font-weight:700;">${monthlySlotAfter>0?wf(monthlySlotAfter)+'원 / 월':'—'}${monthlySlotAfter>0?' · 연 '+wf(monthlySlotAfter*12)+'원':''}</td>
+    </tr>`:''}
     </tfoot>
   </table></div>`;
 }
@@ -3949,14 +4054,20 @@ async function quickAddH(id){
   const info=await fetchStockInfo(ticker);
   if(info.price)a.holdings[hi].cp=info.price;
   if(info.cagr)a.holdings[hi].cagr=info.cagr;
-  if(info.divYield!=null&&info.divYield>0)a.holdings[hi].divYield=info.divYield;
+  if(info.divYield!=null&&+info.divYield>0)a.holdings[hi].divYield=Math.round(+info.divYield*10)/10;
   refreshHoldingsViews(id);
+  calcDivPreview(id);
+  renderInvestSlotsEl(id);
+  autoSave();
   toast(info.price?'✅ '+name+' 추가 ('+wf(info.price)+'원)':'✅ '+name+' 추가됨');
 }
 function splH(id,hi){
   const a=accounts.find(x=>x.id===id);if(!a)return;
   a.holdings.splice(hi,1);
   refreshHoldingsViews(id);
+  calcDivPreview(id);
+  renderInvestSlotsEl(id);
+  autoSave();
 }
 function hF(id,hi,k,v){
   const a=accounts.find(x=>x.id===id);if(!a||!a.holdings[hi])return;
@@ -3969,7 +4080,27 @@ function hF(id,hi,k,v){
   }else{
     a.holdings[hi][k]=v;
     if(k==='allocPct'||k==='divYield')refreshHoldingsViews(id);
+    if(k==='divYield'){calcDivPreview(id);renderInvestSlotsEl(id);}
   }
+  if(k!=='ticker'&&k!=='name')autoSave();
+}
+function hFSlotDiv(id,hi,slotIdx,v){
+  const a=accounts.find(x=>x.id===id);if(!a||!a.holdings[hi])return;
+  const ns=normalizeSlotIdx(slotIdx);
+  setHoldingDivAllocPct(a.holdings[hi],ns,+v);
+  refreshHoldingsViews(id);
+  calcDivPreview(id);
+  renderInvestSlotsEl(id);
+  autoSave();
+}
+function hFSlotFreq(id,hi,slotIdx,val){
+  const a=accounts.find(x=>x.id===id);if(!a||!a.holdings[hi])return;
+  const ns=normalizeSlotIdx(slotIdx);
+  setHoldingDivFreq(a.holdings[hi],ns,val);
+  refreshHoldingsViews(id);
+  calcDivPreview(id);
+  renderInvestSlotsEl(id);
+  autoSave();
 }
 function hFSlot(id,hi,slotIdx,v){
   const a=accounts.find(x=>x.id===id);if(!a||!a.holdings[hi])return;
@@ -3992,6 +4123,8 @@ function hFSlot(id,hi,slotIdx,v){
 }
 function refH(id){
   refreshHoldingsViews(id);
+  calcDivPreview(id);
+  renderInvestSlotsEl(id);
 }
 // ─── ETF 검색 캐시 ───
 const ETF_CACHE=[];
@@ -4019,9 +4152,14 @@ async function loadNaverETF(){
     }catch(e){
       Object.entries(TMAP).forEach(([code,name])=>{
         const c=String(code);
-        if(!ETF_CACHE.some(x=>String(x.code)===c)) ETF_CACHE.push({code:c,name,price:0,change:0,changePct:0});
+        if(!ETF_CACHE.some(x=>String(x.code)===c)) ETF_CACHE.push({code:c,name:normalizeFinanceKoreanName(c,name),price:0,change:0,changePct:0});
       });
     }finally{
+      Object.entries(TMAP).forEach(([code,name])=>{
+        const c=String(code);
+        if(!ETF_CACHE.some(x=>String(x.code)===c))
+          ETF_CACHE.push({code:c,name:normalizeFinanceKoreanName(c,name),price:0,change:0,changePct:0});
+      });
       ETF_NAVER_LOADED.done=true;
     }
   })();
@@ -4176,6 +4314,7 @@ function removeInvestSlot(acctId,si){
   renderInvestSlotsEl(acctId);
 }
 function renderInvestSlots(a){
+  syncDivSlotsFromInvestSlots(a);
   const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
   const projBal=getAcctProjectedBal(a);
   const cat=(AMETA[a.type]||{}).cat;
@@ -4189,11 +4328,9 @@ function renderInvestSlots(a){
 
   function renderSlot(si){
     const sl=slots[si]||emptyInvestSlot();
-    const hasDiv=slotHasVirtualDiv(sl);
-    const divBal=hasDiv?Math.round(projBal*(sl.allocPct||0)/100):0;
-    const annRate=hasDiv?((sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0)):0;
-    const monthlyDiv=divBal>0&&annRate>0?Math.round(divBal*annRate/100/12):0;
-    const afterTax=isTaxFree?monthlyDiv:Math.round(monthlyDiv*0.846);
+    const hasDiv=(a.holdings||[]).some(h=>getHoldingDivAllocPct(h,si)>0&&(+h.divYield||0)>0);
+    const monthlyPre=calcMonthlyDivForSlotPretax(a,si,projBal);
+    const afterTax=isTaxFree?monthlyPre:Math.round(monthlyPre*0.846);
     const hqId=`hq-slot-${a.id}-${si}`, hqListId=`hqlist-${a.id}-${si}`;
     return `<div style="background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:10px;">
       <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
@@ -4212,38 +4349,11 @@ function renderInvestSlots(a){
         </select>`:''}
         ${si>0?`<button class="btn btn-red btn-xs" onclick="removeInvestSlot('${a.id}',${si})">✕</button>`:''}
       </div>
-      <div style="font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.45;">같은 슬롯에서 종목 표와 함께 <b>배당 비중·주기</b>를 씁니다(은퇴 시점 잔액 기준 참고 현금흐름). 비중·배당률을 0으로 두면 배당 추정은 꺼집니다.</div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.45;">표에서 종목별 <b>배당 비중·배당률·주기</b>를 넣습니다. 검색으로 추가 시 시세 API가 있으면 <b>연 배당률%</b>를 채웁니다. 은퇴 시점 예상 잔액×비중×배당률로 아래 <b>월배당(참고)</b>를 계산합니다.</div>
       <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px;">📈 보유 종목</div>
-      <div class="g3" style="font-size:12px;align-items:flex-end;margin-bottom:8px;">
-        <div class="frow"><label class="fl">배당 비중(%)</label>
-          <input class="fi mono" type="number" value="${sl.allocPct||0}" min="0" max="100" step="5" style="max-width:80px;"
-            oninput="APInvest('${a.id}',${si},'allocPct',+this.value);calcDivPreview('${a.id}')">
-          <div class="ka" style="color:var(--goldl);font-size:11px;">${divBal>0?wf(divBal)+'원':''}</div>
-        </div>
-        <div class="frow"><label class="fl">배당률</label>
-          <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-            <input class="fi mono" type="number" value="${sl.rate||0}" step="0.1" style="width:74px;min-width:74px;"
-              oninput="APInvest('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
-            <select class="fi" style="min-width:74px;max-width:86px;" onchange="APInvest('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
-              <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>%/년</option>
-              <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>%/월</option>
-            </select>
-          </div>
-          <div class="hint" style="font-size:10px;margin-top:2px;">표의 종목 <b>배당률%</b>와 별개(잔액×비중×이 율).</div>
-        </div>
-        <div class="frow"><label class="fl">배당 주기</label>
-          <select class="fi" style="max-width:100px;" onchange="APInvest('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
-            <option value="monthly" ${(sl.freq||'monthly')==='monthly'?'selected':''}>월배당</option>
-            <option value="quarterly" ${sl.freq==='quarterly'?'selected':''}>분기배당</option>
-            <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
-            <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
-          </select>
-          <div class="ka" style="color:var(--teal);font-size:11px;">${afterTax>0?wf(afterTax)+'원/월':''}</div>
-        </div>
-      </div>
       <div style="position:relative;">
         <div class="hld-search-row" style="margin-bottom:6px;">
-          <input id="${hqId}" class="fi" placeholder="종목명 또는 코드 검색" style="padding:4px 9px;font-size:12px;"
+          <input id="${hqId}" class="fi" placeholder="종목·ETF·배당주 — 코드 또는 명 통합 검색" style="padding:4px 9px;font-size:12px;"
             oninput="void etfAutocomplete('${hqId}','${hqListId}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
           <button type="button" class="btn btn-blue btn-xs" onclick="quickAddHFromInput('${a.id}','${hqId}')">＋ 추가</button>
           <button type="button" class="btn btn-sec btn-xs" onclick="quickAddH('${a.id}')">📡조회추가</button>
@@ -4251,15 +4361,7 @@ function renderInvestSlots(a){
         <div id="${hqListId}" style="display:none;"></div>
       </div>
       <div id="hl-${a.id}-${si}">${renderHoldings(a,si)}</div>
-      <div class="hld-search-row" style="margin-top:8px;">
-        <input id="divq-${a.id}-${si}" class="fi" placeholder="배당률 자동입력 — 코드 또는 명 (선택)" style="padding:4px 8px;font-size:12px;"
-          value="${esc(sl.divTicker?(resolveStockLabel(sl.divTicker,sl.divName)+' · '+sl.divTicker):'')}"
-          data-code="${esc(sl.divTicker||'')}"
-          oninput="void etfAutocomplete('divq-${a.id}-${si}','divqlist-${a.id}-${si}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
-        <button type="button" class="btn btn-blue btn-xs" onclick="quickAddDivFromInput('${a.id}',${si},'divq-${a.id}-${si}')">📡 조회·넣기</button>
-      </div>
-      <div id="divqlist-${a.id}-${si}" style="display:none;"></div>
-      ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;">참고: <b>${esc(resolveStockLabel(sl.divTicker,sl.divName)||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
+      ${hasDiv?`<div style="margin-top:8px;font-size:11px;color:var(--teal);text-align:right;">슬롯 합산 월배당(참고·세후): <b>${wf(afterTax)}원/월</b> · 연 ${wf(afterTax*12)}원</div>`:''}
     </div>`;
   }
   const totalDiv=isTaxFree?calcSlotsDivPreview(a,projBal):Math.round(calcSlotsDivPreview(a,projBal)*0.846);
@@ -4283,16 +4385,24 @@ function renderInvestSlots(a){
     `<div id="div-preview-${a.id}" style="margin-top:6px;font-size:12px;display:none;"></div>`;
 }
 
+function calcMonthlyDivForSlotPretax(a, si, projBal){
+  const hs=a.holdings||[];
+  const totalAlloc=hs.reduce((s,h)=>s+getHoldingDivAllocPct(h,si),0);
+  if(totalAlloc<=0)return 0;
+  let sum=0;
+  hs.forEach(h=>{
+    const p=getHoldingDivAllocPct(h,si);
+    const dy=+h.divYield||0;
+    if(p<=0||dy<=0)return;
+    const eff=totalAlloc>100?(p/totalAlloc*100):p;
+    const divBal=Math.round(projBal*eff/100);
+    sum+=Math.round(divBal*dy/100/12);
+  });
+  return sum;
+}
 function calcSlotsDivPreview(a, projBal){
   if(!a.investSlots)return 0;
-  const divSlots=(a.investSlots||[]).filter(slotHasVirtualDiv);
-  const totalAlloc=divSlots.reduce((s,sl)=>s+Math.max(0,+sl.allocPct||0),0);
-  return divSlots.reduce((sum,sl)=>{
-    const effPct=totalAlloc>100?((Math.max(0,+sl.allocPct||0)/totalAlloc)*100):(Math.max(0,+sl.allocPct||0));
-    const divBal=Math.round(projBal*effPct/100);
-    const annRate=(sl.rateMode||'annual')==='monthly'?sl.rate*12:sl.rate;
-    return sum+Math.round(divBal*annRate/100/12);
-  },0);
+  return (a.investSlots||[]).reduce((t,_,si)=>t+calcMonthlyDivForSlotPretax(a,si,projBal),0);
 }
 
 function APInvest(acctId,si,field,val){
@@ -4301,7 +4411,7 @@ function APInvest(acctId,si,field,val){
   while(a.investSlots.length<=si)a.investSlots.push(emptyInvestSlot());
   a.investSlots[si][field]=val;
   syncDivSlotsFromInvestSlots(a);
-  const rerender=new Set(['allocPct','rate','rateMode','freq','startAge','endAge','divTicker','divName']);
+  const rerender=new Set(['startAge','endAge']);
   if(rerender.has(field))renderInvestSlotsEl(acctId);
   else patchInvestSlotSummary(acctId);
   autoSave();
@@ -4319,44 +4429,35 @@ function setInvestSlotAgePreset(acctId,si,preset){
 async function quickAddHFromInput(acctId, inputId){
   const inp=G(inputId);if(!inp)return;
   const rawVal=(inp.value||'').trim();
-  if(!rawVal){toast('종목명 또는 코드를 입력하세요');return;}
-  const code=inp.dataset.code||(NMAP[rawVal]||rawVal);
-  const name=normalizeFinanceKoreanName(String(code).replace(/\D/g,''),rawVal);
+  if(!rawVal){toast('종목·ETF·배당주 코드 또는 명을 입력하세요');return;}
+  let code=(inp.dataset&&inp.dataset.code)?String(inp.dataset.code).trim():'';
+  if(!code)code=NMAP[rawVal]||'';
+  if(!code){
+    const d=rawVal.replace(/\D/g,'');
+    if(d.length>=6)code=d.slice(-6);
+  }
+  if(!code)code=rawVal.replace(/\D/g,'');
+  const code6=String(code).replace(/\D/g,'').slice(-6)||String(code);
+  const name=normalizeFinanceKoreanName(code6,rawVal);
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
-  a.holdings.push({ticker:code,name,qty:0,avg:0,cp:0,divYield:0,cagr:null});
+  a.holdings.push({ticker:code6,name,qty:0,avg:0,cp:0,divYield:0,cagr:null});
   inp.value='';
   delete inp.dataset.code;
-  // 즉시 렌더 (추가 즉시 표시)
-  function refreshHoldings(){refreshHoldingsViews(acctId);}
-  refreshHoldings();
+  refreshHoldingsViews(acctId);
   const hi=a.holdings.length-1;
   toast('📡 '+name+' 조회 중...');
-  const info=await fetchStockInfo(code);
+  const info=await fetchStockInfo(code6);
   if(info.price){a.holdings[hi].cp=info.price;}
   if(info.cagr)a.holdings[hi].cagr=info.cagr;
-  if(info.divYield!=null&&info.divYield>0)a.holdings[hi].divYield=info.divYield;
-  refreshHoldings(); // 가격 조회 후 재렌더
-  toast(info.price?'✅ '+name+' 추가 (현재가 '+wf(info.price)+'원)':'✅ '+name+' 추가됨 (가격 조회 실패)');
-}
-
-async function quickAddDivFromInput(acctId, si, inputId){
-  const inp=G(inputId);if(!inp)return;
-  const rawVal=(inp.value||'').trim();
-  if(!rawVal){toast('종목코드 또는 종목명을 입력하세요');return;}
-  const code=(inp.dataset&&inp.dataset.code)?String(inp.dataset.code).trim():'';
-  const resolved=code||NMAP[rawVal]||(/^\d{6}$/.test(rawVal.replace(/\s/g,''))?rawVal.replace(/\s/g,''):'');
-  if(!resolved){toast('6자리 코드 또는 목록에서 종목을 선택하세요');return;}
-  const name=normalizeFinanceKoreanName(resolved,rawVal);
-  APInvest(acctId,si,'divTicker',resolved);
-  APInvest(acctId,si,'divName',name);
-  toast('📡 배당률 조회 중...');
-  const info=await fetchStockInfo(resolved);
-  if(info&&info.divYield!=null&&+info.divYield>0)
-    APInvest(acctId,si,'rate',Math.round(+info.divYield*10)/10);
-  inp.value=(name?name+' · ':'')+resolved;
-  if(inp.dataset)inp.dataset.code=resolved;
+  if(info.divYield!=null&&+info.divYield>0)a.holdings[hi].divYield=Math.round(+info.divYield*10)/10;
+  refreshHoldingsViews(acctId);
+  calcDivPreview(acctId);
   renderInvestSlotsEl(acctId);
-  toast(info&&info.divYield>0?`✅ ${name} 연 배당률 반영(참고)`:'종목은 저장됨. 배당률은 수동 입력하거나 네트워크를 확인하세요.');
+  autoSave();
+  const dy=a.holdings[hi].divYield;
+  toast(info.price
+    ?`✅ ${name} 추가 (현재가 ${wf(info.price)}원${dy>0?`, 연배당 ${dy}%`:''})`
+    :`✅ ${name} 추가됨${dy>0?` (연배당 ${dy}%)`:''}`);
 }
 
 function getDefaultOptRefRRForGrade(g){
@@ -5375,26 +5476,41 @@ function getDivIncome(acct, year, curYear, divGrowthRate, currentBal){
   const curAge=parseInt(Gval('curAge'))||47;
   const ageAtYear=curAge+(year-curYear);
 
-  // ── 1. investSlots/divSlots 가상 배당 (비중·배당률)
-  // 중요: 복리 성장 없이 고정 배당률 적용 (인컴형 ETF)
-  const hasInv=(acct.investSlots||[]).some(slotHasVirtualDiv);
-  const slots=(acct.investSlots||[]).filter(slotHasVirtualDiv)
-    .concat((acct.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&!hasInv));
-  if(slots.length>0){
-    const bal=(currentBal!==undefined&&currentBal>=0)?currentBal:(acct.balance||0);
-    let slotGross=0;
-    slots.forEach(sl=>{
-      // 나이 범위 체크
+  // ── 1. 슬롯별 보유종목 배당 비중·배당률% (은퇴 잔액 대비 행 단위)
+  const hasRow=accountHasHoldingsSlotDiv(acct);
+  const bal=(currentBal!==undefined&&currentBal>=0)?currentBal:(acct.balance||0);
+  let slotGross=0;
+  if(hasRow){
+    (acct.investSlots||[]).forEach((sl,si)=>{
       const inRange=(!sl.startAge||ageAtYear>=sl.startAge)&&(!sl.endAge||ageAtYear<=sl.endAge);
       if(!inRange)return;
-      const annRate=(sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0);
-      // 배당 비중 금액 (계좌 잔액 × 비중%) - 복리 성장 없음 (인컴 수익)
-      slotGross+=Math.round(bal*(sl.allocPct/100)*(annRate/100));
+      const hs=acct.holdings||[];
+      const tAlloc=hs.reduce((s,h)=>s+getHoldingDivAllocPct(h,si),0);
+      if(tAlloc<=0)return;
+      hs.forEach(h=>{
+        const p=getHoldingDivAllocPct(h,si);
+        const dy=+h.divYield||0;
+        if(p<=0||dy<=0)return;
+        const eff=tAlloc>100?(p/tAlloc*100):p;
+        slotGross+=Math.round(bal*(eff/100)*(dy/100));
+      });
     });
-    if(slotGross>0){
-      const net=Math.round(slotGross*(1-taxRate));
-      return{gross:slotGross,net,taxFree:isTaxFree};
+  }else{
+    const hasLegacy=(acct.investSlots||[]).some(legacySlotHasVirtualDiv);
+    const slots=(acct.investSlots||[]).filter(legacySlotHasVirtualDiv)
+      .concat((acct.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&!hasLegacy));
+    if(slots.length>0){
+      slots.forEach(sl=>{
+        const inRange=(!sl.startAge||ageAtYear>=sl.startAge)&&(!sl.endAge||ageAtYear<=sl.endAge);
+        if(!inRange)return;
+        const annRate=(sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0);
+        slotGross+=Math.round(bal*(sl.allocPct/100)*(annRate/100));
+      });
     }
+  }
+  if(slotGross>0){
+    const net=Math.round(slotGross*(1-taxRate));
+    return{gross:slotGross,net,taxFree:isTaxFree};
   }
 
   // ── 2. holdings 배당수익률 기반
@@ -5743,14 +5859,23 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       const curBal=(bal[a.id]||0);
       // 배당 설정 계좌: 배당 비중은 복리 성장에서 제외 (인컴 수익 = 배당소득으로 수령)
       let divAllocFrac=0;
-      const hasInv2=(a.investSlots||[]).some(slotHasVirtualDiv);
-      const divSlots2=(a.investSlots||[]).filter(slotHasVirtualDiv)
-        .concat((a.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&!hasInv2));
-      if(divSlots2.length>0){
-        divSlots2.forEach(sl=>{
+      if(accountHasHoldingsSlotDiv(a)){
+        (a.investSlots||[]).forEach((sl,si)=>{
           const inRange2=(!sl.startAge||age>=sl.startAge)&&(!sl.endAge||age<=sl.endAge);
-          if(inRange2)divAllocFrac=Math.min(1,divAllocFrac+(sl.allocPct||0)/100);
+          if(!inRange2)return;
+          const t=(a.holdings||[]).reduce((s,h)=>s+getHoldingDivAllocPct(h,si),0);
+          divAllocFrac=Math.min(1,divAllocFrac+t/100);
         });
+      }else{
+        const hasInv2=(a.investSlots||[]).some(legacySlotHasVirtualDiv);
+        const divSlots2=(a.investSlots||[]).filter(legacySlotHasVirtualDiv)
+          .concat((a.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&!hasInv2));
+        if(divSlots2.length>0){
+          divSlots2.forEach(sl=>{
+            const inRange2=(!sl.startAge||age>=sl.startAge)&&(!sl.endAge||age<=sl.endAge);
+            if(inRange2)divAllocFrac=Math.min(1,divAllocFrac+(sl.allocPct||0)/100);
+          });
+        }
       }
       // 성장 비중: 배당 비중 제외 — 당해 연 납입(yC)까지 합친 잔액에 수익률 적용(연간 납입이 같은 해에 복리되는 단순 모델)
       const growthFrac=Math.max(0,1-divAllocFrac);
