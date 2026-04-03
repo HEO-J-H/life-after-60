@@ -405,7 +405,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 00:44</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:00</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1717,7 +1717,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 00:44';
+const PUBLISH_STAMP='2026.04.04 01:00';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -3139,18 +3139,13 @@ function getYfCandidates(c){
 function attrEsc(s){
   return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 }
-/** Prefer canonical TMAP name when 6-digit KRX code is known (fixes bad cache / mojibake in saved profiles). */
-function resolveStockLabel(ticker,name){
-  const t=String(ticker||'').replace(/\D/g,'');
-  if(t.length===6&&TMAP[t])return TMAP[t];
-  return repairKoreanLabel(String(name||''));
-}
+/** Hangul syllable count (for picking best decoded JSON / repaired string). */
+function hangulCount(t){return((String(t).match(/[\uAC00-\uD7A3]/g))||[]).length;}
 /** Fix UTF-8 bytes misinterpreted as Latin-1 (common via some CORS proxies). Also recover mixed mojibake. */
 function repairKoreanLabel(s){
   if(s==null||s==='')return'';
   const str=String(s);
-  const hangulCount=t=>((t.match(/[\uAC00-\uD7A3]/g))||[]).length;
-  const latinMojibake=/[\u00C0-\u024F\u0192\u01FC]/;
+  const latinMojibake=/[\u00C0-\u024F\u0192\u01FC\u2013\u2014]/;
   function tryLatin1Utf8(input){
     try{
       const b=new Uint8Array(input.length);
@@ -3159,46 +3154,70 @@ function repairKoreanLabel(s){
         if(c>255)return null;
         b[i]=c;
       }
-      const out=new TextDecoder('utf-8',{fatal:false}).decode(b).replace(/\uFFFD/g,'');
-      return out;
+      return new TextDecoder('utf-8',{fatal:false}).decode(b).replace(/\uFFFD/g,'');
     }catch(e){return null;}
   }
-  if(hangulCount(str)===0){
-    const dec=tryLatin1Utf8(str);
-    if(dec&&hangulCount(dec)>0)return dec;
+  function tryLegacyUnescape(input){
+    try{
+      if(typeof escape==='undefined'||typeof decodeURIComponent==='undefined')return null;
+      return decodeURIComponent(escape(input));
+    }catch(e){return null;}
+  }
+  let best=str;
+  let hc=hangulCount(str);
+  function consider(cand){
+    if(!cand||cand===best)return;
+    const h=hangulCount(cand);
+    const badCand=(cand.match(/\uFFFD/g)||[]).length;
+    const badBest=(best.match(/\uFFFD/g)||[]).length;
+    if(h>hc||(h===hc&&badCand<badBest)){best=cand;hc=h;}
+  }
+  consider(tryLatin1Utf8(str));
+  consider(tryLegacyUnescape(str));
+  consider(tryLatin1Utf8(best));
+  consider(tryLegacyUnescape(best));
+  if(hc===0){
+    const d=tryLatin1Utf8(str);
+    if(d&&hangulCount(d)>0)return d;
     return str;
   }
-  const dec=tryLatin1Utf8(str);
-  if(dec){
-    const h0=hangulCount(str),h1=hangulCount(dec);
-    if(h1>h0)return dec;
-    if(str.includes('\uFFFD')&&h1>=h0)return dec;
-    if(latinMojibake.test(str)&&h1>=h0)return dec;
+  if(latinMojibake.test(best)||best.includes('\uFFFD')){
+    const d2=tryLatin1Utf8(best);
+    if(d2&&hangulCount(d2)>=hc)return d2;
   }
-  return str;
+  return best;
+}
+/** Naver/Yahoo-style names: repair + optional legacy decode, then TMAP by code. */
+function normalizeFinanceKoreanName(code,rawName){
+  const c=String(code||'').replace(/\D/g,'');
+  let n=repairKoreanLabel(String(rawName||''));
+  if(c.length===6&&TMAP[c])return TMAP[c];
+  return n;
+}
+/** Prefer canonical TMAP name when 6-digit KRX code is known. */
+function resolveStockLabel(ticker,name){
+  return normalizeFinanceKoreanName(String(ticker||'').replace(/\D/g,''),name);
 }
 
 function parseJsonFromArrayBuffer(buf){
   if(!buf||buf.byteLength===0)return null;
-  const decoders=['utf-8','euc-kr'];
+  const u8=new Uint8Array(buf);
+  const decoders=['utf-8','euc-kr','cp949'];
+  let best=null,bestScore=-1e9;
   for(const label of decoders){
     try{
-      const dec=new TextDecoder(label,{fatal:false});
-      let text=dec.decode(buf).trim().replace(/^\uFEFF/,'');
+      const text=new TextDecoder(label,{fatal:false}).decode(u8).trim().replace(/^\uFEFF/,'');
       if(text.startsWith('<')||text.startsWith('<!'))continue;
       const d=JSON.parse(text);
-      if(d&&typeof d==='object')return d;
+      if(d&&typeof d==='object'){
+        const hc=hangulCount(text);
+        const bad=(text.match(/\uFFFD/g)||[]).length;
+        const score=hc*30-bad*80+Math.min(text.length,5000)*0.01;
+        if(score>bestScore){best=d;bestScore=score;}
+      }
     }catch(e){}
   }
-  if(typeof TextDecoder!=='undefined'){
-    try{
-      const dec=new TextDecoder('cp949',{fatal:false});
-      let text=dec.decode(buf).trim().replace(/^\uFEFF/,'');
-      const d=JSON.parse(text);
-      if(d&&typeof d==='object')return d;
-    }catch(e){}
-  }
-  return null;
+  return best;
 }
 
 async function fetchFromProxy(url){
@@ -3213,6 +3232,34 @@ async function fetchFromProxy(url){
   }
   return null;
 }
+
+/** Unified invest slot: holdings + optional dividend overlay (same row). */
+function emptyInvestSlot(){
+  return {startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''};
+}
+function slotHasVirtualDiv(sl){
+  return sl&&(+sl.allocPct||0)>0&&(+sl.rate||0)>0;
+}
+function syncDivSlotsFromInvestSlots(a){
+  a.divSlots=(a.investSlots||[]).map(s=>({
+    allocPct:+s.allocPct||0,rate:+s.rate||0,rateMode:s.rateMode||'annual',freq:s.freq||'monthly',
+    startAge:+s.startAge||0,endAge:+s.endAge||0,divTicker:s.divTicker||'',divName:s.divName||''}));
+}
+function normalizeInvestSlotsForAccount(a){
+  if(!a.investSlots||!a.investSlots.length)a.investSlots=[emptyInvestSlot(),emptyInvestSlot()];
+  a.investSlots=a.investSlots.map(sl=>{
+    const o={...sl};
+    delete o.mode;
+    return{
+      startAge:+o.startAge||0,endAge:+o.endAge||0,
+      allocPct:+o.allocPct||0,rate:+o.rate||0,
+      rateMode:o.rateMode||'annual',freq:o.freq||'monthly',
+      divTicker:String(o.divTicker||''),divName:String(o.divName||'')
+    };
+  });
+  syncDivSlotsFromInvestSlots(a);
+}
+
 function applyOfficialInflationRef(){
   Gv('inf','2.5');
   calcTarget();
@@ -3396,8 +3443,8 @@ function addAcctD(type,bal,mo,rr,active){
     pensionStartAge:55,pensionYears:10,pensionMode:'equal',pensionAnnualAmount:0, // 연금수령시작나이/기간/방식
     // 월배당 설정 슬롯 (2개)
     investSlots:[
-      {mode:'holdings',startAge:0,endAge:0},
-      {mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''},
+      {startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''},
+      {startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''},
     ],
     divSlots:[
       {allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0,divTicker:'',divName:''},
@@ -3964,7 +4011,7 @@ async function loadNaverETF(){
           const code=String(e.itemcode??'').trim();
           if(!code)return;
           const rawName=String(e.itemname??'');
-          ETF_CACHE.push({code,name:repairKoreanLabel(rawName),price:+e.nowVal||0,change:e.changeVal,changePct:e.changeRate});
+          ETF_CACHE.push({code,name:normalizeFinanceKoreanName(code,rawName),price:+e.nowVal||0,change:e.changeVal,changePct:e.changeRate});
         });
       }else{
         throw new Error('empty etf list');
@@ -4017,7 +4064,7 @@ function etfMatchScore(raw,e){
 }
 
 function etfAppendNameHighlight(container,fullName,query){
-  const nm=repairKoreanLabel(fullName);
+  const nm=normalizeFinanceKoreanName('',fullName);
   const q=(query||'').trim();
   if(!q){
     container.textContent=nm;
@@ -4048,11 +4095,11 @@ async function etfAutocomplete(inputId, listId){
   if(raw.length<1){list.style.display='none';list.textContent='';return;}
   await loadNaverETF();
   const staticMatches=Object.entries(TMAP)
-    .filter(([code,name])=>etfItemMatchesQuery(raw,{code,name}))
-    .map(([code,name])=>({code:String(code),name:repairKoreanLabel(name),price:0,change:null,live:false}));
+    .filter(([code,name])=>etfItemMatchesQuery(raw,{code,name:normalizeFinanceKoreanName(code,name)}))
+    .map(([code,name])=>({code:String(code),name:normalizeFinanceKoreanName(code,name),price:0,change:null,live:false}));
   const cacheMatches=ETF_CACHE
-    .filter(e=>e.name!==undefined&&etfItemMatchesQuery(raw,{code:e.code,name:repairKoreanLabel(String(e.name))}))
-    .map(e=>({code:String(e.code),name:repairKoreanLabel(String(e.name)),price:e.price||0,change:e.changePct,live:true}));
+    .filter(e=>e.name!==undefined&&etfItemMatchesQuery(raw,{code:e.code,name:normalizeFinanceKoreanName(e.code,e.name)}))
+    .map(e=>({code:String(e.code),name:normalizeFinanceKoreanName(e.code,e.name),price:e.price||0,change:e.changePct,live:true}));
   const seen=new Set(staticMatches.map(s=>s.code));
   const merged=[...staticMatches,...cacheMatches.filter(c=>!seen.has(c.code))];
   merged.sort((a,b)=>etfMatchScore(raw,b)-etfMatchScore(raw,a));
@@ -4091,7 +4138,7 @@ async function etfAutocomplete(inputId, listId){
       }
       row.appendChild(priceEl);
     }
-    const nmFixed=repairKoreanLabel(e.name);
+    const nmFixed=normalizeFinanceKoreanName(e.code,e.name);
     row.addEventListener('click',()=>selectETF(inputId,listId,String(e.code),nmFixed));
     frag.appendChild(row);
   });
@@ -4115,14 +4162,17 @@ function renderInvestSlotsEl(acctId){
 }
 function addInvestSlot(acctId){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
-  if(!a.investSlots)a.investSlots=[{mode:'holdings',startAge:0,endAge:0}];
-  a.investSlots.push({mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly',divTicker:'',divName:''});
+  if(!a.investSlots)a.investSlots=[emptyInvestSlot()];
+  a.investSlots.push(emptyInvestSlot());
+  syncDivSlotsFromInvestSlots(a);
   renderInvestSlotsEl(acctId);
   toast('✅ 슬롯 추가됨 (슬롯 '+a.investSlots.length+'개)');
 }
 function removeInvestSlot(acctId,si){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   a.investSlots.splice(si,1);
+  if(!a.investSlots.length)a.investSlots=[emptyInvestSlot()];
+  syncDivSlotsFromInvestSlots(a);
   renderInvestSlotsEl(acctId);
 }
 function renderInvestSlots(a){
@@ -4132,15 +4182,16 @@ function renderInvestSlots(a){
   const isTaxFree=['ISA','PENSION','IRP','IRP_RET'].includes(cat);
   const retireAge=parseInt(Gval('retireAge'))||60;
   if(!a.investSlots||!a.investSlots.length){
-    a.investSlots=[{mode:'holdings',startAge:0,endAge:0}];
+    a.investSlots=[emptyInvestSlot(),emptyInvestSlot()];
+    syncDivSlotsFromInvestSlots(a);
   }
   const slots=a.investSlots;
 
   function renderSlot(si){
-    const sl=slots[si]||{mode:'holdings',startAge:0,endAge:0};
-    const isDiv=sl.mode==='div';
-    const divBal=isDiv?Math.round(projBal*(sl.allocPct||0)/100):0;
-    const annRate=isDiv?((sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0)):0;
+    const sl=slots[si]||emptyInvestSlot();
+    const hasDiv=slotHasVirtualDiv(sl);
+    const divBal=hasDiv?Math.round(projBal*(sl.allocPct||0)/100):0;
+    const annRate=hasDiv?((sl.rateMode||'annual')==='monthly'?(sl.rate||0)*12:(sl.rate||0)):0;
     const monthlyDiv=divBal>0&&annRate>0?Math.round(divBal*annRate/100/12):0;
     const afterTax=isTaxFree?monthlyDiv:Math.round(monthlyDiv*0.846);
     const hqId=`hq-slot-${a.id}-${si}`, hqListId=`hqlist-${a.id}-${si}`;
@@ -4159,60 +4210,57 @@ function renderInvestSlots(a){
           <option value="60">60세 시작</option>
           <option value="retire">은퇴시 시작(${retireAge}세)</option>
         </select>`:''}
-        <select class="fi" style="max-width:100px;padding:3px 7px;font-size:12px;white-space:nowrap;" title="보유종목: 검색·종목표 | 배당: 배당 슬롯" onchange="APInvest('${a.id}',${si},'mode',this.value);renderInvestSlotsEl('${a.id}')">
-          <option value="holdings" ${sl.mode!=='div'?'selected':''}>📈 종목</option>
-          <option value="div"      ${sl.mode==='div'?'selected':''}>💰 배당</option>
-        </select>
         ${si>0?`<button class="btn btn-red btn-xs" onclick="removeInvestSlot('${a.id}',${si})">✕</button>`:''}
       </div>
-      ${isDiv?`
-        <div class="g3" style="font-size:12px;">
-          <div class="frow"><label class="fl">배당 비중(%)</label>
-            <input class="fi mono" type="number" value="${sl.allocPct||0}" min="0" max="100" step="5" style="max-width:80px;"
-              oninput="APInvest('${a.id}',${si},'allocPct',+this.value);calcDivPreview('${a.id}')">
-            <div class="ka" style="color:var(--goldl);font-size:11px;">${divBal>0?wf(divBal)+'원':''}</div>
-          </div>
-          <div class="frow"><label class="fl">배당률</label>
-            <div style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap;">
-              <input class="fi mono" type="number" value="${sl.rate||0}" step="0.1" style="width:74px;min-width:74px;"
-                oninput="APInvest('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
-              <select class="fi" style="min-width:74px;max-width:86px;" onchange="APInvest('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
-                <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>%/년</option>
-                <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>%/월</option>
-              </select>
-            </div>
-          </div>
-          <div class="frow"><label class="fl">배당주기</label>
-            <select class="fi" style="max-width:100px;" onchange="APInvest('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
-              <option value="monthly" ${(sl.freq||'monthly')==='monthly'?'selected':''}>월배당</option>
-              <option value="quarterly" ${sl.freq==='quarterly'?'selected':''}>분기배당</option>
-              <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
-              <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:8px;line-height:1.45;">같은 슬롯에서 <b>보유 종목</b>과 <b>배당 가정</b>(가상 비중·수익률)을 함께 둘 수 있습니다. 배당 비중·배당률을 0으로 두면 종목만 씁니다.</div>
+      <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px;">📈 보유 종목</div>
+      <div style="position:relative;">
+        <div class="hld-search-row" style="margin-bottom:6px;">
+          <input id="${hqId}" class="fi" placeholder="종목명 또는 코드 검색" style="padding:4px 9px;font-size:12px;"
+            oninput="void etfAutocomplete('${hqId}','${hqListId}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
+          <button type="button" class="btn btn-blue btn-xs" onclick="quickAddHFromInput('${a.id}','${hqId}')">＋ 추가</button>
+          <button type="button" class="btn btn-sec btn-xs" onclick="quickAddH('${a.id}')">📡조회추가</button>
+        </div>
+        <div id="${hqListId}" style="display:none;"></div>
+      </div>
+      <div id="hl-${a.id}-${si}">${renderHoldings(a,si)}</div>
+      <hr class="d" style="margin:12px 0;opacity:.55">
+      <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:8px;">💰 배당 가정 <span style="font-weight:400;color:var(--t3)">(은퇴 시점 예상 자산 대비 비중·참고 배당률)</span></div>
+      <div class="g3" style="font-size:12px;">
+        <div class="frow"><label class="fl">배당 비중(%)</label>
+          <input class="fi mono" type="number" value="${sl.allocPct||0}" min="0" max="100" step="5" style="max-width:80px;"
+            oninput="APInvest('${a.id}',${si},'allocPct',+this.value);calcDivPreview('${a.id}')">
+          <div class="ka" style="color:var(--goldl);font-size:11px;">${divBal>0?wf(divBal)+'원':''}</div>
+        </div>
+        <div class="frow"><label class="fl">배당률</label>
+          <div style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap;">
+            <input class="fi mono" type="number" value="${sl.rate||0}" step="0.1" style="width:74px;min-width:74px;"
+              oninput="APInvest('${a.id}',${si},'rate',+this.value);calcDivPreview('${a.id}')">
+            <select class="fi" style="min-width:74px;max-width:86px;" onchange="APInvest('${a.id}',${si},'rateMode',this.value);calcDivPreview('${a.id}')">
+              <option value="annual" ${(sl.rateMode||'annual')==='annual'?'selected':''}>%/년</option>
+              <option value="monthly" ${sl.rateMode==='monthly'?'selected':''}>%/월</option>
             </select>
-            <div class="ka" style="color:var(--teal);font-size:11px;">${afterTax>0?wf(afterTax)+'원/월':''}</div>
           </div>
-          <div class="hld-search-row" style="margin-top:8px;">
-            <input id="divq-${a.id}-${si}" class="fi" placeholder="배당 기준 ETF·주식 (코드 또는 명)" style="padding:4px 8px;font-size:12px;"
-              value="${esc(sl.divTicker?(resolveStockLabel(sl.divTicker,sl.divName)+' · '+sl.divTicker):'')}"
-              data-code="${esc(sl.divTicker||'')}"
-              oninput="void etfAutocomplete('divq-${a.id}-${si}','divqlist-${a.id}-${si}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
-            <button type="button" class="btn btn-blue btn-xs" onclick="quickAddDivFromInput('${a.id}',${si},'divq-${a.id}-${si}')">📡 조회·배당률</button>
-          </div>
-          <div id="divqlist-${a.id}-${si}" style="display:none;"></div>
-          ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;">연동 종목: <b>${esc(resolveStockLabel(sl.divTicker,sl.divName)||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
         </div>
-      `:`
-        <div style="position:relative;">
-          <div class="hld-search-row" style="margin-bottom:6px;">
-            <input id="${hqId}" class="fi" placeholder="종목명 또는 코드 검색" style="padding:4px 9px;font-size:12px;"
-              oninput="void etfAutocomplete('${hqId}','${hqListId}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
-            <button type="button" class="btn btn-blue btn-xs" onclick="quickAddHFromInput('${a.id}','${hqId}')">＋ 추가</button>
-            <button type="button" class="btn btn-sec btn-xs" onclick="quickAddH('${a.id}')">📡조회추가</button>
-          </div>
-          <div id="${hqListId}" style="display:none;"></div>
+        <div class="frow"><label class="fl">배당주기</label>
+          <select class="fi" style="max-width:100px;" onchange="APInvest('${a.id}',${si},'freq',this.value);calcDivPreview('${a.id}')">
+            <option value="monthly" ${(sl.freq||'monthly')==='monthly'?'selected':''}>월배당</option>
+            <option value="quarterly" ${sl.freq==='quarterly'?'selected':''}>분기배당</option>
+            <option value="semiannual" ${sl.freq==='semiannual'?'selected':''}>반기배당</option>
+            <option value="annual" ${sl.freq==='annual'?'selected':''}>연배당</option>
+          </select>
+          <div class="ka" style="color:var(--teal);font-size:11px;">${afterTax>0?wf(afterTax)+'원/월':''}</div>
         </div>
-        <div id="hl-${a.id}-${si}">${renderHoldings(a,si)}</div>
-      `}
+        <div class="hld-search-row" style="margin-top:8px;grid-column:1/-1;">
+          <input id="divq-${a.id}-${si}" class="fi" placeholder="배당률 조회용 ETF·주식 (코드 또는 명)" style="padding:4px 8px;font-size:12px;"
+            value="${esc(sl.divTicker?(resolveStockLabel(sl.divTicker,sl.divName)+' · '+sl.divTicker):'')}"
+            data-code="${esc(sl.divTicker||'')}"
+            oninput="void etfAutocomplete('divq-${a.id}-${si}','divqlist-${a.id}-${si}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
+          <button type="button" class="btn btn-blue btn-xs" onclick="quickAddDivFromInput('${a.id}',${si},'divq-${a.id}-${si}')">📡 조회·배당률</button>
+        </div>
+        <div id="divqlist-${a.id}-${si}" style="display:none;grid-column:1/-1;"></div>
+        ${sl.divTicker?`<div style="font-size:11px;color:var(--teal);margin-top:4px;grid-column:1/-1;">참고 종목: <b>${esc(resolveStockLabel(sl.divTicker,sl.divName)||sl.divTicker)}</b> <span style="color:var(--t3)">(${esc(sl.divTicker)})</span></div>`:''}
+      </div>
     </div>`;
   }
   const totalDiv=isTaxFree?calcSlotsDivPreview(a,projBal):Math.round(calcSlotsDivPreview(a,projBal)*0.846);
@@ -4238,7 +4286,7 @@ function renderInvestSlots(a){
 
 function calcSlotsDivPreview(a, projBal){
   if(!a.investSlots)return 0;
-  const divSlots=(a.investSlots||[]).filter(sl=>sl.mode==='div'&&sl.allocPct&&sl.rate);
+  const divSlots=(a.investSlots||[]).filter(slotHasVirtualDiv);
   const totalAlloc=divSlots.reduce((s,sl)=>s+Math.max(0,+sl.allocPct||0),0);
   return divSlots.reduce((sum,sl)=>{
     const effPct=totalAlloc>100?((Math.max(0,+sl.allocPct||0)/totalAlloc)*100):(Math.max(0,+sl.allocPct||0));
@@ -4250,12 +4298,12 @@ function calcSlotsDivPreview(a, projBal){
 
 function APInvest(acctId,si,field,val){
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
-  if(!a.investSlots)a.investSlots=[{mode:'holdings',startAge:0,endAge:0}];
-  while(a.investSlots.length<=si)a.investSlots.push({mode:'holdings',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'});
+  if(!a.investSlots)a.investSlots=[emptyInvestSlot()];
+  while(a.investSlots.length<=si)a.investSlots.push(emptyInvestSlot());
   a.investSlots[si][field]=val;
-  // divSlots 동기화 (배당 슬롯 종목 코드·명은 시뮬 계산에는 미사용, 표시·조회용)
-  a.divSlots=a.investSlots.filter(s=>s.mode==='div').map(s=>({allocPct:s.allocPct||0,rate:s.rate||0,rateMode:s.rateMode||'annual',freq:s.freq||'monthly',startAge:s.startAge||0,endAge:s.endAge||0,divTicker:s.divTicker||'',divName:s.divName||''}));
-  if(field==='mode') renderInvestSlotsEl(acctId);
+  syncDivSlotsFromInvestSlots(a);
+  const rerender=new Set(['allocPct','rate','rateMode','freq','startAge','endAge','divTicker','divName']);
+  if(rerender.has(field))renderInvestSlotsEl(acctId);
   else patchInvestSlotSummary(acctId);
   autoSave();
 }
@@ -4274,7 +4322,7 @@ async function quickAddHFromInput(acctId, inputId){
   const rawVal=(inp.value||'').trim();
   if(!rawVal){toast('종목명 또는 코드를 입력하세요');return;}
   const code=inp.dataset.code||(NMAP[rawVal]||rawVal);
-  const name=TMAP[code]||repairKoreanLabel(rawVal);
+  const name=normalizeFinanceKoreanName(String(code).replace(/\D/g,''),rawVal);
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
   a.holdings.push({ticker:code,name,qty:0,avg:0,cp:0,divYield:0,cagr:null});
   inp.value='';
@@ -4299,7 +4347,7 @@ async function quickAddDivFromInput(acctId, si, inputId){
   const code=(inp.dataset&&inp.dataset.code)?String(inp.dataset.code).trim():'';
   const resolved=code||NMAP[rawVal]||(/^\d{6}$/.test(rawVal.replace(/\s/g,''))?rawVal.replace(/\s/g,''):'');
   if(!resolved){toast('6자리 코드 또는 목록에서 종목을 선택하세요');return;}
-  const name=TMAP[resolved]||repairKoreanLabel(rawVal);
+  const name=normalizeFinanceKoreanName(resolved,rawVal);
   APInvest(acctId,si,'divTicker',resolved);
   APInvest(acctId,si,'divName',name);
   toast('📡 배당률 조회 중...');
@@ -5328,11 +5376,11 @@ function getDivIncome(acct, year, curYear, divGrowthRate, currentBal){
   const curAge=parseInt(Gval('curAge'))||47;
   const ageAtYear=curAge+(year-curYear);
 
-  // ── 1. divSlots 기반 배당 (investSlots mode=div 또는 divSlots)
-  // 중요: divSlots 배당은 복리 성장 없이 고정 배당률 적용 (인컴형 ETF)
-  const slots=(acct.investSlots||[]).filter(sl=>sl.mode==='div'&&sl.allocPct>0&&sl.rate>0)
-    .concat((acct.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&
-      !(acct.investSlots||[]).some(is=>is.mode==='div'))); // fallback
+  // ── 1. investSlots/divSlots 가상 배당 (비중·배당률)
+  // 중요: 복리 성장 없이 고정 배당률 적용 (인컴형 ETF)
+  const hasInv=(acct.investSlots||[]).some(slotHasVirtualDiv);
+  const slots=(acct.investSlots||[]).filter(slotHasVirtualDiv)
+    .concat((acct.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&!hasInv));
   if(slots.length>0){
     const bal=(currentBal!==undefined&&currentBal>=0)?currentBal:(acct.balance||0);
     let slotGross=0;
@@ -5696,9 +5744,9 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       const curBal=(bal[a.id]||0);
       // 배당 설정 계좌: 배당 비중은 복리 성장에서 제외 (인컴 수익 = 배당소득으로 수령)
       let divAllocFrac=0;
-      const divSlots2=(a.investSlots||[]).filter(sl=>sl.mode==='div'&&sl.allocPct>0&&sl.rate>0)
-        .concat((a.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&
-          !(a.investSlots||[]).some(is=>is.mode==='div')));
+      const hasInv2=(a.investSlots||[]).some(slotHasVirtualDiv);
+      const divSlots2=(a.investSlots||[]).filter(slotHasVirtualDiv)
+        .concat((a.divSlots||[]).filter(sl=>sl.allocPct>0&&sl.rate>0&&!hasInv2));
       if(divSlots2.length>0){
         divSlots2.forEach(sl=>{
           const inRange2=(!sl.startAge||age>=sl.startAge)&&(!sl.endAge||age<=sl.endAge);
@@ -7301,8 +7349,16 @@ function applyProfile(p){
     const legAvg=legAnn>0?Math.round(legAnn/legMo):0;
     if(legAvg>0&&roNow===0)Gv('retireOther',String(legAvg));
   }
-  dcHoldings=(p.dcHoldings||[]).map(h=>({...h,pb:null}));
-  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpOnRetire:a.irpOnRetire||'keep',irpAccumTarget:a.irpAccumTarget||'',irpTransferAge:a.irpTransferAge??60,isaJoinDate:a.isaJoinDate||'',investSlots:a.investSlots||[{mode:'holdings',startAge:0,endAge:0},{mode:'div',startAge:0,endAge:0,allocPct:0,rate:0,rateMode:'annual',freq:'monthly'}],divSlots:a.divSlots||[{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0},{allocPct:0,rate:0,rateMode:'annual',freq:'monthly',startAge:0,endAge:0}],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal',pensionAnnualAmount:Math.max(0,Math.round(+(a.pensionAnnualAmount||0)))}));
+  accounts=(p.accounts||[]).map(a=>({...a,label:a.label||AMETA[a.type]?.label||a.type,color:a.color||AMETA[a.type]?.color||'#888',returnRate:+(a.returnRate||0)||7,monthlyContrib:+(a.monthlyContrib||0)||0,balance:+(a.balance||0)||0,holdings:a.holdings||[],useCommonH:a.useCommonH||false,acctEndAge:a.acctEndAge||'',acctEndAction:a.acctEndAction||'keep',acctEndTarget:a.acctEndTarget||'',irpOnRetire:a.irpOnRetire||'keep',irpAccumTarget:a.irpAccumTarget||'',irpTransferAge:a.irpTransferAge??60,isaJoinDate:a.isaJoinDate||'',investSlots:a.investSlots||[emptyInvestSlot(),emptyInvestSlot()],divSlots:a.divSlots||[],pensionStartAge:a.pensionStartAge||55,pensionYears:a.pensionYears||10,pensionMode:a.pensionMode||'equal',pensionAnnualAmount:Math.max(0,Math.round(+(a.pensionAnnualAmount||0)))}));
+  accounts.forEach(a=>{
+    normalizeInvestSlotsForAccount(a);
+    (a.holdings||[]).forEach(h=>{if(h&&h.ticker)h.name=resolveStockLabel(h.ticker,h.name);});
+  });
+  dcHoldings=(p.dcHoldings||[]).map(h=>{
+    const o={...h,pb:null};
+    if(o.ticker)o.name=resolveStockLabel(o.ticker,o.name);
+    return o;
+  });
   loans=p.loans||[];insurances=p.insurances||[];
   lumpEvents=(p.lumpEvents||[]).map(e=>({id:e.id||('le'+Date.now()+Math.floor(Math.random()*999)),age:+e.age||0,amount:+e.amount||0,note:e.note||'목돈 지출'}));
   lumpEvents=lumpEvents.map(e=>({...e,src:e.src||'auto'}));
