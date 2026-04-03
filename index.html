@@ -405,7 +405,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:30</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 01:44</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1717,7 +1717,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 01:30';
+const PUBLISH_STAMP='2026.04.04 01:44';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -4198,7 +4198,65 @@ function etfMatchScore(raw,e){
   if(name.startsWith(q))s+=55;
   if(name.includes(q))s+=25;
   if(code.toLowerCase().includes(q.replace(/\s/g,'')))s+=35;
+  if(e.fromNaver){
+    if(name.includes(q))s+=30;
+    if(q.length>=2&&hangulCount(q)>0&&hangulCount(e.name||'')>0)s+=15;
+  }
   return s;
+}
+
+// Naver equity autocomplete (domestic stock + ETF + global when API ok) — complements static TMAP + ETF list cache
+const NAVER_AC_CACHE=new Map();
+const NAVER_AC_TTL_MS=45000;
+async function fetchNaverAcItems(query, target){
+  const q=String(query||'').trim();
+  if(!q)return[];
+  const url=`https://ac.stock.naver.com/ac?q=${encodeURIComponent(q)}&target=${encodeURIComponent(target)}`;
+  const d=await fetchFromProxy(url);
+  if(!d||!Array.isArray(d.items))return[];
+  return d.items;
+}
+async function searchNaverEquityAutocomplete(raw){
+  const q=raw.trim();
+  if(q.length<1)return[];
+  const key=`${q.toLowerCase()}`;
+  const now=Date.now();
+  const hit=NAVER_AC_CACHE.get(key);
+  if(hit&&now-hit.ts<NAVER_AC_TTL_MS)return hit.rows;
+  let stocks=[],etfs=[],global=[];
+  try{
+    [stocks,etfs,global]=await Promise.all([
+      fetchNaverAcItems(q,'stock'),
+      fetchNaverAcItems(q,'etf'),
+      fetchNaverAcItems(q,'global'),
+    ]);
+  }catch(e){
+    stocks=[];etfs=[];global=[];
+  }
+  const seen=new Set();
+  const rows=[];
+  function pushItem(it, kindLabel){
+    const code=String(it.reutersCode||it.code||'').trim();
+    if(!code||seen.has(code))return;
+    seen.add(code);
+    const name=String(it.name||'');
+    const mkt=it.typeName||it.typeCode||'';
+    const tag=[kindLabel,mkt].filter(Boolean).join(' · ');
+    rows.push({
+      code,
+      name,
+      price:0,
+      change:null,
+      live:true,
+      fromNaver:true,
+      acKind:tag||kindLabel,
+    });
+  }
+  etfs.slice(0,14).forEach(it=>pushItem(it,'ETF'));
+  stocks.slice(0,14).forEach(it=>pushItem(it,'주식'));
+  global.slice(0,12).forEach(it=>pushItem(it,it.nationName||'해외'));
+  NAVER_AC_CACHE.set(key,{ts:now,rows});
+  return rows;
 }
 
 function etfAppendNameHighlight(container,fullName,query){
@@ -4226,12 +4284,15 @@ function etfAppendNameHighlight(container,fullName,query){
   }
 }
 
+let _etfAcSeq=0;
 async function etfAutocomplete(inputId, listId){
   const inp=G(inputId),list=G(listId);
   if(!inp||!list)return;
+  const seq=++_etfAcSeq;
   const raw=inp.value.trim();
   if(raw.length<1){list.style.display='none';list.textContent='';return;}
   await loadNaverETF();
+  if(seq!==_etfAcSeq)return;
   const staticMatches=Object.entries(TMAP)
     .filter(([code,name])=>etfItemMatchesQuery(raw,{code,name:normalizeFinanceKoreanName(code,name)}))
     .map(([code,name])=>({code:String(code),name:normalizeFinanceKoreanName(code,name),price:0,change:null,live:false}));
@@ -4239,7 +4300,17 @@ async function etfAutocomplete(inputId, listId){
     .filter(e=>e.name!==undefined&&etfItemMatchesQuery(raw,{code:e.code,name:normalizeFinanceKoreanName(e.code,e.name)}))
     .map(e=>({code:String(e.code),name:normalizeFinanceKoreanName(e.code,e.name),price:e.price||0,change:e.changePct,live:true}));
   const seen=new Set(staticMatches.map(s=>s.code));
-  const merged=[...staticMatches,...cacheMatches.filter(c=>!seen.has(c.code))];
+  let merged=[...staticMatches,...cacheMatches.filter(c=>!seen.has(c.code))];
+  const wantNaver=raw.length>=2||raw.replace(/\D/g,'').length>=4;
+  if(wantNaver){
+    const naverRows=await searchNaverEquityAutocomplete(raw);
+    if(seq!==_etfAcSeq)return;
+    naverRows.forEach(n=>{
+      if(seen.has(n.code))return;
+      seen.add(n.code);
+      merged.push(n);
+    });
+  }
   merged.sort((a,b)=>etfMatchScore(raw,b)-etfMatchScore(raw,a));
   const all=merged.slice(0,20);
   list.textContent='';
@@ -4263,6 +4334,12 @@ async function etfAutocomplete(inputId, listId){
     etfAppendNameHighlight(nameEl,e.name,raw);
     row.appendChild(codeEl);
     row.appendChild(nameEl);
+    if(e.acKind){
+      const tg=document.createElement('span');
+      tg.style.cssText='font-size:9px;color:var(--t3);flex-shrink:0;max-width:88px;line-height:1.2;text-align:right;';
+      tg.textContent=String(e.acKind);
+      row.appendChild(tg);
+    }
     if(e.price>0){
       const priceEl=document.createElement('span');
       priceEl.style.cssText='font-family:ui-monospace,monospace;font-size:11px;color:var(--t3);flex-shrink:0;';
@@ -4353,7 +4430,7 @@ function renderInvestSlots(a){
       <div style="font-size:11px;font-weight:700;color:var(--t2);margin-bottom:6px;">📈 보유 종목</div>
       <div style="position:relative;">
         <div class="hld-search-row" style="margin-bottom:6px;">
-          <input id="${hqId}" class="fi" placeholder="종목·ETF·배당주 — 코드 또는 명 통합 검색" style="padding:4px 9px;font-size:12px;"
+          <input id="${hqId}" class="fi" placeholder="국내주식·해외·ETF — 이름 또는 티커·코드 검색" style="padding:4px 9px;font-size:12px;"
             oninput="void etfAutocomplete('${hqId}','${hqListId}')" onfocus="void loadNaverETF()" autocomplete="off" spellcheck="false">
           <button type="button" class="btn btn-blue btn-xs" onclick="quickAddHFromInput('${a.id}','${hqId}')">＋ 추가</button>
           <button type="button" class="btn btn-sec btn-xs" onclick="quickAddH('${a.id}')">📡조회추가</button>
@@ -4430,23 +4507,27 @@ async function quickAddHFromInput(acctId, inputId){
   const inp=G(inputId);if(!inp)return;
   const rawVal=(inp.value||'').trim();
   if(!rawVal){toast('종목·ETF·배당주 코드 또는 명을 입력하세요');return;}
-  let code=(inp.dataset&&inp.dataset.code)?String(inp.dataset.code).trim():'';
-  if(!code)code=NMAP[rawVal]||'';
-  if(!code){
-    const d=rawVal.replace(/\D/g,'');
-    if(d.length>=6)code=d.slice(-6);
+  let ticker=(inp.dataset&&inp.dataset.code)?String(inp.dataset.code).trim():'';
+  if(!ticker)ticker=NMAP[rawVal]||'';
+  if(!ticker){
+    const compact=rawVal.replace(/\s/g,'');
+    if(/^[A-Za-z][A-Za-z0-9.\-]{0,14}$/.test(compact))ticker=compact.toUpperCase();
   }
-  if(!code)code=rawVal.replace(/\D/g,'');
-  const code6=String(code).replace(/\D/g,'').slice(-6)||String(code);
-  const name=normalizeFinanceKoreanName(code6,rawVal);
+  if(!ticker){
+    const d=rawVal.replace(/\D/g,'');
+    if(d.length>=6)ticker=d.slice(-6);
+  }
+  if(!ticker)ticker=rawVal.replace(/\s/g,'');
+  const digitsOnly=String(ticker).replace(/\D/g,'');
+  const name=normalizeFinanceKoreanName(digitsOnly.length>=5?digitsOnly.slice(-6):digitsOnly,rawVal);
   const a=accounts.find(x=>x.id===acctId);if(!a)return;
-  a.holdings.push({ticker:code6,name,qty:0,avg:0,cp:0,divYield:0,cagr:null});
+  a.holdings.push({ticker,name,qty:0,avg:0,cp:0,divYield:0,cagr:null});
   inp.value='';
   delete inp.dataset.code;
   refreshHoldingsViews(acctId);
   const hi=a.holdings.length-1;
   toast('📡 '+name+' 조회 중...');
-  const info=await fetchStockInfo(code6);
+  const info=await fetchStockInfo(ticker);
   if(info.price){a.holdings[hi].cp=info.price;}
   if(info.cagr)a.holdings[hi].cagr=info.cagr;
   if(info.divYield!=null&&+info.divYield>0)a.holdings[hi].divYield=Math.round(+info.divYield*10)/10;
