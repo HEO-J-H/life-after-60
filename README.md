@@ -17,6 +17,18 @@ git config core.hooksPath githooks
 
 ## 매주 자동 점검·배포 트리거 (신경 덜 쓰는 쪽)
 
+### 소유자가 웹에서 딱 한 번만 할 일 (봇이 `main`에 푸시하려면 필요)
+
+로컬 `git push`까지는 개발 PC에서 하면 되고, **주간 워크플로가 `site-weekly-meta.json`을 커밋·푸시**하려면 GitHub 쪽에서 권한을 한 번 열어줘야 합니다.
+
+1. **[Actions 일반 설정](https://github.com/HEO-J-H/life-after-60/settings/actions)** 으로 이동 (저장소 관리 권한 필요).
+2. 아래로 내려 **Workflow permissions**에서 **Read and write permissions**를 선택하고 저장합니다.
+3. 같은 페이지에서 Actions 사용이 꺼져 있으면 **Allow all actions** 등으로 켭니다.
+
+이후에는 매주 워크플로가 실패 없이 돌면 자동으로 커밋이 쌓입니다.
+
+---
+
 저장소에 **GitHub Actions**가 켜져 있으면, [`.github/workflows/weekly-maintenance.yml`](.github/workflows/weekly-maintenance.yml)이 **매주 월요일 00:00 UTC**(한국 시간 월요일 오전 9시경)에:
 
 1. 저장소 안의 모든 `.js`에 대해 `node --check`로 문법 검사
