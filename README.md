@@ -37,3 +37,8 @@ git config core.hooksPath githooks
 **자동으로 하지 않는 것:** 조세·연금·ISA 등 **법규 요약 문구**, 시뮬 공식, UI/UX 개선. 그 부분은 잘못 배포될 위험이 있어 **사람이 `regulatory-reference.js` 등을 검토**하는 흐름을 유지하는 것이 좋습니다.
 
 수동으로 한 번 돌려보기: GitHub → **Actions** → **Weekly maintenance** → **Run workflow**.
+
+## CI (푸시·PR)
+
+[`tools/smoke-check.cjs`](tools/smoke-check.cjs)가 모든 `.js`에 `node --check`를 돌리고, `index.html`의 중복 `id`·`regulatory-reference.js` 포함 여부를 검사합니다.  
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml)이 `main`/`master` 푸시·PR마다 실행됩니다.

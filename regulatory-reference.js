@@ -5,7 +5,7 @@
 (function (global) {
   'use strict';
 
-  var REVIEW_STAMP = '2026-04-02';
+  var REVIEW_STAMP = '2026-04-07';
 
   var AS_OF_NOTE =
     '<span class="legal-asof-note">(안내 기준: <b>' +
@@ -401,7 +401,24 @@
 
   var REFERENCE_HUB_SECTIONS = [
     {
-      title: '퇴직금·DC/DB (근로자퇴직급여 보장법)',
+      title: '법령 원문·통합검색',
+      items: [
+        {
+          label: '국가법령정보센터',
+          url: 'https://www.law.go.kr',
+          law: '법령·행정규칙',
+          note: '소득세법·조특법·근로자퇴직급여 보장법 등 원문·개정 이력',
+        },
+        {
+          label: '국가법령정보센터 — 법령명 검색(예: 조세특례제한법)',
+          url: 'https://www.law.go.kr/main.html',
+          law: '검색 활용',
+          note: 'ISA·연금저축·퇴직연금 등은 조특법·시행령·별표를 함께 확인',
+        },
+      ],
+    },
+    {
+      title: '퇴직금·DC/DB·퇴직연금 (고용노동부·금융당국)',
       items: [
         {
           label: '고용노동부 노동포털 — 퇴직금 계산',
@@ -410,10 +427,28 @@
           note: '법정 퇴직금 검증 후 본 시뮬 「직접 입력」에 반영',
         },
         {
-          label: '고용노동부 — 퇴직급여 안내',
-          url: 'https://www.moel.go.kr/index.do',
+          label: '고용노동부',
+          url: 'https://www.moel.go.kr',
           law: '고용노동부',
-          note: 'DC·DB·사업장 절차',
+          note: '퇴직급여·고용보험·일자리 정책',
+        },
+        {
+          label: '금융위원회',
+          url: 'https://www.fsc.go.kr',
+          law: '금융위',
+          note: '퇴직연금(DC·DB)·디폴트옵션·금융상품 감독 총괄(요지)',
+        },
+        {
+          label: '금융감독원',
+          url: 'https://www.fss.or.kr',
+          law: '금감원',
+          note: '전자공시·금융소비자 보호·분쟁조정 안내',
+        },
+        {
+          label: '금융감독원 전자공시 시스템 DART',
+          url: 'https://dart.fss.or.kr',
+          law: '공시',
+          note: '상장사·펀드 공시 자료 참고',
         },
       ],
     },
@@ -421,38 +456,107 @@
       title: '국민연금·공적연금',
       items: [
         {
+          label: '국민연금공단',
+          url: 'https://www.nps.or.kr',
+          law: '국민연금법',
+          note: '가입·납부·예상연금 조회·공단 안내',
+        },
+        {
           label: '정부24 — 국민연금 예상 연금 모의계산',
           url: 'https://www.gov.kr/portal/service/serviceInfo/PTR000050238',
           law: '국민연금법',
-          note: '예상 수령액은 공단 조회값을 기본정보에 맞추기',
+          note: '예상 수령액을 기본정보 입력값과 맞추기',
+        },
+        {
+          label: '정부24',
+          url: 'https://www.gov.kr',
+          law: '정부 포털',
+          note: '민원·제도 안내 통합 검색',
         },
       ],
     },
     {
-      title: '세금·이연·IRP (참고)',
+      title: '세금·홈택스·연금소득 (국세청)',
       items: [
         {
           label: '국세청',
           url: 'https://www.nts.go.kr',
           law: '소득세법·조세특례제한법',
-          note: '퇴직소득·연금소득·이연퇴직 등 최종은 홈택스·국세청',
+          note: '세법 해설·서식·FAQ(확정 세액은 홈택스·신고 결과)',
+        },
+        {
+          label: '홈택스',
+          url: 'https://www.hometax.go.kr',
+          law: '국세청 전자세금',
+          note: '연말정산·종합소득·납세 조회',
         },
       ],
     },
     {
-      title: '펀드 위험등급·집합투자 (금융투자협회)',
+      title: '4대보험·건강보험',
+      items: [
+        {
+          label: '국민건강보험공단',
+          url: 'https://www.nhis.or.kr',
+          law: '국민건강보험법',
+          note: '건강보험료·요양·자격 확인',
+        },
+        {
+          label: '근로복지공단',
+          url: 'https://www.kcomwel.or.kr',
+          law: '산재·고용보험',
+          note: '산재보험·고용보험 등(업무 범위는 공단 안내)',
+        },
+      ],
+    },
+    {
+      title: 'ISA·펀드·투자 (금융투자협회·거래소)',
       items: [
         {
           label: '펀드정보 One-Click',
           url: 'https://fund.kofia.or.kr/index/index.html',
-          law: '금융투자협회 표준',
-          note: '실제 보유 펀드 등급·설명서 확인',
+          law: '금융투자협회',
+          note: '펀드 위험등급·설명서·수익률(참고)',
         },
         {
-          label: '협회 법규정보 — 표준투자권유준칙 검색',
+          label: '협회 법규정보 — 표준투자권유준칙',
           url: 'https://law.kofia.or.kr',
           law: '표준투자권유준칙',
           note: '제1~제6위험등급 정의',
+        },
+        {
+          label: '한국거래소',
+          url: 'https://www.krx.co.kr',
+          law: '시장 운영',
+          note: '시장·상장·투자자 보호 안내',
+        },
+      ],
+    },
+    {
+      title: '연구·R&D·사업자 공제 (해당 시)',
+      items: [
+        {
+          label: '정부24 — 통합 포털',
+          url: 'https://www.gov.kr/portal/main/nologin',
+          law: '제도별 상이',
+          note: '검색으로 과학기술인공제·퇴직연금 등 민원·안내 연결',
+        },
+        {
+          label: '소상공인24',
+          url: 'https://www.sbiz24.kr',
+          law: '소상공인·노란우산 등',
+          note: '노란우산공제·소상공인 제도(요건은 기관 안내)',
+        },
+      ],
+    },
+    {
+      title: '복지·서민금융 (요건 확인)',
+      items: [
+        {
+          label: '복지로',
+          url: 'https://www.bokjiro.go.kr',
+          law: '복지부 연계',
+          note: '희망저축 등 복지·서민 금융 안내(제도별 요건 확인)',
         },
       ],
     },
@@ -472,6 +576,8 @@
       '공식 기관 값과 다를 수 있습니다. ' +
       AS_OF_NOTE +
       '</p>';
+    html +=
+      '<div class="ref-hub-scroll" style="max-height:min(58vh,520px);overflow-y:auto;padding-right:8px;">';
     REFERENCE_HUB_SECTIONS.forEach(function (sec) {
       html += '<div style="margin-bottom:12px;">';
       html +=
@@ -498,6 +604,7 @@
       });
       html += '</ul></div>';
     });
+    html += '</div>';
     return html;
   }
 
@@ -548,5 +655,6 @@
     buildAIRegulatoryBlock: buildAIRegulatoryBlock,
     htmlDefaultOptionBlock: htmlDefaultOptionBlock,
     buildJobAcctGuideHtml: buildJobAcctGuideHtml,
+    REFERENCE_HUB_SECTIONS: REFERENCE_HUB_SECTIONS,
   };
 })(typeof window !== 'undefined' ? window : this);

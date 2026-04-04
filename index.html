@@ -31,10 +31,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .tab{padding:10px 15px;background:none;border:none;border-bottom:2px solid transparent;color:var(--t2);cursor:pointer;font-size:14px;font-family:inherit;white-space:nowrap;transition:all .18s;}
 .tab:hover{color:var(--t1);}
 .tab.on{color:var(--goldl);border-bottom-color:var(--gold);}
+.tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .tab-cafe-link{display:inline-flex;align-items:center;gap:6px;margin:4px 0 4px 4px;padding:6px 12px 6px 8px;border-radius:6px;background:rgba(3,199,90,.12);border:1px solid rgba(3,199,90,.35);color:#9ee6b8;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;align-self:center;font-family:inherit;transition:border-color .18s,color .18s,background .18s;}
 .tab-cafe-link:hover{color:#c8f5d8;background:rgba(3,199,90,.2);border-color:#03C75A;}
 .tab-cafe-link:focus-visible{outline:2px solid #03C75A;outline-offset:2px;}
 .tab-cafe-link .naver-mark{flex-shrink:0;display:block;}
+.skip-link{position:absolute;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+.skip-link:focus{position:fixed;left:12px;top:70px;width:auto;height:auto;clip:auto;overflow:visible;z-index:500;padding:10px 16px;background:var(--bgc);border:2px solid var(--gold);border-radius:8px;color:var(--goldl);font-weight:700;text-decoration:none;font-size:14px;outline:none;}
 .main{padding:14px 16px;max-width:1800px;margin:0 auto;}
 .panel{display:none;}.panel.on{display:block;}
 .card{background:var(--bgc);border:1px solid var(--bd);border-radius:8px;padding:13px;margin-bottom:12px;}
@@ -306,6 +309,7 @@ hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 .job-type-chip{border:2px solid var(--bd);background:var(--ibg);color:var(--t2);padding:10px 14px;border-radius:999px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;line-height:1.25;transition:border-color .15s,background .15s,color .15s;}
 .job-type-chip:hover{border-color:var(--bdl);color:var(--t1);}
 .job-type-chip.on,.job-type-chip[aria-pressed="true"]{border-color:var(--gold);color:var(--goldl);background:rgba(200,168,75,.14);box-shadow:0 0 0 1px rgba(200,168,75,.2);}
+.job-type-chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .basic-personal-card .personal-dob-age{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;align-items:start;}
 @media(max-width:600px){.basic-personal-card .personal-dob-age{grid-template-columns:1fr;}}
 .basic-personal-card .ka-age-gold{color:var(--goldl);font-weight:700;font-size:15px;margin-top:6px;min-height:22px;}
@@ -402,12 +406,13 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">본문 바로가기</a>
 <div class="hdr" id="main-hdr">
   <div style="flex:1 1 720px;min-width:280px;">
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 13:19</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 13:41</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -429,7 +434,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
   </div>
 </div>
 <div class="tabs" id="main-tabs" aria-label="주요 메뉴"><!-- filled by renderMainNavTabs() from regulatory-reference.js --></div>
-<div class="main">
+<div class="main" id="main-content" tabindex="-1">
 
 <!-- ════ 기본정보 ════ -->
 <div id="tab-basic" class="panel on">
@@ -1659,7 +1664,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 13:19';
+const PUBLISH_STAMP='2026.04.04 13:41';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -1824,12 +1829,18 @@ function renderMainNavTabs(){
   if(!bar)return;
   const tabs=(window.REGULATORY_REF&&REGULATORY_REF.APP_NAV_TABS)||[];
   bar.innerHTML='';
+  bar.setAttribute('role','tablist');
   const cur=document.querySelector('.panel.on');
   const curId=(cur&&cur.id&&cur.id.startsWith('tab-'))?cur.id.slice(4):'basic';
   tabs.forEach(t=>{
     const b=document.createElement('button');
     b.type='button';
     b.className='tab'+(t.id===curId?' on':'');
+    b.setAttribute('role','tab');
+    b.setAttribute('id','main-tab-'+t.id);
+    b.setAttribute('data-tab-id',t.id);
+    b.setAttribute('aria-controls','tab-'+t.id);
+    b.setAttribute('aria-selected',t.id===curId?'true':'false');
     b.textContent=t.label;
     b.onclick=function(){ST(t.id,this);};
     bar.appendChild(b);
@@ -3172,7 +3183,7 @@ async function dcQuickAdd(){
   if(isDCFundGradeMode()){toast('펀드 위험등급만 모드에서는 보유 종목을 추가할 수 없습니다.');return;}
   const inp=G('dc-quick-code');
   const code=(inp?.value||'').trim();
-  if(!code){alert('종목코드를 입력하세요 (예: 379810)');return;}
+  if(!code){toast('종목코드를 입력해 주세요 (예: 379810)');return;}
   const name=TMAP[code]||'';
   DCctr++;
   dcHoldings.push({id:`dc${DCctr}`,ticker:code,name,qty:0,avg:0,cp:0,cagr:null,divYield:0,pb:null,ageFrom:0,ageTo:0});
@@ -3524,7 +3535,7 @@ function updateCHAvgCAGR(){}  // DC형 전용 테이블로 이전됨
 function addAcct(){
   const sel=G('newAcct');
   const t=Gval('newAcct');
-  if(!t){alert('계좌 유형 선택');return;}
+  if(!t){toast('계좌 유형을 선택해 주세요.');return;}
   const opt=sel&&sel.selectedOptions&&sel.selectedOptions[0];
   if(opt&&opt.disabled){
     toast(opt.title||'이 유형은 현재 추가할 수 없습니다.');
@@ -8292,10 +8303,25 @@ function ST(id,btn){
   if(id==='holdings'){populateHldAcctFilter();populateHldTicker();}
   if(id==='scenario')setTimeout(()=>{try{initScenarioWidgets();}catch(e){}},0);
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('#main-tabs .tab').forEach(t=>{
+    t.classList.remove('on');
+    t.setAttribute('aria-selected','false');
+  });
   const panel=document.getElementById('tab-'+id);
-  if(panel)panel.classList.add('on');
-  if(btn)btn.classList.add('on');
+  if(panel){
+    panel.classList.add('on');
+    panel.removeAttribute('hidden');
+  }
+  let tabBtn=btn;
+  if(!tabBtn){
+    const bar=G('main-tabs');
+    if(bar)tabBtn=bar.querySelector('button.tab[data-tab-id="'+id+'"]');
+  }
+  if(tabBtn){
+    tabBtn.classList.add('on');
+    tabBtn.setAttribute('aria-selected','true');
+    if(btn)try{tabBtn.focus({preventScroll:true});}catch(_){}
+  }
 }
 </script>
 <script src="./LinkH_Engine.js"></script>
