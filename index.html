@@ -407,7 +407,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 03:06</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 11:05</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -683,86 +683,94 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 
   <!-- DC형 전용 종목 -->
   <div class="card" id="dc-holdings-card" style="display:none;">
-    <div class="ctitle">📌 DC형 퇴직금 운용
-      <div class="ctr" style="gap:4px;">
-        <button class="btn btn-sm" id="dc-tab-direct" onclick="switchDCTab('direct')"
-          style="background:rgba(200,168,75,.2);color:var(--goldl);border:1px solid var(--goldd);">① 직접 입력</button>
-        <button class="btn btn-sec btn-sm" id="dc-tab-stocks" onclick="switchDCTab('stocks')">② 보유종목</button>
-      </div>
+    <div class="ctitle">📌 DC형 퇴직금 운용</div>
+    <div class="al al-i" style="font-size:11px;margin-bottom:10px;line-height:1.55;padding:10px 12px;border-radius:8px;">
+      <span style="font-weight:700;color:var(--t1);">운용 방식</span>
+      <label style="margin-left:10px;cursor:pointer;"><input type="radio" name="dcUseMode" id="dc-use-mode-detail" value="detail" checked onchange="setDCUseMode();calcDB();autoSave();"> 직접 입력·보유 종목</label>
+      <label style="margin-left:12px;cursor:pointer;"><input type="radio" name="dcUseMode" id="dc-use-mode-grade" value="grade" onchange="setDCUseMode();calcDB();autoSave();"> 협회 펀드 위험등급만 참고</label>
+      <div style="margin-top:6px;color:var(--t3);font-size:10px;">「위험등급만」이면 아래 <b>연 수익률·보유 종목·일괄%</b>는 끄고, 고른 <b>제1~제6위험등급</b>의 참고 연수익률만 시뮬에 반영합니다.</div>
+    </div>
+    <div id="dc-def-opt-strip" style="font-size:11px;color:var(--t2);display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px 0;padding:8px 10px;background:var(--bg2);border-radius:8px;border:1px solid var(--bdl);">
+      <span style="font-weight:600;">펀드 위험등급</span>
+      <span style="font-size:10px;color:var(--t3);">금융투자협회 표준(제1~제6)</span>
+      <select class="fi" id="dc-default-grade-dc" style="max-width:min(100%,280px);padding:6px 8px;font-size:12px;min-height:36px;" onchange="syncDcDefaultGradeFrom('dc')" title="계좌설정 탭과 동일 값 연동">
+        <option value="">—</option>
+      </select>
+      <button type="button" class="btn btn-sec btn-xs" onclick="applyDefaultOptGradeToIrp()">첫 퇴직IRP 수익률</button>
+      <button type="button" class="btn btn-sec btn-xs" onclick="applyDefaultOptGradeToDC()">DC 운용에 적용(위험등급 모드)</button>
+      <span class="hint" style="margin:0;max-width:100%;font-size:10px;">국내 판매 펀드 등 금융투자상품에 공통 적용되는 위험등급·참고 수익률입니다. 계좌설정 탭 표와 연동됩니다.</span>
     </div>
 
-    <!-- ① 직접 입력 모드 -->
-    <div id="dc-mode-direct">
-      <div style="background:var(--bg2);border-radius:8px;border:1px solid var(--bdl);padding:14px;margin-bottom:10px;">
-        <div class="g3">
-          <div class="frow">
-            <label class="fl">현재 DC 잔액 (원)</label>
-            <input class="fi mono" id="dc-direct-bal" type="number" value="0" placeholder="0"
-              oninput="G('ka-dc-bal').textContent=toKor(+this.value);syncDCBalToIRP(+this.value);calcDB()">
-            <div class="ka" id="ka-dc-bal">0원</div>
-            <div class="hint">지금까지 쌓인 퇴직금 누적액</div>
-          </div>
-          <div class="frow">
-            <label class="fl">연 수익률 (%/년)</label>
-            <input class="fi mono" id="dc-rr-override" type="number" value="" placeholder="예) 7.0" step="0.5"
-              oninput="calcDB()">
-            <div class="hint">비우면 퇴직IRP 계좌 수익률 자동사용</div>
-          </div>
-          <div class="frow">
-            <label class="fl">DC 연간 적립(간이) <span style="font-size:10px;color:var(--teal)">연봉÷12원/년</span></label>
-            <div style="position:relative;">
-              <input class="fi mono" id="dc-extra-monthly" type="text" readonly
-                style="background:var(--bg2);cursor:default;color:var(--t2);padding-right:10px;"
-                placeholder="연봉 입력 시 자동계산">
-              <div id="ka-dc-extra" style="font-size:13px;color:var(--goldl);font-weight:700;margin-top:3px;min-height:18px;"></div>
-            </div>
-            <div class="hint" id="dc-auto-contrib">시뮬·퇴직IRP: 매년 납입액을 <b>연봉÷12</b>(월급 1개월분 상당)으로 둡니다.</div>
-          </div>
+    <div style="background:var(--bg2);border-radius:8px;border:1px solid var(--bdl);padding:14px;">
+      <div class="g3">
+        <div class="frow">
+          <label class="fl">현재 DC 잔액 (원)</label>
+          <input class="fi mono" id="dc-direct-bal" type="number" value="0" placeholder="0"
+            oninput="G('ka-dc-bal').textContent=toKor(+this.value);syncDCBalToIRP(+this.value);calcDB()">
+          <div class="ka" id="ka-dc-bal">0원</div>
+          <div class="hint">지금까지 쌓인 퇴직금 누적액</div>
         </div>
-        <div id="dc-live-result" class="al al-s" style="margin-top:8px;font-size:12px;"></div>
+        <div class="frow">
+          <label class="fl">연 수익률 (%/년)</label>
+          <input class="fi mono" id="dc-rr-override" type="number" value="" placeholder="예) 7.0" step="0.5"
+            oninput="calcDB()">
+          <div class="hint" id="dc-rr-override-hint">「직접 입력·보유 종목」에서만 사용. 비우면 종목 CAGR → 퇴직IRP 수익률 순.</div>
+        </div>
+        <div class="frow">
+          <label class="fl">DC 연간 적립(간이) <span style="font-size:10px;color:var(--teal)">연봉÷12원/년</span></label>
+          <div style="position:relative;">
+            <input class="fi mono" id="dc-extra-monthly" type="text" readonly
+              style="background:var(--bg2);cursor:default;color:var(--t2);padding-right:10px;"
+              placeholder="연봉 입력 시 자동계산">
+            <div id="ka-dc-extra" style="font-size:13px;color:var(--goldl);font-weight:700;margin-top:3px;min-height:18px;"></div>
+          </div>
+          <div class="hint" id="dc-auto-contrib">시뮬·퇴직IRP: 매년 납입액을 <b>연봉÷12</b>(월급 1개월분 상당)으로 둡니다.</div>
+        </div>
       </div>
-    </div>
+      <div id="dc-live-result" class="al al-s" style="margin-top:10px;font-size:12px;"></div>
 
-    <!-- ② 보유종목 모드 -->
-    <div id="dc-mode-stocks" style="display:none;">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
-        <input id="dc-quick-code" class="fi" placeholder="종목코드 예) 379810" style="width:150px;padding:4px 8px;font-size:12px;">
-        <button class="btn btn-blue btn-sm" onclick="dcQuickAdd()">＋ 조회·추가</button>
-        <button class="btn btn-sec btn-sm" id="dcFetchAllBtn" onclick="fetchDCPrices()">🔄 전체 갱신</button>
-        <span style="font-size:11px;color:var(--t2);max-width:520px;line-height:1.45;">종목코드 입력 후 조회·추가 → <b>현재가·CAGR·배당률</b>은 Yahoo 등 시세 API(브라우저 CORS·프록시)로 가져옵니다. <b>API·네트워크가 막히면</b> 수동 입력만 가능합니다.</span>
-      </div>
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
-        <div class="frow" style="margin:0;min-width:200px;">
-          <label class="fl">일괄 수익률 적용 (%)</label>
-          <input class="fi mono" id="dc-rr-stocks" type="number" value="" placeholder="자동(종목CAGR)" step="0.5"
-            style="max-width:130px;" oninput="calcDB()">
-          <div class="hint">비우면 종목 CAGR 가중평균 자동</div>
+      <hr class="d" style="margin:14px 0;">
+      <div id="dc-holdings-block">
+        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">이 계좌 보유 종목 <span style="font-weight:400;color:var(--t3);font-size:11px;">(계좌설정 탭과 동일한 입력 스타일)</span></div>
+        <div class="hld-search-row" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
+          <input id="dc-quick-code" class="fi" placeholder="종목코드 예) 379810" style="min-width:160px;max-width:220px;padding:6px 10px;font-size:13px;">
+          <button type="button" class="btn btn-blue btn-sm" id="dc-btn-quickadd" onclick="dcQuickAdd()">＋ 조회·추가</button>
+          <button type="button" class="btn btn-sec btn-sm" id="dcFetchAllBtn" onclick="fetchDCPrices()">🔄 전체 갱신</button>
+          <span style="font-size:11px;color:var(--t2);max-width:480px;line-height:1.45;">시세는 Yahoo 등 API(브라우저 CORS·프록시)로 가져옵니다. 막히면 수동 입력만 가능합니다.</span>
         </div>
-        <div id="dc-live-result-stocks" class="al al-s" style="flex:1;min-width:180px;margin:0;font-size:12px;"></div>
+        <div class="g2" style="margin-bottom:10px;align-items:flex-end;">
+          <div class="frow" style="margin:0;">
+            <label class="fl">보유 일괄 수익률 (%)</label>
+            <input class="fi mono" id="dc-rr-stocks" type="number" value="" placeholder="자동(종목CAGR)" step="0.5"
+              style="max-width:140px;" oninput="calcDB()">
+            <div class="hint">비우면 종목 CAGR 가중평균</div>
+          </div>
+        </div>
+        <div class="hld-tbl-wrap" style="overflow-x:auto;">
+          <table class="ht" style="min-width:820px;table-layout:auto;">
+            <thead><tr>
+              <th style="width:88px">코드</th>
+              <th style="min-width:140px">종목명</th>
+              <th style="width:78px"><span style="font-size:10px;color:var(--t3);">나이(세)</span></th>
+              <th class="r" style="width:75px">수량(주)</th>
+              <th class="r" style="width:80px">평단(원)</th>
+              <th class="r" style="width:85px">현재가(원)</th>
+              <th class="r" style="width:65px">수익률</th>
+              <th class="r" style="width:90px">평가금액</th>
+              <th class="r" style="width:75px">10년CAGR</th>
+              <th class="r" style="width:65px">배당률%</th>
+              <th style="width:38px"></th>
+            </tr></thead>
+            <tbody id="dc-tbody"></tbody>
+            <tfoot><tr>
+              <td colspan="7" style="text-align:right;font-size:11px;color:var(--t2);padding:5px 6px;">DC형 합계 (평가금액)</td>
+              <td id="dc-total-ev" class="r tcol" style="padding:5px 6px;font-family:monospace;font-size:13px;"></td>
+              <td colspan="3"></td>
+            </tr></tfoot>
+          </table>
+        </div>
+        <div id="dc-cagr-avg" class="al al-s" style="font-size:12px;margin-top:6px;display:none;"></div>
       </div>
-      <div class="hld-tbl-wrap" style="overflow-x:auto;">
-        <table class="ht" style="min-width:820px;table-layout:auto;">
-          <thead><tr>
-            <th style="width:88px">코드</th>
-            <th style="min-width:140px">종목명</th>
-            <th class="r" style="width:75px">수량(주)</th>
-            <th class="r" style="width:80px">평단(원)</th>
-            <th class="r" style="width:85px">현재가(원)</th>
-            <th class="r" style="width:65px">수익률</th>
-            <th class="r" style="width:90px">평가금액</th>
-            <th class="r" style="width:75px">10년CAGR</th>
-            <th class="r" style="width:65px">배당률%</th>
-            <th style="width:38px"></th>
-          </tr></thead>
-          <tbody id="dc-tbody"></tbody>
-          <tfoot><tr>
-            <td colspan="6" style="text-align:right;font-size:11px;color:var(--t2);padding:5px 6px;">DC형 합계 (평가금액)</td>
-            <td id="dc-total-ev" class="r tcol" style="padding:5px 6px;font-family:monospace;font-size:13px;"></td>
-            <td colspan="3"></td>
-          </tr></tfoot>
-        </table>
-      </div>
-      <div id="dc-cagr-avg" class="al al-s" style="font-size:12px;margin-top:6px;display:none;"></div>
     </div>
   </div>
 </div>
@@ -810,24 +818,19 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     </div>
   </div>
   <div class="card" style="border-color:rgba(59,143,232,.22);">
-    <div class="ctitle">🎯 퇴직연금·IRP 디폴트옵션 &amp; 위험등급</div>
+    <div class="ctitle">🎯 펀드 위험등급(협회 표준) &amp; 참고 수익률</div>
     <div id="reg-def-opt-body" class="al al-i" style="font-size:12px;line-height:1.6;"></div>
     <div id="reg-def-opt-tools" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bdl);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;">
       <span style="color:var(--t2);font-weight:600;">시뮬 반영:</span>
-      <label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--t2);">
-        <span>참고 등급(1~5)</span>
-        <select class="fi" id="dc-default-grade" style="max-width:72px;padding:6px 8px;font-size:14px;min-height:40px;">
+      <label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--t2);flex-wrap:wrap;">
+        <span>제1~제6위험등급</span>
+        <select class="fi" id="dc-default-grade" style="max-width:min(100%,280px);padding:6px 8px;font-size:12px;min-height:36px;" onchange="syncDcDefaultGradeFrom('main')">
           <option value="">—</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
         </select>
       </label>
       <button type="button" class="btn btn-sec btn-sm" onclick="applyDefaultOptGradeToIrp()">첫 퇴직IRP 수익률(연%)에 적용</button>
-      <button type="button" class="btn btn-sec btn-sm" onclick="applyDefaultOptGradeToDC()">DC형 운용 수익률에 적용</button>
-      <span class="hint" style="margin:0;max-width:100%;">위 표의 <b>비보장형 참고 구간 중앙값</b>을 퇴직IRP·DC(① 직접입력 연%·② 보유종목 일괄%)에 넣습니다. 여러 계좌면 직접 조정하세요.</span>
+      <button type="button" class="btn btn-sec btn-sm" onclick="applyDefaultOptGradeToDC()">DC 운용에 적용(위험등급 모드)</button>
+      <span class="hint" style="margin:0;max-width:100%;">위 표 <b>참고 연수익률</b>을 IRP·DC에 넣습니다. DC는 「위험등급만」 모드일 때 시뮬 수익률로 쓰입니다.</span>
     </div>
   </div>
   <div class="card" style="border-color:rgba(155,111,224,.25);">
@@ -1684,8 +1687,8 @@ const SHEET_REF={
     {type:'IRP_ACCUM',balance:5000000,monthly:200000,returnRate:6.5},
   ],
   dcHoldings:[
-    {ticker:'379810',name:'KODEX 미국나스닥100',qty:100,avg:17000,cp:17000,divYield:0.5,cagr:null},
-    {ticker:'455050',name:'TIGER 미국배당다우존스',qty:80,avg:12000,cp:12000,divYield:1.0,cagr:null},
+    {ticker:'379810',name:'KODEX 미국나스닥100',qty:100,avg:17000,cp:17000,divYield:0.5,cagr:null,ageFrom:0,ageTo:0},
+    {ticker:'455050',name:'TIGER 미국배당다우존스',qty:80,avg:12000,cp:12000,divYield:1.0,cagr:null,ageFrom:0,ageTo:0},
   ],
   loans:[
     {name:'가계대출 (예시)',balance:20000000,monthly:400000,rate:4.5,startDate:'2020-01-01',endDate:'2035-12-31'},
@@ -1719,7 +1722,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 03:06';
+const PUBLISH_STAMP='2026.04.04 11:05';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -1735,6 +1738,7 @@ document.addEventListener('click',e=>{
 });
 window.onload=()=>{
   applyThemeFromStorage();
+  try{rebuildFundGradeSelects();}catch(_){}
   if(G('legal-ref-asof'))G('legal-ref-asof').textContent=LEGAL_REF_AS_OF;
   // 탭 위치 = 헤더 높이에 맞춰 동적 설정
   function fixTabsPos(){
@@ -1766,6 +1770,7 @@ window.onload=()=>{
   if(G('simq-div-alloc'))G('simq-div-alloc').addEventListener('input',onSimQuickLiveInput);
   renderLumpEvents();
   syncRevTargetSlider();
+  try{wireDcDefaultGradeSync();}catch(_){}
   attachAutoMoneyHints(document);
   onJobTypeChange();
   if(G('legal-ref-file-stamp')&&window.REGULATORY_REF)
@@ -1801,13 +1806,14 @@ function initDef(){
       dcHoldings.push({
         id:'dc'+DCctr,ticker:h.ticker||'',name:h.name||'',qty:+h.qty||0,avg:+h.avg||0,
         cp:+h.cp||+h.avg||0,cagr:h.cagr!=null?h.cagr:null,divYield:h.divYield!=null?h.divYield:0,pb:h.pb!=null?h.pb:null,
+        ageFrom:h.ageFrom!=null?+h.ageFrom:0,ageTo:h.ageTo!=null?+h.ageTo:0,
       });
     });
     const ev=dcHoldings.reduce((s,x)=>{const p=(x.cp>0?x.cp:x.avg)||0;return s+(x.qty||0)*p;},0);
     if(ev>0){Gv('dc-direct-bal',String(Math.round(ev)));syncDCBalToIRP(Math.round(ev));}
   }else{
-    DCctr++;dcHoldings.push({id:'dc1',ticker:'379810',name:'KODEX 나스닥100',qty:100,avg:17000,cp:0,cagr:null,divYield:3.5,pb:null});
-    DCctr++;dcHoldings.push({id:'dc2',ticker:'455050',name:'TIGER 미국배당다우존스',qty:80,avg:12000,cp:0,cagr:null,divYield:4.2,pb:null});
+    DCctr++;dcHoldings.push({id:'dc1',ticker:'379810',name:'KODEX 나스닥100',qty:100,avg:17000,cp:0,cagr:null,divYield:3.5,pb:null,ageFrom:0,ageTo:0});
+    DCctr++;dcHoldings.push({id:'dc2',ticker:'455050',name:'TIGER 미국배당다우존스',qty:80,avg:12000,cp:0,cagr:null,divYield:4.2,pb:null,ageFrom:0,ageTo:0});
   }
   renderAccts();renderLoans();renderIns();
   updateBudBar();updateTax();renderNP();updateRetireOtherHealthHint();calcTarget();onSalary();updateRule72();
@@ -2561,23 +2567,25 @@ function renderNP(){
   updateRetireOtherHealthHint();
 }
 
-function switchDCTab(tab){
-  const direct=G('dc-mode-direct'),stocks=G('dc-mode-stocks');
-  const t1=G('dc-tab-direct'),t2=G('dc-tab-stocks');
-  const activeStyle={background:'rgba(200,168,75,.2)',color:'var(--goldl)',border:'1px solid var(--goldd)'};
-  const inactiveStyle={background:'var(--bg2)',color:'var(--t2)',border:'1px solid var(--bdl)'};
-  if(tab==='direct'){
-    if(direct)direct.style.display='';
-    if(stocks)stocks.style.display='none';
-    if(t1)Object.assign(t1.style,activeStyle);
-    if(t2)Object.assign(t2.style,inactiveStyle);
-  }else{
-    if(direct)direct.style.display='none';
-    if(stocks)stocks.style.display='';
-    if(t1)Object.assign(t1.style,inactiveStyle);
-    if(t2)Object.assign(t2.style,activeStyle);
+function isDCFundGradeMode(){
+  return Gval('sevType')==='DC'&&!!G('dc-use-mode-grade')?.checked;
+}
+function setDCUseMode(skipCalc){
+  const lock=isDCFundGradeMode();
+  ['dc-rr-override','dc-rr-stocks','dc-quick-code'].forEach(id=>{
+    const e=G(id);if(e){e.disabled=lock;e.style.opacity=lock?'0.6':'';}
+  });
+  const b=G('dcFetchAllBtn');if(b){b.disabled=lock;b.style.opacity=lock?'0.6':'';}
+  const qa=G('dc-btn-quickadd');if(qa){qa.disabled=lock;qa.style.opacity=lock?'0.6':'';}
+  const hb=G('dc-holdings-block');if(hb){
+    hb.style.opacity=lock?'0.52':'';
+    hb.style.pointerEvents=lock?'none':'';
   }
-  calcDB(); // 탭 전환 시 즉시 계산 갱신
+  const hh=G('dc-rr-override-hint');if(hh){
+    hh.textContent=lock?'「협회 펀드 위험등급만」모드 — 아래 등급의 참고 수익률이 적용됩니다.':'「직접 입력·보유 종목」에서만 사용. 비우면 종목 CAGR → 퇴직IRP 수익률 순.';
+  }
+  renderDCTable(true);
+  if(!skipCalc&&Gval('sevType')==='DC')calcDB();
 }
 function toggleSev(){
   const t=Gval('sevType');
@@ -2585,7 +2593,7 @@ function toggleSev(){
   // Show/hide DC holdings card (below퇴직금 card)
   const dcCard=G('dc-holdings-card');
   if(dcCard)dcCard.style.display=t==='DC'?'':'none';
-  if(t==='DC'){renderDCTable();updateDCSummary();calcDB();}
+  if(t==='DC'){setDCUseMode(true);updateDCSummary();calcDB();}
   if(t==='DB')calcDB();
   updateSevTargetInfo();
 }
@@ -2786,6 +2794,13 @@ function setSevDiscRatePreset(v){
 }
 function setNpAgeQuick(age){Gv('npAge',String(age));renderNP();updateRetireOtherHealthHint();}
 function getDCWeightedCAGR(){
+  if(isDCFundGradeMode()){
+    const g=readDefaultGradeForApply();
+    const rrG=getDefaultOptRefRRForGrade(g);
+    if(rrG!=null&&rrG>0)return rrG/100;
+    const dcAcct=accounts.find(a=>a.type==='IRP_RETIRE'&&a.active);
+    return (dcAcct?.returnRate||5)/100;
+  }
   // 직접 입력 수익률 우선
   const rrOverride=parseFloat(Gval('dc-rr-override')||'')||parseFloat(Gval('dc-rr-stocks')||'')||0;
   if(rrOverride>0) return rrOverride/100;
@@ -2879,8 +2894,14 @@ function calcDB(){
     const lastSal=yl>0?Math.round(sal*Math.pow(1+sg,yl-1)):sal;
     const dcFirst=dcAnnualContribFromSalary(firstSal);
     const dcLast=dcAnnualContribFromSalary(lastSal);
-    const hasCagr=dcHoldings.some(h=>h.cagr!=null);
-    const rrLabel=hasCagr?`종목 가중평균 CAGR`:`퇴직IRP 수익률`;
+    const gSel=readDefaultGradeForApply();
+    const hasCagr=!isDCFundGradeMode()&&dcHoldings.some(h=>h.cagr!=null);
+    const rrLabel=isDCFundGradeMode()
+      ?(gSel?`협회 펀드 위험등급(제${gSel}등급·참고)`:`협회 위험등급 미선택·IRP 수익률`)
+      :(hasCagr?`종목 가중평균 CAGR`:`퇴직IRP 수익률`);
+    const rrCol=isDCFundGradeMode()?(gSel?'var(--green)':'var(--t2)'):(hasCagr?'var(--green)':'var(--t2)');
+    const rrPre=isDCFundGradeMode()?'':(hasCagr?'':'(기본값) ');
+    const rrSuf=isDCFundGradeMode()?'':(!hasCagr?' ← 종목 CAGR 조회 후 자동반영':'');
     const ds=G('dc-sum');
     if(ds){
       ds.className='al al-s';
@@ -2891,7 +2912,7 @@ function calcDB(){
           `<div>📅 남은 근무기간</div><div style="text-align:right;font-family:monospace">${yl}년 (${ca}세 → ${ca+yl}세)</div>`+
           `<div>💴 법정 DC 적립 <span style="font-size:10px;color:var(--t3)">간이: 매년 <b>연봉÷12</b> · 상승률 ${(sg*100).toFixed(1)}%</span></div><div style="text-align:right;font-family:monospace">${wf(dcFirst)}원/년 → ${wf(dcLast)}원/년</div>`+
           `<div>💰 총 DC 납입(간이 합)</div><div style="text-align:right;font-family:monospace;color:var(--blue)">${wf(totalContrib)}원</div>`+
-          `<div>📈 ${rrLabel}</div><div style="text-align:right;font-family:monospace;color:${hasCagr?'var(--green)':'var(--t2)'}">${hasCagr?'':'(기본값) '}${(rr*100).toFixed(1)}%/년${!hasCagr?' ← 종목 CAGR 조회 후 자동반영':''}</div>`+
+          `<div>📈 ${rrLabel}</div><div style="text-align:right;font-family:monospace;color:${rrCol}">${rrPre}${(rr*100).toFixed(1)}%/년${rrSuf}</div>`+
         `</div>`+
         `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd);">`+
           `은퇴 시 예상 DC형 퇴직금: <b style="color:var(--goldl);font-size:14px;">${wf(proj)}원</b><span style="font-size:10px;color:var(--t3)"> (현금흐름표 퇴직IRP 최종잔액과 일치)</span> <span style="color:var(--t2);font-size:11px;">(${toKor(proj)})</span>`+
@@ -2903,9 +2924,6 @@ function calcDB(){
     const liveContent=`🎯 은퇴시 예상: <b style="color:var(--goldl);font-size:14px;">${wf(proj)}원</b><br>`+
       `<span style="font-size:11px;color:var(--t2)">현재잔액 ${ws(now)} + ${yl}년 적립 → 수익률 ${(rr*100).toFixed(1)}%</span>`;
     if(liveEl)liveEl.innerHTML=liveContent;
-    // dc-live-result-stocks (보유종목 모드) 도 동일하게
-    const liveSEl=G('dc-live-result-stocks');
-    if(liveSEl)liveSEl.innerHTML=liveContent;
     updateSevTargetInfo();
     return;
   }
@@ -2924,7 +2942,7 @@ function calcDB(){
     `총 근속 ${tw}년 (현재${wy}년 + 잔여${yl}년) → 퇴직금 <b style="color:var(--goldl)">${wf(sev)}원</b> <span style="color:var(--t2)">(${toKor(sev)})</span>`;
 }
 // ─── DC형 전용 보유종목 (독립 state) ───
-let dcHoldings=[];  // [{ticker,name,qty,avg,cp,cagr,divYield,pb}]
+let dcHoldings=[];  // [{ticker,name,qty,avg,cp,cagr,divYield,pb,ageFrom,ageTo}]
 let DCctr=0;
 
 function syncDCBalToIRP(val){
@@ -3022,8 +3040,10 @@ function getSev(){
 }
 
 // ─── DC 종목 테이블 렌더 ───
-function renderDCTable(){
+function renderDCTable(skipCalc){
   const tbody=G('dc-tbody');if(!tbody)return;
+  const dis=isDCFundGradeMode();
+  const dA=dis?' disabled':'';
   let totalEv=0;
   tbody.innerHTML=dcHoldings.map((h,i)=>{
     const cp=h.cp>0?h.cp:h.avg;
@@ -3032,23 +3052,32 @@ function renderDCTable(){
     const ret=h.avg>0&&h.cp>0?((h.cp-h.avg)/h.avg*100).toFixed(1):'—';
     const rc=parseFloat(ret)>0?'pos':parseFloat(ret)<0?'neg':'dim';
     const badge=h.pb==='live'?`<span class="price-live">실시간</span>`:h.pb==='err'?`<span class="price-err">실패</span>`:'';
-    const cagrHtml=h.cagr!=null?`<b style="color:${parseFloat(h.cagr)>=0?'var(--green)':'var(--red)'}">${parseFloat(h.cagr)>=0?'+':''}${h.cagr}%</b>`
-      :`<button type="button" class="btn btn-sec" style="padding:1px 5px;font-size:10px;" onclick="fetchDCOne(${i})">조회</button>`;
+    const cagrHtml=h.cagr!=null
+      ?`<b style="color:${parseFloat(h.cagr)>=0?'var(--green)':'var(--red)'}">${parseFloat(h.cagr)>=0?'+':''}${h.cagr}%</b>`
+      :(dis?'—':`<button type="button" class="btn btn-sec" style="padding:1px 5px;font-size:10px;" onclick="fetchDCOne(${i})">조회</button>`);
+    const af=h.ageFrom!=null?+h.ageFrom:0;
+    const ae=h.ageTo!=null?+h.ageTo:0;
     return `<tr>
-      <td><input class="hi sm code-col" value="${h.ticker||''}" placeholder="6자리" inputmode="numeric" autocomplete="off" oninput="dcF(${i},'ticker',this.value)" style="width:82px;min-width:72px"></td>
-      <td><input class="hi sm" value="${attrEsc(resolveStockLabel(h.ticker,h.name))}" placeholder="종목명" oninput="dcF(${i},'name',this.value)" style="min-width:130px;max-width:240px;width:100%"></td>
-      <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.qty||0}" oninput="dcF(${i},'qty',+this.value);renderDCTable()" style="width:72px"></td>
-      <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.avg||0}" oninput="dcF(${i},'avg',+this.value);renderDCTable()" style="width:78px"></td>
+      <td><input class="hi sm code-col" value="${h.ticker||''}" placeholder="6자리" inputmode="numeric" autocomplete="off" oninput="dcF(${i},'ticker',this.value)" style="width:82px;min-width:72px"${dA}></td>
+      <td><input class="hi sm" value="${attrEsc(resolveStockLabel(h.ticker,h.name))}" placeholder="종목명" oninput="dcF(${i},'name',this.value)" style="min-width:130px;max-width:240px;width:100%"${dA}></td>
+      <td style="white-space:nowrap;vertical-align:middle;padding:2px 4px;">
+        <input class="hi sm mono-fig" type="number" min="0" max="120" value="${af}" title="시작 나이(세)" oninput="dcF(${i},'ageFrom',+this.value)" style="width:32px;padding:2px 4px;font-size:11px;"${dA}>
+        <span style="font-size:10px;color:var(--t3);">~</span>
+        <input class="hi sm mono-fig" type="number" min="0" max="120" value="${ae}" title="끝 나이(세)" oninput="dcF(${i},'ageTo',+this.value)" style="width:32px;padding:2px 4px;font-size:11px;"${dA}>
+        <span style="font-size:10px;color:var(--t3);">세</span>
+      </td>
+      <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.qty||0}" oninput="dcF(${i},'qty',+this.value);renderDCTable()" style="width:72px"${dA}></td>
+      <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.avg||0}" oninput="dcF(${i},'avg',+this.value);renderDCTable()" style="width:78px"${dA}></td>
       <td class="r" style="white-space:nowrap;">
-        <input class="hi r sm mono-fig" type="number" value="${h.cp||0}" oninput="dcF(${i},'cp',+this.value);renderDCTable()" style="width:78px">
+        <input class="hi r sm mono-fig" type="number" value="${h.cp||0}" oninput="dcF(${i},'cp',+this.value);renderDCTable()" style="width:78px"${dA}>
         ${badge}
-        <button type="button" class="btn btn-blue" style="padding:1px 5px;font-size:10px;margin-left:2px;flex-shrink:0;" title="현재가 조회" onclick="fetchDCOne(${i})">📡</button>
+        <button type="button" class="btn btn-blue" style="padding:1px 5px;font-size:10px;margin-left:2px;flex-shrink:0;" title="현재가 조회" onclick="fetchDCOne(${i})"${dis?' disabled':''}>📡</button>
       </td>
       <td class="r ${rc} mono-fig" style="font-size:11px;">${ret}%</td>
       <td class="r divcol mono-fig" style="font-size:12px;font-weight:600;">${ws(ev)}</td>
       <td class="r">${cagrHtml}</td>
-      <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.divYield||0}" step="0.1" oninput="dcF(${i},'divYield',+this.value)" style="width:56px" placeholder="0"></td>
-      <td><button type="button" class="btn btn-red btn-xs" onclick="dcHoldings.splice(${i},1);renderDCTable();updateDCSummary()">✕</button></td>
+      <td class="r"><input class="hi r sm mono-fig" type="number" value="${h.divYield||0}" step="0.1" oninput="dcF(${i},'divYield',+this.value)" style="width:56px" placeholder="0"${dA}></td>
+      <td><button type="button" class="btn btn-red btn-xs" onclick="dcHoldings.splice(${i},1);renderDCTable();updateDCSummary()"${dis?' disabled':''}>✕</button></td>
     </tr>`;
   }).join('');
   const te=G('dc-total-ev');if(te)te.textContent=wf(Math.round(totalEv))+'원';
@@ -3064,16 +3093,11 @@ function renderDCTable(){
       cEl.innerHTML=`📊 DC형 가중평균 10년CAGR: <b style="color:var(--goldl)">${wavg>=0?'+':''}${wavg.toFixed(1)}%/년</b>&nbsp;&nbsp;|&nbsp;&nbsp;연간 예상 배당: <b style="color:var(--teal)">${wf(Math.round(annDiv))}원</b>`;
     }else cEl.style.display='none';
   }
-  // DC형 선택 시 예측 자동 갱신
-  if(Gval('sevType')==='DC'){
-    calcDB(); // calcDB가 dc-live-result와 dc-live-result-stocks 모두 갱신
-    // 종목 모드 실시간 결과도 갱신
-    const lrs=G('dc-live-result-stocks');
-    const lr=G('dc-live-result');
-    if(lrs&&lr)lrs.innerHTML=lr.innerHTML;
-  }else updateDCSummary();
+  if(Gval('sevType')==='DC'){if(!skipCalc)calcDB();}
+  else{if(!skipCalc)updateDCSummary();}
 }
 function dcF(i,k,v){
+  if(isDCFundGradeMode())return;
   if(!dcHoldings[i])return;
   if(k==='ticker'){
     dcHoldings[i].ticker=v;
@@ -3081,9 +3105,12 @@ function dcF(i,k,v){
   }else if(k==='name'){
     dcHoldings[i].name=v;
     const t=NMAP[v.trim()];if(t){dcHoldings[i].ticker=t;setTimeout(()=>renderDCTable(),30);}
+  }else if(k==='ageFrom'||k==='ageTo'){
+    dcHoldings[i][k]=Math.max(0,Math.min(120,parseInt(v,10)||0));
   }else{dcHoldings[i][k]=v;}
 }
 async function fetchDCOne(i){
+  if(isDCFundGradeMode())return;
   const h=dcHoldings[i];if(!h?.ticker)return;
   toast(`📡 ${h.ticker} 조회 중...`);
   const info=await fetchStockInfo(h.ticker);
@@ -3095,6 +3122,7 @@ async function fetchDCOne(i){
   toast(info.price?`✅ ${h.ticker}: ${wf(info.price)}원`:`⚠ ${h.ticker} 현재가 조회 실패`);
 }
 async function fetchDCPrices(){
+  if(isDCFundGradeMode()){toast('펀드 위험등급만 모드에서는 보유 종목 조회를 사용할 수 없습니다.');return;}
   const btn=G('dcFetchAllBtn');if(btn)btn.innerHTML='<span class="spin">⏳</span>';
   toast('📡 DC형 전체 종목 가격 조회 중...');
   try{
@@ -3108,12 +3136,13 @@ async function fetchDCPrices(){
 }
 // 종목코드 입력 후 즉시 조회·추가
 async function dcQuickAdd(){
+  if(isDCFundGradeMode()){toast('펀드 위험등급만 모드에서는 보유 종목을 추가할 수 없습니다.');return;}
   const inp=G('dc-quick-code');
   const code=(inp?.value||'').trim();
   if(!code){alert('종목코드를 입력하세요 (예: 379810)');return;}
   const name=TMAP[code]||'';
   DCctr++;
-  dcHoldings.push({id:`dc${DCctr}`,ticker:code,name,qty:0,avg:0,cp:0,cagr:null,divYield:0,pb:null});
+  dcHoldings.push({id:`dc${DCctr}`,ticker:code,name,qty:0,avg:0,cp:0,cagr:null,divYield:0,pb:null,ageFrom:0,ageTo:0});
   const idx=dcHoldings.length-1;
   renderDCTable();
   inp.value='';
@@ -3942,9 +3971,27 @@ function refreshHoldingsViews(acctId){
   patchInvestSlotSummary(acctId);
 }
 
+function renderEmptyHoldingsAcct(a){
+  const cat=(AMETA[a.type]||{}).cat;
+  if(cat!=='IRP'&&cat!=='IRP_RET')return'<div class="hint" style="padding:5px;">종목 없음. ＋ 추가로 검색·추가하세요.</div>';
+  const sel=readDefaultGradeForApply();
+  const gid='hld-empty-grade-'+a.id;
+  return`<div class="al al-i" style="font-size:11px;padding:8px 10px;margin-bottom:8px;line-height:1.5;border:1px solid var(--bdl);border-radius:8px;background:var(--bg2);">
+    <div style="margin-bottom:6px;">종목 없음 · <b>협회 펀드 위험등급</b> 참고 수익률(연%)만 넣을 수 있습니다.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+      <span>제1~제6위험등급</span>
+      <select class="hi sm" id="${gid}" style="max-width:56px;padding:2px 6px;font-size:11px;">${htmlDefaultGradeSelectOptions(sel)}</select>
+      <button type="button" class="btn btn-sec btn-xs" onclick="applyDefaultOptGradeToAcct('${a.id}')">이 계좌 수익률에 적용</button>
+    </div>
+    <div style="margin-top:6px;color:var(--t3);font-size:10px;">보유 종목을 넣으면 아래 표에서 CAGR 등으로 덮어쓸 수 있습니다.</div>
+  </div>`;
+}
 function renderHoldings(a, slotIdx=null){
-  if(!a||!a.holdings?.length)return`<div class="hint" style="padding:5px;">종목 없음. ＋ 추가로 검색·추가하세요.</div>`;
   const isSlotView=(slotIdx!==null&&slotIdx!==undefined);
+  if(!a||!a.holdings?.length){
+    if(isSlotView)return'<div class="hint" style="padding:5px;font-size:11px;">이 슬롯은 보유 종목이 있을 때만 표시됩니다.</div>';
+    return renderEmptyHoldingsAcct(a);
+  }
   const slotTag=(slotIdx===null||slotIdx===undefined)?'m':String(slotIdx);
   const tot=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;return s+(cp>0?h.qty*cp:0);},0);
   const totalDivInc=a.holdings.reduce((s,h)=>{const cp=h.cp>0?h.cp:h.avg;const ev=cp>0?h.qty*cp:0;return s+ev*(h.divYield||0)/100;},0);
@@ -4562,15 +4609,73 @@ async function quickAddHFromInput(acctId, inputId){
 }
 
 function getDefaultOptRefRRForGrade(g){
-  const m=window.REGULATORY_REF&&REGULATORY_REF.DEFAULT_OPTION_GRADE_REF_RR;
-  if(m&&typeof m[g]==='number')return m[g];
-  const fb={1:3.2,2:4.5,3:6,4:8,5:9.5};
-  return fb[g];
+  const ref=window.REGULATORY_REF;
+  if(!g||g<1)return null;
+  if(ref&&ref.FUND_RISK_GRADE_REF_RR&&typeof ref.FUND_RISK_GRADE_REF_RR[g]==='number')
+    return ref.FUND_RISK_GRADE_REF_RR[g];
+  if(ref&&ref.DEFAULT_OPTION_GRADE_REF_RR&&typeof ref.DEFAULT_OPTION_GRADE_REF_RR[g]==='number')
+    return ref.DEFAULT_OPTION_GRADE_REF_RR[g];
+  return null;
+}
+function rebuildFundGradeSelects(){
+  const L=(window.REGULATORY_REF&&REGULATORY_REF.FUND_RISK_GRADE_LABELS)||{};
+  let opts='<option value="">—</option>';
+  for(let g=1;g<=6;g++){
+    const ko=L[g]||'';
+    opts+=`<option value="${g}">${g} — ${ko}</option>`;
+  }
+  ['dc-default-grade','dc-default-grade-dc'].forEach(id=>{
+    const el=G(id);if(!el)return;
+    const cur=el.value;
+    el.innerHTML=opts;
+    if(cur&&[...el.options].some(o=>o.value===String(cur)))el.value=cur;
+  });
+}
+function htmlDefaultGradeSelectOptions(selectedG){
+  const L=(window.REGULATORY_REF&&REGULATORY_REF.FUND_RISK_GRADE_LABELS)||{};
+  let html='<option value="">—</option>';
+  for(let g=1;g<=6;g++){
+    const ko=L[g]||'';
+    html+=`<option value="${g}" ${g===selectedG?'selected':''}>${g} — ${ko}</option>`;
+  }
+  return html;
+}
+function readDefaultGradeForApply(){
+  const dc=G('dc-default-grade-dc'),main=G('dc-default-grade');
+  if(dc&&String(dc.value||'').trim()!=='')return parseInt(dc.value,10)||0;
+  if(main&&String(main.value||'').trim()!=='')return parseInt(main.value,10)||0;
+  return 0;
+}
+function syncDcDefaultGradeFrom(src){
+  const main=G('dc-default-grade'),dc=G('dc-default-grade-dc');
+  if(!main||!dc)return;
+  if(src==='main')dc.value=main.value;
+  else main.value=dc.value;
+}
+function wireDcDefaultGradeSync(){
+  rebuildFundGradeSelects();
+  const main=G('dc-default-grade'),dc=G('dc-default-grade-dc');
+  if(!main||!dc)return;
+  if(String(main.value||'')!=='')dc.value=main.value;
+  else if(String(dc.value||'')!=='')main.value=dc.value;
+}
+function applyDefaultOptGradeToAcct(acctId){
+  const eg=G('hld-empty-grade-'+acctId);
+  let g=eg?parseInt(eg.value,10)||0:0;
+  if(!g)g=readDefaultGradeForApply();
+  const rr=getDefaultOptRefRRForGrade(g);
+  if(rr==null||rr<=0){toast('제1~제6위험등급을 선택하세요');return;}
+  const t=(accounts||[]).find(x=>x.id===acctId);
+  if(!t){toast('계좌를 찾을 수 없습니다.');return;}
+  t.returnRate=rr;
+  renderAccts();
+  try{runSim();}catch(_){}
+  toast(`「${t.label}」수익률 ${rr}%/년(참고·등급 ${g})`);
 }
 function applyDefaultOptGradeToIrp(){
-  const g=parseInt(Gval('dc-default-grade'),10)||0;
+  const g=readDefaultGradeForApply();
   const rr=getDefaultOptRefRRForGrade(g);
-  if(rr==null||rr<=0){toast('1~5 등급을 선택하세요');return;}
+  if(rr==null||rr<=0){toast('제1~제6위험등급을 선택하세요');return;}
   const t=(accounts||[]).find(a=>a.active&&a.type==='IRP_RETIRE');
   if(!t){toast('활성 퇴직IRP 계좌가 없습니다.');return;}
   t.returnRate=rr;
@@ -4579,14 +4684,17 @@ function applyDefaultOptGradeToIrp(){
   toast(`「${t.label}」수익률을 ${rr}%/년(참고·등급 ${g})로 설정했습니다.`);
 }
 function applyDefaultOptGradeToDC(){
-  const g=parseInt(Gval('dc-default-grade'),10)||0;
+  const g=readDefaultGradeForApply();
   const rr=getDefaultOptRefRRForGrade(g);
-  if(rr==null||rr<=0){toast('1~5 등급을 선택하세요');return;}
+  if(rr==null||rr<=0){toast('제1~제6위험등급을 선택하세요');return;}
+  if(G('dc-use-mode-grade'))G('dc-use-mode-grade').checked=true;
+  if(G('dc-use-mode-detail'))G('dc-use-mode-detail').checked=false;
+  setDCUseMode(true);
   Gv('dc-rr-override',String(rr));
   Gv('dc-rr-stocks',String(rr));
   calcDB();
   try{runSim();}catch(_){}
-  toast(`DC형 운용 수익률(① 직접·② 일괄) ${rr}%/년(참고·등급 ${g})로 설정했습니다.`);
+  toast(`DC 운용: 협회 펀드 위험등급 모드 · 참고 ${rr}%/년(제${g}등급)`);
 }
 
 function updateSalaryDayHint(){
@@ -7527,7 +7635,8 @@ function getProfile(){
       scOpt:Gval('sc-opt'),scAvg:Gval('sc-avg'),scPes:Gval('sc-pes'),scDiv:Gval('sc-div'),
       realEstate:Gval('realEstate'),healthCar:Gval('healthCar'),healthInc:Gval('healthInc'),revTarget:Gval('rev-target'),
       healthApplySim:G('healthApplySim')?.checked,healthRetireOnly:G('healthRetireOnly')?.checked,
-      dcDirectBal:Gval('dc-direct-bal'),dcRROverride:Gval('dc-rr-override'),salaryDay:Gval('salaryDay'),hpOn:G('hpOn')?.checked,hpPrice:Gval('hpPrice'),hpStartAge:Gval('hpStartAge'),hpMode:Gval('hpMode')},
+      dcDirectBal:Gval('dc-direct-bal'),dcRROverride:Gval('dc-rr-override'),salaryDay:Gval('salaryDay'),hpOn:G('hpOn')?.checked,hpPrice:Gval('hpPrice'),hpStartAge:Gval('hpStartAge'),hpMode:Gval('hpMode'),
+      dcUseMode:G('dc-use-mode-grade')?.checked?'grade':'detail'},
     dcHoldings,accounts,loans,insurances,lumpEvents};
 }
 function saveProfile(){
@@ -7559,13 +7668,17 @@ function applyProfile(p){
   if(!p||p.ver!==6)return;
   const b=p.b||{};
   Object.entries(b).forEach(([k,v])=>{
-    if(k==='npEarnBizAnnual'||k==='npEarnBizMonths')return;
+    if(k==='npEarnBizAnnual'||k==='npEarnBizMonths'||k==='dcUseMode')return;
     const domId=PROFILE_B_EL[k]||k;
     const el=G(domId);
     if(!el)return;
     if(el.type==='checkbox')el.checked=!!v;
     else el.value=(v===null||v===undefined)?'':String(v).replace(/,/g,'');
   });
+  if(G('dc-use-mode-grade')&&G('dc-use-mode-detail')){
+    if(b.dcUseMode==='grade'){G('dc-use-mode-grade').checked=true;G('dc-use-mode-detail').checked=false;}
+    else{G('dc-use-mode-detail').checked=true;G('dc-use-mode-grade').checked=false;}
+  }
   const roEl=G('retireOther');
   if(roEl){
     const roNow=parseFloat(String(roEl.value||'').replace(/,/g,''))||0;
@@ -7611,6 +7724,8 @@ function applyProfile(p){
   const dcb=parseFloat(String(Gval('dc-direct-bal')||'').replace(/,/g,''))||0;
   if(dcb>0)try{syncDCBalToIRP(dcb);}catch(_){}
   try{calcHolding();}catch(_){}
+  try{wireDcDefaultGradeSync();}catch(_){}
+  try{setDCUseMode(false);}catch(_){}
 }
 
 
@@ -8114,7 +8229,7 @@ function onJobTypeChange(){
     if(jt==='employee'){
       imh.innerHTML='💡 <b>연봉</b> = 세전 총급여. 아래 월급 실수령액이 자동계산됩니다.<br><b>연봉 상승률</b>: 통계청 기준 평균 2~4%. 시뮬레이션 전체기간에 복리 반영됩니다.';
     }else if(jt==='researcher'){
-      imh.innerHTML='💡 직장인과 같이 <b>세전 총보수·월 실수령 자동계산</b>을 사용합니다. <b>과학기술인공제·직장 퇴직연금</b>은 계좌설정에서 유형을 나눠 넣고, DC형은 디폴트옵션·등급은 약관으로 확인하세요.';
+      imh.innerHTML='💡 직장인과 같이 <b>세전 총보수·월 실수령 자동계산</b>을 사용합니다. <b>과학기술인공제·직장 퇴직연금</b>은 계좌설정에서 유형을 나눠 넣고, DC형은 <b>협회 펀드 위험등급·운용</b>은 약관·투자설명서로 확인하세요.';
     }else if(jt==='civil'){
       imh.innerHTML='💡 공무원·교직·군인 등은 공단에서 제공하는 <b>예상 연금액</b>을 참고해 세전 연소득을 입력하고, 퇴직수당·공적연금 수령은 국민연금/연금 카드·목돈 이벤트에서 함께 반영하는 것이 좋습니다.';
     }else if(jt==='self'){

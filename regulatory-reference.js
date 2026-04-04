@@ -1,6 +1,6 @@
 /**
  * regulatory-reference.js — 세법·연금·공제 요약 (도구 안내용, 법률 자문 아님)
- * 수정 시: REVIEW_STAMP 갱신 + law.go.kr·국세청·금융위·과학기술인공제회·고용노동부 병행 확인
+ * 수정 시: REVIEW_STAMP 갱신 + law.go.kr·국세청·금융위·금융투자협회·과학기술인공제회·고용노동부 병행 확인
  */
 (function (global) {
   'use strict';
@@ -11,6 +11,28 @@
     '<span class="legal-asof-note">(안내 기준: <b>' +
     REVIEW_STAMP +
     '</b> 시점 법령·고시 <b>일반 요지</b> — 개정·해석·개별 사정에 따라 달라질 수 있음)</span>';
+
+  /**
+   * 금융투자협회 집합투자증권(펀드) 투자위험등급 표준(제1~제6위험등급).
+   * 제1등급 = 위험 최고, 제6등급 = 위험 최저(단, 상품·설명서 정의가 우선).
+   */
+  var FUND_RISK_GRADE_LABELS = {
+    1: '매우 높은 위험',
+    2: '높은 위험',
+    3: '다소 높은 위험',
+    4: '보통 위험',
+    5: '낮은 위험',
+    6: '매우 낮은 위험',
+  };
+
+  /**
+   * 시뮬 입력용: 협회 위험등급 → 비보장형·장기 가정 참고 연수익률 중앙값(%).
+   * 실제 펀드 수익·원금 보장 여부는 투자설명서·약관을 따릅니다.
+   */
+  var FUND_RISK_GRADE_REF_RR = { 1: 9.5, 2: 8, 3: 6.5, 4: 5, 5: 3.8, 6: 3.2 };
+
+  /** @deprecated 구버전 시뮬(등급 1~5, 숫자 작을수록 보수적 가정). getDefaultOptRefRRForGrade에서 신규 1~6 우선. */
+  var DEFAULT_OPTION_GRADE_REF_RR = { 1: 3.2, 2: 4.5, 3: 6, 4: 8, 5: 9.5 };
 
   function buildAIRegulatoryBlock(jobType) {
     var jtK = {
@@ -30,7 +52,8 @@
       '\n' +
       '· 연금저축·적립IRP: 납입액 소득공제(소득세법·조세특례제한법, 연간 한도·연금계좌 합산 납입 상한 등)\n' +
       '· 과학기술인공제회 퇴직연금: 회원(개인)부담금 등 연금적 납입의 세제는 소득세법 등 및 공제회 안내\n' +
-      '· 퇴직IRP·DC: 퇴직급여 이연·디폴트옵션·위험등급별 자산배분은 근로자퇴직급여 보장법령·금융위 고시·약관\n' +
+      '· 퇴직IRP·DC: 퇴직급여 이연·운용지시·디폴트옵션 등은 근로자퇴직급여 보장법령·금융위 고시·약관. ' +
+      '펀드 위험등급은 금융투자협회 표준(제1~제6위험등급)을 따르나 상품별 표기는 설명서 확인\n' +
       '· ISA: 조특법 금융투자소득 비과세·분리과세·의무가입기간·금융소득 종합과세 관계\n' +
       '· 노란우산공제: 조특법상 사업자 등 납입 소득공제(종합소득금액 구간별 공제 한도 차등, 연도별 개정)\n' +
       '답변 시 계좌 유형과 연결하고, 확정 세액·법률 자문이 아님을 명시. 홈택스·국세청·가입 기관 최종 확인.'
@@ -38,32 +61,38 @@
   }
 
   function htmlDefaultOptionBlock() {
+    var rows = '';
+    for (var g = 1; g <= 6; g++) {
+      var rr = FUND_RISK_GRADE_REF_RR[g];
+      rows +=
+        '<tr><td><b>제' +
+        g +
+        '위험등급</b></td><td>' +
+        (FUND_RISK_GRADE_LABELS[g] || '—') +
+        '</td><td>약 ' +
+        rr +
+        '%/년 <span style="color:var(--t3)">(시뮬 참고 중앙값)</span></td></tr>';
+    }
     return (
       '<p style="margin:0 0 8px 0;line-height:1.65;">' +
-      '<b>디폴트옵션</b>(DC형·IRP 등): 가입자가 운용지시를 하지 않거나 「디폴트옵션」을 택한 경우, ' +
-      '<b>원리금보장형</b>·<b>실적배당형(비보장)</b> 등으로 자동·단계적으로 배정되는 제도입니다. ' +
-      '근로자퇴직급여 보장법령·고시와 금융회사 약관을 따릅니다. ' +
+      '<b>집합투자증권(펀드) 투자위험등급</b>은 <b>금융투자협회</b>가 정한 표준에 따라, ' +
+      '국내에서 판매되는 <b>금융투자상품(펀드 등)</b>에 공통적으로 부여되는 <b>제1~제6위험등급</b> 체계입니다. ' +
+      '숫자가 작을수록 일반적으로 <b>주식 등 변동성 큰 자산 비중이 큰 편</b>에 해당할 수 있으나, ' +
+      '<b>투자설명서·약관·집합투자규약</b>의 정의·산출이 우선합니다. ' +
+      '퇴직연금·IRP의 「디폴트옵션」 상품도 이 위험등급 체계로 안내되는 경우가 많습니다. ' +
       AS_OF_NOTE +
       '</p>' +
       '<ul style="margin:0 0 0 1.1em;padding:0;line-height:1.65;">' +
-      '<li><b>위험등급·단계</b>: 상품별로 <b>초저위험·저·중·고위험 등 4단계</b>로 안내하거나, ' +
-      '금융사가 <b>1등급~5등급</b> 식으로 표기하는 경우가 있습니다. 등급이 높을수록 일반적으로 위험자산 비중이 커질 수 있으나 ' +
-      '<b>투자설명서·약관</b>의 정의를 따릅니다.</li>' +
-      '<li><b>자산배분 규율</b>: 퇴직연금·IRP에서 위험·안전자산 비중 한도 등은 관련 법령·금융위 고시·약관을 따릅니다.</li>' +
-      '<li><b>본 시뮬</b>은 개별 디폴트옵션 상품을 구분하지 않습니다. 아래 표는 <b>장기 평균에 가까운 참고치</b>일 뿐이며, ' +
-      '원금 보장이 아니고 시장에 따라 크게 달라질 수 있습니다.</li>' +
+      '<li><b>본 시뮬</b>은 개별 펀드명을 구분하지 않습니다. 아래 표의 연수익률은 <b>비보장·장기 가정용 참고치</b>일 뿐이며 원금 보장이 아닙니다.</li>' +
+      '<li><b>자산배분·한도</b>: 퇴직연금·IRP의 안전·위험자산 비율 등은 관련 법령·금융위 고시·약관을 따릅니다.</li>' +
       '</ul>' +
       '<div class="sim-wrap" style="overflow-x:auto;margin-top:10px;">' +
-      '<table class="st" style="font-size:11px;min-width:280px;">' +
-      '<thead><tr><th>4단계(예)</th><th>5등급(예시)</th><th>참고 장기수익률(연·비보장형 중심)</th><th>원리금보장형 참고</th></tr></thead>' +
+      '<table class="st" style="font-size:11px;min-width:320px;">' +
+      '<thead><tr><th>등급</th><th>위험도(협회 표준안)</th><th>참고 연수익률(비보장·시뮬)</th></tr></thead>' +
       '<tbody>' +
-      '<tr><td>초저위험</td><td>1</td><td>약 2.5~4%</td><td>예·채 고시금리 수준</td></tr>' +
-      '<tr><td>저위험</td><td>2</td><td>약 3.5~5.5%</td><td>혼합(채권 우세)</td></tr>' +
-      '<tr><td>중위험</td><td>3</td><td>약 4.5~7.5%</td><td>주식 비중 중간</td></tr>' +
-      '<tr><td>고위험</td><td>4</td><td>약 6~10%</td><td>변동 큼</td></tr>' +
-      '<tr><td>—</td><td>5(일부사)</td><td>약 7~12%+</td><td>적극형·변동 매우 큼</td></tr>' +
+      rows +
       '</tbody></table></div>' +
-      '<p class="legal-asof-note" style="margin:8px 0 0 0;">위 수치는 <b>시뮬 입력용 가이드</b>이며, 과거·시장 가정에 따른 <b>비공식 범위</b>입니다. ' +
+      '<p class="legal-asof-note" style="margin:8px 0 0 0;">과거 실적·시장 가정에 따른 <b>비공식 범위</b>입니다. ' +
       '실제 약정수익률·원금 보장 여부는 상품별 약관을 따릅니다.</p>'
     );
   }
@@ -74,7 +103,7 @@
         '<b>직장인(급여소득)</b> ' +
         AS_OF_NOTE +
         '<ul style="margin:6px 0 0 1.1em;padding:0;line-height:1.65;">' +
-        '<li><b>두기 좋은 계좌</b>: ISA, 연금저축, 적립IRP, 퇴직 시 <b>퇴직IRP</b>, 직장 <b>DC/DB 퇴직연금</b>(디폴트옵션·위험등급은 약관).</li>' +
+        '<li><b>두기 좋은 계좌</b>: ISA, 연금저축, 적립IRP, 퇴직 시 <b>퇴직IRP</b>, 직장 <b>DC/DB 퇴직연금</b>(펀드 위험등급·운용은 약관).</li>' +
         '<li><b>혜택 요지</b>: 연금저축·적립IRP 납입액 <b>소득공제</b>(연금/IRP 합산 납입 상한 등). ISA는 조건 충족 시 비과세·분리과세.</li>' +
         '<li><b>주의</b>: 연말정산에서 총급여·합산 공제 확정. 퇴직금 이전·IRP는 사업장·금융기관 절차.</li>' +
         '</ul>',
@@ -86,7 +115,7 @@
         '<b>회원(개인)부담금</b> 등에 대해 소득세법·조세특례제한법상 <b>연금계좌 관련 소득공제</b>가 인정되는 경우가 있습니다 ' +
         '(공제 한도·총급여 요건 등은 <b>과학기술인공제회·국세청</b> 안내). ' +
         '수령 시 <b>이연퇴직소득세 감면</b>(수령 기간 등)은 조특법 개정에 따라 달라질 수 있습니다.</li>' +
-        '<li><b>그 외</b>: ISA·연금저축·적립IRP·퇴직IRP — 일반 직장인과 병행 검토. 직장 DC는 디폴트옵션·등급은 약관 확인.</li>' +
+        '<li><b>그 외</b>: ISA·연금저축·적립IRP·퇴직IRP — 일반 직장인과 병행 검토. 직장 DC는 펀드 위험등급·운용은 약관 확인.</li>' +
         '<li><b>주의</b>: 소득 형태에 따라 공제 제한 가능.</li>' +
         '</ul>',
       civil:
@@ -118,13 +147,12 @@
     return blocks[jobType] || blocks.employee;
   }
 
-  /** 시뮬 입력용: 위험등급(1~5) → 비보장형 참고 구간 중앙값(연 %). IRP·DC 운용 가정에 공통 사용. */
-  var DEFAULT_OPTION_GRADE_REF_RR = { 1: 3.2, 2: 4.5, 3: 6, 4: 8, 5: 9.5 };
-
   global.REGULATORY_REF = {
     REVIEW_STAMP: REVIEW_STAMP,
     FILE_NOTE:
       '법규 요약은 regulatory-reference.js 한 파일에 모았습니다. 개정 시 이 파일과 REVIEW_STAMP를 우선 갱신하세요.',
+    FUND_RISK_GRADE_LABELS: FUND_RISK_GRADE_LABELS,
+    FUND_RISK_GRADE_REF_RR: FUND_RISK_GRADE_REF_RR,
     DEFAULT_OPTION_GRADE_REF_RR: DEFAULT_OPTION_GRADE_REF_RR,
     buildAIRegulatoryBlock: buildAIRegulatoryBlock,
     htmlDefaultOptionBlock: htmlDefaultOptionBlock,
