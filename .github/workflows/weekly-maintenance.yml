@@ -1,0 +1,72 @@
+# 매주 월요일(UTC 자정 = 한국 월요일 오전 9시경): JS 문법 검사 + 메타 파일 커밋 → GitHub Pages 재배포 트리거
+# 법규·세무·UI 내용은 자동 수정하지 않습니다. (내용 변경은 PR/수동 검토 권장)
+name: Weekly maintenance
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-maintenance
+  cancel-in-progress: true
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax-check all JavaScript
+        run: |
+          set -e
+          n=0
+          while IFS= read -r -d '' f; do
+            echo "Checking: $f"
+            node --check "$f"
+            n=$((n + 1))
+          done < <(find . -name "*.js" -not -path "./.git/*" -print0)
+          echo "OK: $n file(s)."
+
+      - name: Write site-weekly-meta.json
+        env:
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: |
+          python3 << 'PY'
+          import datetime
+          import json
+          import os
+
+          now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          base = os.environ.get("GITHUB_SERVER_URL", "").rstrip("/")
+          repo = os.environ.get("GITHUB_REPOSITORY", "")
+          rid = os.environ.get("GITHUB_RUN_ID", "")
+          url = f"{base}/{repo}/actions/runs/{rid}" if base and repo and rid else ""
+
+          meta = {
+              "weeklyMaintenanceAt": now,
+              "workflow": "weekly-maintenance",
+              "ciRunUrl": url,
+              "noteKo": "자동 주간 작업: 저장소 내 .js 문법 검사 통과 후 이 파일만 갱신·푸시합니다. 법규·세무·시뮬 로직·UI는 자동 변경하지 않습니다. 내용 최신화는 regulatory-reference.js REVIEW_STAMP 및 공식 안내 대조 후 수동 반영하세요.",
+          }
+          with open("site-weekly-meta.json", "w", encoding="utf-8") as f:
+              json.dump(meta, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          PY
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site-weekly-meta.json
+          if git diff --staged --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore(weekly): maintenance heartbeat [actions]"
+          git push
