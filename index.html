@@ -412,7 +412,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 16:50</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.04.04 17:40</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -674,12 +674,12 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div id="dc-def-opt-strip" style="font-size:11px;color:var(--t2);display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px 0;padding:8px 10px;background:var(--bg2);border-radius:8px;border:1px solid var(--bdl);">
       <span style="font-weight:600;">펀드 위험등급</span>
       <span style="font-size:10px;color:var(--t3);">금융투자협회 표준(제1~제6)</span>
-      <select class="fi" id="dc-default-grade-dc" style="max-width:min(100%,280px);padding:6px 8px;font-size:12px;min-height:36px;" onchange="syncDcDefaultGradeFrom('dc')" title="계좌설정 탭과 동일 값 연동">
+      <select class="fi" id="dc-default-grade-dc" style="max-width:min(100%,280px);padding:6px 8px;font-size:12px;min-height:36px;" onchange="syncDcDefaultGradeFrom('dc')" title="제1~제6위험등급 · 퇴직IRP·DC 적용">
         <option value="">—</option>
       </select>
       <button type="button" class="btn btn-sec btn-xs" onclick="applyDefaultOptGradeToIrp()">첫 퇴직IRP 수익률</button>
       <button type="button" class="btn btn-sec btn-xs" onclick="applyDefaultOptGradeToDC()">DC 운용에 적용(위험등급 모드)</button>
-      <span class="hint" style="margin:0;max-width:100%;font-size:10px;">국내 판매 펀드 등 금융투자상품에 공통 적용되는 위험등급·참고 수익률입니다. 계좌설정 탭 표와 연동됩니다.</span>
+      <span class="hint" style="margin:0;max-width:100%;font-size:10px;">금융투자협회 표준 등급별 참고 연수익률(regulatory-reference.js). 상품별로 설명서·약관을 확인하세요.</span>
     </div>
 
     <div style="background:var(--bg2);border-radius:8px;border:1px solid var(--bdl);padding:14px;">
@@ -790,33 +790,13 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       </div>
     </div>
   </div>
-  <div class="card" style="border-color:rgba(59,143,232,.22);">
-    <div class="ctitle">📚 참고 허브 — 공식 계산기 · 법규 · 검증용 사이트</div>
-    <p class="legal-asof-note" style="margin:0 0 8px 0;font-size:10px;color:var(--t3);">목록은 <code style="font-size:10px;">regulatory-reference.js</code>의 <b>REFERENCE_HUB_SECTIONS</b>에서 유지합니다. 링크·문구를 바꿀 때 한 곳만 수정하면 됩니다.</p>
-    <div id="dynamic-ref-hub-body"></div>
-  </div>
+  <div class="card"><div class="ctitle">📊 세액공제 요약</div><div class="g4" id="tax-grid"></div></div>
   <div class="card" style="border-color:rgba(43,191,176,.28);">
     <div class="ctitle">🧭 직업군 맞춤 계좌 <span class="badge" style="background:rgba(43,191,176,.2);color:var(--teal)">법령 요약·2026.01</span></div>
     <div id="job-acct-guide" class="al al-i" style="font-size:12px;line-height:1.6;margin-bottom:8px;"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <button type="button" class="btn btn-green btn-sm" onclick="addJobSuggestedAccounts()">맞춤 계좌 빠르게 추가</button>
       <span class="hint" style="margin:0;">기본정보 탭의 직업군에 맞춰 없는 유형만 덧붙입니다. 월납입은 예시입니다.</span>
-    </div>
-  </div>
-  <div class="card" style="border-color:rgba(59,143,232,.22);">
-    <div class="ctitle">🎯 펀드 위험등급(협회 표준) &amp; 참고 수익률</div>
-    <div id="reg-def-opt-body" class="al al-i" style="font-size:12px;line-height:1.6;"></div>
-    <div id="reg-def-opt-tools" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bdl);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;">
-      <span style="color:var(--t2);font-weight:600;">시뮬 반영:</span>
-      <label style="display:flex;align-items:center;gap:6px;margin:0;color:var(--t2);flex-wrap:wrap;">
-        <span>제1~제6위험등급</span>
-        <select class="fi" id="dc-default-grade" style="max-width:min(100%,280px);padding:6px 8px;font-size:12px;min-height:36px;" onchange="syncDcDefaultGradeFrom('main')">
-          <option value="">—</option>
-        </select>
-      </label>
-      <button type="button" class="btn btn-sec btn-sm" onclick="applyDefaultOptGradeToIrp()">첫 퇴직IRP 수익률(연%)에 적용</button>
-      <button type="button" class="btn btn-sec btn-sm" onclick="applyDefaultOptGradeToDC()">DC 운용에 적용(위험등급 모드)</button>
-      <span class="hint" style="margin:0;max-width:100%;">위 표 <b>참고 연수익률</b>을 IRP·DC에 넣습니다. DC는 「위험등급만」 모드일 때 시뮬 수익률로 쓰입니다.</span>
     </div>
   </div>
   <div class="card" style="border-color:rgba(155,111,224,.25);">
@@ -888,7 +868,6 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       <div class="hint" id="tax-hint" style="flex-basis:100%"></div>
     </div>
   </div>
-  <div class="card"><div class="ctitle">📊 세액공제 요약</div><div class="g4" id="tax-grid"></div></div>
 </div>
 
 <!-- ════ 대출·보험 ════ -->
@@ -1664,7 +1643,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.04.04 16:50';
+const PUBLISH_STAMP='2026.04.04 17:40';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -1718,12 +1697,9 @@ window.onload=()=>{
   onJobTypeChange();
   if(G('legal-ref-file-stamp')&&window.REGULATORY_REF)
     G('legal-ref-file-stamp').textContent=REGULATORY_REF.REVIEW_STAMP+' — '+REGULATORY_REF.FILE_NOTE;
-  if(G('reg-def-opt-body')&&window.REGULATORY_REF)
-    G('reg-def-opt-body').innerHTML=REGULATORY_REF.htmlDefaultOptionBlock();
   if(G('lump-amt')&&G('ka-lump-amt'))G('ka-lump-amt').textContent=toKor(parseFloat(Gval('lump-amt'))||0);
   renderMainNavTabs();
   fixTabsPos();
-  renderReferenceHub();
   renderJobTypeChips();
   rebuildNewAcctSelect();
   renderJobScenarioPresetButtons();
@@ -1854,11 +1830,6 @@ function renderMainNavTabs(){
   cafe.title='네이버 카페 — 은퇴 현금흐름 시뮬레이터';
   cafe.innerHTML='<svg class="naver-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect width="20" height="20" rx="4" fill="#03C75A"/><path fill="#fff" d="M5.5 5h2.9l3.1 4.6V5h2.9v10h-2.9l-3.1-4.6V15H5.5V5z"/></svg><span>네이버 카페</span>';
   bar.appendChild(cafe);
-}
-function renderReferenceHub(){
-  const el=G('dynamic-ref-hub-body');
-  if(!el||!window.REGULATORY_REF||typeof REGULATORY_REF.htmlReferenceHub!=='function')return;
-  el.innerHTML=REGULATORY_REF.htmlReferenceHub();
 }
 function rebuildNewAcctSelect(){
   const sel=G('newAcct');
@@ -4693,16 +4664,16 @@ function readDefaultGradeForApply(){
 }
 function syncDcDefaultGradeFrom(src){
   const main=G('dc-default-grade'),dc=G('dc-default-grade-dc');
-  if(!main||!dc)return;
-  if(src==='main')dc.value=main.value;
-  else main.value=dc.value;
+  if(src==='main'&&main&&dc)dc.value=main.value;
+  else if(src==='dc'&&main&&dc)main.value=dc.value;
 }
 function wireDcDefaultGradeSync(){
   rebuildFundGradeSelects();
   const main=G('dc-default-grade'),dc=G('dc-default-grade-dc');
-  if(!main||!dc)return;
-  if(String(main.value||'')!=='')dc.value=main.value;
-  else if(String(dc.value||'')!=='')main.value=dc.value;
+  if(main&&dc){
+    if(String(main.value||'')!=='')dc.value=main.value;
+    else if(String(dc.value||'')!=='')main.value=dc.value;
+  }
 }
 function applyDefaultOptGradeToAcct(acctId){
   const eg=G('hld-empty-grade-'+acctId);
