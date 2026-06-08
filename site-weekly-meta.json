@@ -1,6 +1,6 @@
 {
-  "weeklyMaintenanceAt": "2026-06-01T04:21:50Z",
+  "weeklyMaintenanceAt": "2026-06-08T04:17:34Z",
   "workflow": "weekly-maintenance",
-  "ciRunUrl": "https://github.com/HEO-J-H/life-after-60/actions/runs/26734984727",
+  "ciRunUrl": "https://github.com/HEO-J-H/life-after-60/actions/runs/27115697459",
   "noteKo": "자동 주간 작업: 저장소 내 .js 문법 검사 통과 후 이 파일만 갱신·푸시합니다. 법규·세무·시뮬 로직·UI는 자동 변경하지 않습니다. 내용 최신화는 regulatory-reference.js REVIEW_STAMP 및 공식 안내 대조 후 수동 반영하세요."
 }
