@@ -414,7 +414,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.16 18:27</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.16 18:30</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -792,6 +792,10 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
       </div>
     </div>
   </div>
+  <details class="card" id="ref-hub-card" style="border-color:rgba(59,143,232,.22);">
+    <summary class="ctitle" style="cursor:pointer;list-style:revert;">📚 참고자료 — 공식 계산기 · 법령 · 은퇴 연구 · 오픈소스 시뮬레이터 <span style="font-size:11px;color:var(--t3);font-weight:400">(눌러서 펼치기)</span></summary>
+    <div id="dynamic-ref-hub-body" style="margin-top:8px;"></div>
+  </details>
   <div class="card"><div class="ctitle">📊 세액공제 요약</div><div class="g4" id="tax-grid"></div></div>
   <div class="card" style="border-color:rgba(43,191,176,.28);">
     <div class="ctitle">🧭 직업군 맞춤 계좌 <span class="badge" style="background:rgba(43,191,176,.2);color:var(--teal)">법령 요약·2026.01</span></div>
@@ -1662,7 +1666,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.10.16 18:27';
+const PUBLISH_STAMP='2026.10.16 18:30';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -1719,6 +1723,7 @@ window.onload=()=>{
   if(G('lump-amt')&&G('ka-lump-amt'))G('ka-lump-amt').textContent=toKor(parseFloat(Gval('lump-amt'))||0);
   renderMainNavTabs();
   fixTabsPos();
+  renderReferenceHub();
   renderJobTypeChips();
   rebuildNewAcctSelect();
   renderJobScenarioPresetButtons();
@@ -1849,6 +1854,11 @@ function renderMainNavTabs(){
   cafe.title='네이버 카페 — 은퇴 현금흐름 시뮬레이터';
   cafe.innerHTML='<svg class="naver-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><rect width="20" height="20" rx="4" fill="#03C75A"/><path fill="#fff" d="M5.5 5h2.9l3.1 4.6V5h2.9v10h-2.9l-3.1-4.6V15H5.5V5z"/></svg><span>네이버 카페</span>';
   bar.appendChild(cafe);
+}
+function renderReferenceHub(){
+  const el=G('dynamic-ref-hub-body');
+  if(!el||!window.REGULATORY_REF||typeof REGULATORY_REF.htmlReferenceHub!=='function')return;
+  el.innerHTML=REGULATORY_REF.htmlReferenceHub();
 }
 function rebuildNewAcctSelect(){
   const sel=G('newAcct');
