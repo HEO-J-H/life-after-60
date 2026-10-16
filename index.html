@@ -414,7 +414,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.16 18:22</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.16 18:27</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -890,6 +890,23 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 <div id="tab-sim" class="panel">
   <div id="sim-empty" class="al al-w">▶ 기본정보·계좌설정 입력 후 상단 <b>시뮬레이션</b> 버튼을 누르세요.</div>
   <div id="sim-res" style="display:none;">
+    <div class="card" id="mc-card" style="border-color:rgba(45,190,116,.35);">
+      <div class="ctitle">🎯 은퇴 성공 확률 · 스트레스 테스트 <span style="font-size:11px;color:var(--t3);font-weight:400">(몬테카를로 · 가드레일 · 은퇴 직후 폭락)</span></div>
+      <div class="al al-i" style="font-size:11px;margin-bottom:8px;line-height:1.6;">
+        고정 수익률 한 줄 대신, 매년 수익률이 <b>평균 ± 변동성</b>으로 흔들리는 수백 개 경로를 돌려 <b>기대수명까지 생활비가 끊기지 않는 비율</b>을 계산합니다.
+        은퇴 직후 손실이 특히 치명적인 <b>수익률 순서 위험(sequence-of-returns risk)</b>을 확인하세요.
+        <span style="color:var(--t3)">참고: Bengen(1994) 4% 규칙 · Trinity Study(1998) · Guyton-Klinger(2006) 가드레일 · cFIREsim/FI Calc. 가정치이며 미래 보장이 아닙니다.</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+        <div class="frow" style="margin:0;"><label class="fl">연 변동성 σ (%)</label><input class="fi mono" id="mc-vol" type="number" value="12" min="0" max="40" step="1" style="width:90px;"></div>
+        <div class="frow" style="margin:0;"><label class="fl">시행 횟수</label><select class="fi" id="mc-n" style="width:100px;"><option>200</option><option selected>500</option><option>1000</option></select></div>
+        <div class="frow" style="margin:0;"><label class="fl">폭락 테스트 (은퇴 첫해)</label><select class="fi" id="mc-crash" style="width:130px;"><option value="0">없음</option><option value="-20">−20%</option><option value="-30" selected>−30%</option><option value="-40">−40%</option></select></div>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--t2);cursor:pointer;"><input type="checkbox" id="gr-on" onchange="runSim()"> 가드레일 인출 적용 (본 시뮬에도 반영)</label>
+        <button class="btn btn-gold btn-sm" type="button" onclick="runMonteCarlo()">▶ 성공 확률 계산</button>
+      </div>
+      <div id="mc-out" style="margin-top:10px;font-size:12px;color:var(--t2);"></div>
+      <div style="position:relative;height:240px;margin-top:6px;display:none;" id="mc-chart-wrap"><canvas id="mc-chart"></canvas></div>
+    </div>
     <div class="card" style="border-color:rgba(200,168,75,.28);">
       <div class="ctitle">🧾 목돈 지출 설정 (타임라인 반영)</div>
       <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
@@ -1645,7 +1662,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.10.16 18:22';
+const PUBLISH_STAMP='2026.10.16 18:27';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -5832,7 +5849,12 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
   active.filter(a=>(AMETA[a.type]||{}).cat==='ISA').forEach(a=>{isaEl[a.id]=a.isaElapsed||0;});
   
   const yearly=[];
+  // 몬테카를로·스트레스 훅(window.__SIM_HOOK.shock[i] = 연 수익률 가감) + 가드레일 인출(Guyton-Klinger 단순형)
+  const _hook=window.__SIM_HOOK||null;
+  const _grOn=_hook&&_hook.guardrails!=null?!!_hook.guardrails:(G('gr-on')?.checked===true);
+  let _gMult=1,_gInitWR=0,_prevTot=0;
   for(let i=0;i<=life-curA;i++){
+    let _unmet=0;
     const year=curY+i,age=curA+i,isRet=age>=retA,iF=Math.pow(1+inf,i);
     const salY=isRet?0:sal*Math.pow(1+sg,i);
     const npC=isRet?0:Math.min(salY*0.045,2480000),hlt=isRet?0:salY*0.0354,emp=isRet?0:salY*0.009;
@@ -5887,7 +5909,15 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     const hpOn=G('hpOn')?.checked===true;
     const hpMon=hpOn&&window._hpMonthly>0&&age>=(window._hpStartAge||70)?window._hpMonthly*12:0;
     const totInc=netSal+npInc+othInc+pensionInc+totalDivNet+hpMon;
-    const livExp=(isRet?rExp:mExp)*12*iF;
+    let livExp=(isRet?rExp:mExp)*12*iF;
+    if(isRet&&_grOn&&_prevTot>0){
+      // 인출률이 최초 대비 +20% 넘으면 생활비 10% 삭감, −20% 미만이면 10% 증액(최대 원래의 120%, 최소 70%)
+      const wr=livExp*_gMult/_prevTot;
+      if(!_gInitWR)_gInitWR=wr;
+      else if(wr>_gInitWR*1.2)_gMult=Math.max(0.7,_gMult*0.9);
+      else if(wr<_gInitWR*0.8)_gMult=Math.min(1.2,_gMult*1.1);
+      livExp*=_gMult;
+    }
 
     loans.forEach(ln=>{
       if(!ln.endDate)return;
@@ -6112,7 +6142,7 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
       const growthFrac=Math.max(0,1-divAllocFrac);
       const contrib=yC[a.id]||0;
       const base=curBal+contrib;
-      const growth=base*growthFrac*retRates[a.id];
+      const growth=base*growthFrac*(retRates[a.id]+(_hook&&_hook.shock?(_hook.shock[i]||0):0));
       bal[a.id]=Math.max(0,base+growth);
     });
     
@@ -6141,6 +6171,7 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
         })
         .sort((a,b)=>{const o={FREE:0,STOCK:1,SUB:2,ISA:3,PENSION:4,IRP:5};return(o[(AMETA[a.type]||{}).cat]||9)-(o[(AMETA[b.type]||{}).cat]||9);});
       for(const a of dOrder){if(need<=0)break;const d=Math.min(bal[a.id]||0,need);bal[a.id]-=d;need-=d;}
+      _unmet=Math.max(0,need);
     }
     
     if(age===retA)events.push({label:'🎉 은퇴',color:''});
@@ -6150,9 +6181,10 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
     }
     
     const totA=active.reduce((s,a)=>s+(bal[a.id]||0),0);
+    _prevTot=totA;
     const dcYearContrib=(sevTypeNow==='DC'&&!isRet&&salY>0)?dcAnnualContribFromSalary(salY):0;
     const divTax=Math.max(0,(totalDivGross||0)-(totalDivNet||0));
-    yearly.push({year,age,isRet,totInc,netSal,npInc,othr:othInc,divGross:totalDivGross,divNet:totalDivNet,
+    yearly.push({unmet:_unmet,grMult:_gMult,year,age,isRet,totInc,netSal,npInc,othr:othInc,divGross:totalDivGross,divNet:totalDivNet,
       totExp,livExp,lnPay,insPay,hiAutoPay,lumpOut,lumpTax,surplus,dcContrib:dcYearContrib,hpInc:hpMon,
       pensionTax,divTax,taxTotal:(divTax+lumpTax+pensionTax),
       yC:{...yC},balances:{...bal},totalAssets:totA,events,
@@ -8296,6 +8328,76 @@ function ST(id,btn){
     if(btn)try{tabBtn.focus({preventScroll:true});}catch(_){}
   }
 }
+// ═══════════ 몬테카를로 · 가드레일 · 폭락 스트레스 ═══════════
+function _mcNormal(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function _mcRunOnce(shock,gr){
+  window.__SIM_HOOK={shock,guardrails:gr};
+  try{return simEngine().yearly;}finally{window.__SIM_HOOK=null;}
+}
+function _mcFailed(yr){return yr.some(r=>r.isRet&&(r.unmet||0)>1);}
+function _mcPct(arr,p){const a=[...arr].sort((x,y)=>x-y);return a[Math.min(a.length-1,Math.max(0,Math.floor(p*(a.length-1))))];}
+let _mcChart=null;
+function runMonteCarlo(){
+  if(!accounts.filter(a=>a.active).length){toast('활성 계좌가 없습니다.');return;}
+  const out=G('mc-out');
+  const vol=Math.max(0,parseFloat(Gval('mc-vol'))||0)/100;
+  const N=parseInt(Gval('mc-n'))||500;
+  const crash=(parseFloat(Gval('mc-crash'))||0)/100;
+  const gr=G('gr-on')?.checked===true;
+  const curA=parseInt(Gval('curAge'))||47,retA=parseInt(Gval('retireAge'))||60,life=parseInt(Gval('lifeExp'))||90;
+  const T=life-curA+1,ri=Math.max(0,retA-curA);
+  if(out)out.innerHTML='계산 중…';
+  setTimeout(()=>{
+    const t0=performance.now();
+    let ok=0,okGr=0;const paths=[],depAges=[];
+    // 평균 유지 보정: 로그정규 근사 대신 단순 정규 가감(평균 0)
+    for(let k=0;k<N;k++){
+      const shock=new Array(T);for(let i=0;i<T;i++)shock[i]=_mcNormal()*vol;
+      const yr=_mcRunOnce(shock,gr);
+      const f=_mcFailed(yr);if(!f)ok++;
+      else{const d=yr.find(r=>r.isRet&&(r.unmet||0)>1);if(d)depAges.push(d.age);}
+      paths.push(yr.map(r=>r.totalAssets));
+      if(performance.now()-t0>8000){toast('⏱ 시간 제한으로 '+(k+1)+'회에서 중단');break;}
+    }
+    const n=paths.length;
+    const base=_mcRunOnce(null,gr),baseFail=_mcFailed(base);
+    let crashLine='';
+    if(crash<0){
+      const sh=new Array(T).fill(0);sh[ri]=crash;
+      const cy=_mcRunOnce(sh,gr),cf=_mcFailed(cy);
+      const sh2=new Array(T).fill(0);sh2[Math.min(T-1,ri+15)]=crash;
+      const cy2=_mcRunOnce(sh2,gr),cf2=_mcFailed(cy2);
+      const dep=a=>{const d=a.find(r=>r.isRet&&(r.unmet||0)>1);return d?d.age+'세 고갈':'수명까지 유지';};
+      crashLine=`<div style="margin-top:6px;">💥 <b>폭락 ${Math.round(crash*100)}%</b> — 은퇴 첫해(${retA}세): <b style="color:${cf?'var(--red)':'var(--green)'}">${dep(cy)}</b> · 같은 폭락이 ${retA+15}세에: <b style="color:${cf2?'var(--red)':'var(--green)'}">${dep(cy2)}</b> <span style="color:var(--t3)">(같은 손실이라도 시점이 이르면 더 위험 = 수익률 순서 위험)</span></div>`;
+    }
+    const rate=ok/n*100;
+    const col=rate>=90?'var(--green)':rate>=75?'var(--gold)':'var(--red)';
+    const ages=base.map(r=>r.age);
+    const p10=ages.map((_,i)=>_mcPct(paths.map(p=>p[i]||0),0.1));
+    const p50=ages.map((_,i)=>_mcPct(paths.map(p=>p[i]||0),0.5));
+    const p90=ages.map((_,i)=>_mcPct(paths.map(p=>p[i]||0),0.9));
+    const medDep=depAges.length?_mcPct(depAges,0.5):null;
+    const advice=rate>=90?'여유 있는 계획입니다. 생활비 증액·조기 은퇴 여지를 검토해 볼 수 있습니다.'
+      :rate>=75?'경계 구간입니다. 가드레일 인출, 국민연금 연기수령(연 +7.2%), 은퇴 1~2년 연장, 생활비 5~10% 조정 효과를 비교해 보세요.'
+      :'실패 위험이 큽니다. 은퇴 시점 연기, 월 납입 증액, 생활비 축소, 은퇴 초기 2~3년치 현금 버퍼(버킷 전략)를 고려하세요.';
+    if(out)out.innerHTML=`<div style="font-size:15px;">성공 확률 <b style="font-size:22px;color:${col}">${rate.toFixed(1)}%</b> <span style="color:var(--t3);font-size:11px">(${n}회 · σ ${Math.round(vol*100)}% · ${gr?'가드레일 ON':'고정 생활비'})</span></div>
+      <div style="margin-top:4px;">기준(고정 수익률) 시뮬: <b style="color:${baseFail?'var(--red)':'var(--green)'}">${baseFail?'기대수명 전 고갈':'기대수명까지 유지'}</b>${medDep?` · 실패 경로의 고갈 나이 중앙값 <b>${medDep}세</b>`:''}</div>
+      <div style="margin-top:4px;">${life}세 자산 — 하위10% <b>${toKor(Math.round(p10[p10.length-1]))}</b> · 중앙 <b>${toKor(Math.round(p50[p50.length-1]))}</b> · 상위10% <b>${toKor(Math.round(p90[p90.length-1]))}</b></div>
+      ${crashLine}<div style="margin-top:6px;color:var(--t2)">💡 ${advice}</div>`;
+    const wrap=G('mc-chart-wrap');if(wrap)wrap.style.display='block';
+    if(typeof Chart!=='undefined'&&G('mc-chart')){
+      if(_mcChart)_mcChart.destroy();
+      _mcChart=new Chart(G('mc-chart'),{type:'line',data:{labels:ages,datasets:[
+        {label:'상위10%',data:p90,borderColor:'rgba(45,190,116,.7)',backgroundColor:'rgba(45,190,116,.12)',fill:'+1',pointRadius:0,borderWidth:1},
+        {label:'중앙값',data:p50,borderColor:'#e8c96a',pointRadius:0,borderWidth:2,fill:false},
+        {label:'하위10%',data:p10,borderColor:'rgba(224,80,80,.8)',backgroundColor:'rgba(224,80,80,.10)',fill:'-1',pointRadius:0,borderWidth:1},
+      ]},options:{responsive:true,maintainAspectRatio:false,animation:false,interaction:{mode:'index',intersect:false},
+        plugins:{legend:{labels:{color:'#9fb2c8',font:{size:11}}},tooltip:{callbacks:{title:c=>c[0].label+'세',label:c=>c.dataset.label+': '+toKor(Math.round(c.raw))}}},
+        scales:{x:{ticks:{color:'#7a8fa8',maxTicksLimit:12}},y:{ticks:{color:'#7a8fa8',callback:v=>toKor(v)}}}}});
+    }
+  },30);
+}
+
 </script>
 </body>
 </html>

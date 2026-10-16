@@ -560,6 +560,18 @@
       ],
     },
     {
+      title: '은퇴 인출 연구·해외 시뮬레이터 (성공 확률 패널 근거)',
+      items: [
+        { label: 'Bengen (1994) — Determining Withdrawal Rates Using Historical Data', url: 'https://www.financialplanningassociation.org/sites/default/files/2021-04/MAR04%20Determining%20Withdrawal%20Rates%20Using%20Historical%20Data.pdf', law: '논문', note: '4% 규칙의 출발점' },
+        { label: 'Trinity Study (Cooley·Hubbard·Walz, 1998)', url: 'https://www.aaii.com/journal/article/retirement-savings-choosing-a-withdrawal-rate-that-is-sustainable', law: '논문', note: '인출률별 포트폴리오 생존 확률' },
+        { label: 'Guyton & Klinger (2006) — Decision Rules (가드레일)', url: 'https://www.financialplanningassociation.org/sites/default/files/2020-05/1%20Decision%20Rules%20and%20Maximum%20Initial%20Withdrawal%20Rates.pdf', law: '논문', note: '인출률 ±20% 경계에서 생활비 10% 조정' },
+        { label: 'Early Retirement Now — Safe Withdrawal Rate 시리즈', url: 'https://earlyretirementnow.com/safe-withdrawal-rate-series/', law: '연구 블로그', note: '수익률 순서 위험·장기 은퇴' },
+        { label: 'FI Calc (오픈소스)', url: 'https://github.com/jamesmart/ficalc', law: 'GitHub', note: '과거 시퀀스 백테스트·다양한 인출 전략' },
+        { label: 'cFIREsim (오픈소스)', url: 'https://github.com/boknows/cFIREsim-open', law: 'GitHub', note: '역사적·몬테카를로 시뮬' },
+        { label: 'Open Social Security (오픈소스)', url: 'https://github.com/MikePiper/open-social-security', law: 'GitHub', note: '공적연금 수령 시점 최적화(국민연금 연기수령 비교 아이디어)' },
+      ],
+    },
+    {
       title: '복지·서민금융 (요건 확인)',
       items: [
         {
