@@ -1,0 +1,14 @@
+{
+  "name": "은퇴 현금흐름 시뮬레이터",
+  "short_name": "은퇴시뮬",
+  "description": "60세 은퇴 목표 자산 시뮬레이션 및 년월별 현금흐름 분석 도구",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#05080f",
+  "theme_color": "#0b1020",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

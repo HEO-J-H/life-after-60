@@ -64,4 +64,37 @@ if (dups.length) {
   process.exit(1);
 }
 
-console.log('smoke-check OK (' + jsFiles.length + ' JS file(s))');
+// 로컬 src/href가 실제로 존재하는지 (배포 후 404 방지)
+const refRe = /<(?:script|link)\b[^>]*?\b(?:src|href)="([^"]+)"/g;
+const missing = [];
+while ((m = refRe.exec(html)) !== null) {
+  const ref = m[1];
+  if (/^(?:[a-z]+:)?\/\//i.test(ref) || /^(?:data|mailto|javascript):/i.test(ref)) continue;
+  if (ref.startsWith('/')) {
+    missing.push(ref + ' (사이트 루트 절대경로 — GitHub Pages 하위 경로에서 404)');
+    continue;
+  }
+  const rel = ref.split(/[?#]/)[0];
+  if (!fs.existsSync(path.join(root, rel))) missing.push(ref);
+}
+if (missing.length) {
+  console.error('Missing local assets referenced by index.html:', missing);
+  process.exit(1);
+}
+
+// 인라인 <script> 문법 검사
+const vm = require('vm');
+const inlineRe = /<script\b(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi;
+let n = 0;
+while ((m = inlineRe.exec(html)) !== null) {
+  if (/type="(?!text\/javascript|module)/i.test(m[1])) continue;
+  n++;
+  try {
+    new vm.Script(m[2], { filename: 'index.html#inline' + n });
+  } catch (e) {
+    console.error('Inline script #' + n + ' syntax error:', e.message);
+    process.exit(1);
+  }
+}
+
+console.log('smoke-check OK (' + jsFiles.length + ' JS file(s), ' + n + ' inline script(s))');
