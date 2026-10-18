@@ -12,7 +12,7 @@
 <meta name="description" content="60세 은퇴 목표 자산·연금·ISA·세금을 반영한 년월별 현금흐름 시뮬레이터 (브라우저 로컬 계산)">
 <meta name="theme-color" content="#0b1020">
 <style>
-:root{--bg:#05080f;--bg2:#090e18;--bgc:#0c1220;--bgh:#111828;--gold:#c9a84c;--goldl:#e8c96a;--goldd:#7a5c18;--t1:#dde4f0;--t2:#7a8fa8;--t3:#3a5070;--bd:#162236;--bdl:#1e3050;--green:#2dbe74;--red:#e05555;--blue:#3b8fe8;--orange:#e8873b;--purple:#9b6fe0;--teal:#2bbfb0;--ibg:#060a12;--ibd:#1a2e48;--ifocus:#2a4060;}
+:root{--bg:#05080f;--bg2:#090e18;--bgc:#0c1220;--bgh:#111828;--gold:#c9a84c;--goldl:#e8c96a;--goldd:#7a5c18;--t1:#dde4f0;--t2:#7a8fa8;--t3:#7088a6;--bd:#162236;--bdl:#1e3050;--green:#2dbe74;--red:#e05555;--blue:#3b8fe8;--orange:#e8873b;--purple:#9b6fe0;--teal:#2bbfb0;--ibg:#060a12;--ibd:#1a2e48;--ifocus:#2a4060;}
 *{margin:0;padding:0;box-sizing:border-box;}html{font-size:16px;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.62;font-size:17px;}
 ::-webkit-scrollbar{width:5px;height:5px;}
@@ -344,7 +344,7 @@ input[type=range].basic-range{width:100%;height:8px;accent-color:var(--gold);mar
 :root[data-theme="light"]{
   --bg:#f4f7fb;--bg2:#eef3f9;--bgc:#ffffff;--bgh:#f3f6fb;
   --gold:#9a6e00;--goldl:#b78400;--goldd:#7c5a00;
-  --t1:#1b2a3a;--t2:#3a5470;--t3:#6d839b;
+  --t1:#1b2a3a;--t2:#3a5470;--t3:#5a6e85;
   --bd:#d0ddeb;--bdl:#bfd2e5;--ibg:#f7fbff;--ibd:#b5cce3;--ifocus:#2f7de1;
 }
 :root[data-theme="light"] .legal-asof-note{color:#0d4f7a;background:rgba(25,120,200,.12);border-left-color:var(--goldl);}
@@ -398,6 +398,12 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
   outline-offset:2px;
   border-color:var(--ifocus)!important;
 }
+/* 가독성(50~60대): 결과 핵심 숫자 약 20% 확대 — 표시 크기만 바꾸며 계산·값은 그대로 */
+.sv{font-size:17px;}
+.sch-big{font-size:19px;}
+.sdd-fig-yield,.sdd-fig-tax{font-size:19px;}
+.ro-amt,.vv{font-size:max(1.15em,15px);}
+.mono-fig{font-size:1.08em;}
 @media(max-width:900px){
   html{font-size:17px;}
   .tab{font-size:16px;padding:12px 15px;}
