@@ -458,7 +458,7 @@ input[type=range]{min-height:32px;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.25 22:43</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.26 22:23</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1710,7 +1710,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.10.25 22:43';
+const PUBLISH_STAMP='2026.10.26 22:23';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -3641,7 +3641,8 @@ function renderAccts(){
       <div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:7px;">🔄 ISA 만기·해지 설정</div>
       <div class="al al-i" style="font-size:11px;margin-bottom:8px;">
         💡 1인 1계좌 · 연 2천만원 한도 · 비과세 ${wf((m.taxFree||2000000)/10000)}만원 혜택<br>
-        만기 후 연금계좌로 이전 시 <b>추가 세액공제 최대 300만원</b> 혜택!
+        만기 후 연금계좌로 이전 시 <b>추가 세액공제 최대 300만원</b> 혜택!<br>
+        📝 따라 해보기: ① 아래 가입일 입력 → ② 이전 시점 선택 → ③ 받을 연금계좌(연금저축·IRP) 선택 → 결과표에서 이전 금액과 세액공제 반영 확인. 만기 후 60일 안에 이전해야 공제됩니다.
       </div>
       <div class="g3">
         <div class="frow"><label class="fl">가입일 (ISA)</label>
