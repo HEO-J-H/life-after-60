@@ -11,6 +11,14 @@
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <meta name="description" content="60세 은퇴 목표 자산·연금·ISA·세금을 반영한 년월별 현금흐름 시뮬레이터 (브라우저 로컬 계산)">
 <meta name="theme-color" content="#0b1020">
+<link rel="canonical" href="https://heo-j-h.github.io/life-after-60/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="은퇴 후 월별 현금흐름 시뮬레이터 — life-after-60">
+<meta property="og:description" content="국민연금·기초연금·연금저축·IRP·ISA·건강보험료·연금소득세를 반영해 은퇴 후 매달 쓸 수 있는 돈을 계산합니다. 입력값은 저장되지 않습니다.">
+<meta property="og:url" content="https://heo-j-h.github.io/life-after-60/">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"은퇴 후 월별 현금흐름 시뮬레이터","url":"https://heo-j-h.github.io/life-after-60/","applicationCategory":"FinanceApplication","operatingSystem":"Web","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"description":"국민연금·기초연금·연금계좌·ISA·건강보험료·세금을 반영한 은퇴 현금흐름 계산기 (브라우저 로컬 계산)"}</script>
 <style>
 :root{--bg:#05080f;--bg2:#090e18;--bgc:#0c1220;--bgh:#111828;--gold:#c9a84c;--goldl:#e8c96a;--goldd:#7a5c18;--t1:#dde4f0;--t2:#7a8fa8;--t3:#7088a6;--bd:#162236;--bdl:#1e3050;--green:#2dbe74;--red:#e05555;--blue:#3b8fe8;--orange:#e8873b;--purple:#9b6fe0;--teal:#2bbfb0;--ibg:#060a12;--ibd:#1a2e48;--ifocus:#2a4060;}
 *{margin:0;padding:0;box-sizing:border-box;}html{font-size:16px;}
@@ -458,7 +466,7 @@ input[type=range]{min-height:32px;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.26 22:23</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.26 23:48</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1710,7 +1718,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.10.26 22:23';
+const PUBLISH_STAMP='2026.10.26 23:48';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -2072,9 +2080,11 @@ function getNpPensionMonthlyDeduction(){
   const excess=avg-NP_SOCIAL_AVG_MONTHLY_2026;
   return calcNpMonthlyReductionFromExcess(excess);
 }
-function getNpRateMultiplier(){
-  const npA=parseInt(Gval('npAge'),10)||65;
-  return npA<65?1+(npA-65)*0.06:1+(npA-65)*0.072;
+function getNpRateMultiplier(npAge){
+  // 조기(-6%/년)·연기(+7.2%/년)는 출생연도별 '정상 수급 나이' 기준 (1961~64년생 63세, 1965~68년생 64세, 1969년생~ 65세)
+  const npA=npAge||parseInt(Gval('npAge'),10)||65;
+  const normal=getNpAgeRuleByBirthYear(getBirthYearForNP()).normalAge;
+  return npA<normal?1+(npA-normal)*0.06:1+(npA-normal)*0.072;
 }
 function getNpMonthlyGrossAtCurrentSetting(){
   return(Math.round((parseFloat(Gval('npBase'))||1200000)*getNpRateMultiplier()))||0;
@@ -5855,7 +5865,7 @@ function simEngine(overrideRetRate=null, overrideRetireAge=null, overrideDivRate
   const retA=overrideRetireAge!==null?overrideRetireAge:(parseInt(Gval('retireAge'))||60);
   const life=parseInt(Gval('lifeExp'))||90;
   const npA=parseInt(Gval('npAge'))||65;
-  const npR=npA<65?1+(npA-65)*0.06:1+(npA-65)*0.072;
+  const npR=getNpRateMultiplier(npA);
   const npMoGross=(parseFloat(Gval('npBase'))||1200000)*npR;
   const npDedMo=getNpPensionMonthlyDeduction();
   const npMo=Math.max(0,npMoGross-npDedMo);
