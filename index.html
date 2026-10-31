@@ -447,6 +447,10 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
   .btn{font-size:15px;}
 }
 /* 가독성·터치 영역 (p-23d6c5d8c7, p-2f5a6beaa3) */
+/* 결과 요약 숫자 크게·굵게 — 5060 독자 (p-30690f816b): 14~17px → 22px(휴대폰 20px) */
+.sc .sv{font-size:22px;line-height:1.25;font-weight:800;}
+.sc .sl{font-size:14px;}
+@media(max-width:720px){.sc .sv{font-size:20px;}}
 label,.ro-income-label{font-size:15px;}
 input[type=checkbox],input[type=radio]{width:20px;height:20px;}
 @media(max-width:720px){
@@ -466,7 +470,7 @@ input[type=range]{min-height:32px;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.28 18:14</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.31 22:31</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -603,7 +607,7 @@ input[type=range]{min-height:32px;}
           📎 위 카드의 <b>은퇴 후 기타 월소득</b> 입력값이 있으면 동일 금액을 소득감액 계산에 반영합니다.<br>
           <span style="color:var(--t3);font-size:11px;">· <b>기초연금</b>(노령기초연금)은 국민연금과 다른 제도이며 <b>전용 입력 칸은 없습니다</b>. 수령이 예상되면 여기(또는 직업군별 은퇴 소득 칸)에 <b>월액을 합산</b>해 넣을 수 있어요.
             <br>· 2026년 기준: 기준연금액 <b>월 349,700원</b>(단독), 부부 모두 받으면 각 20% 감액 · 선정기준액(소득인정액) <b>단독 247만 원 / 부부 395.2만 원</b> 이하일 때 대상.
-            <a href="https://basicpension.mohw.go.kr/" target="_blank" rel="noopener">기초연금 모의계산(복지부)</a></span>
+            <a href="https://basicpension.mohw.go.kr/" target="_blank" rel="noopener">기초연금 모의계산(복지부)</a><br>· 정부 개편안(2026.9 발표, 2027년 4월 시행 목표·국회 심의 중): 소득 하위 30%는 최대 월 38만 원, 하위 30~45% 35.9만 원, 저소득 부부 감액 20%→10%. <b>법 개정 전이라 확정 금액이 아닙니다.</b></span>
         </div>
         <div class="np-rule">
           <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px;">국민연금 소득 감액 (재취업 등·참고)</div>
@@ -1720,7 +1724,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.10.28 18:14';
+const PUBLISH_STAMP='2026.10.31 22:31';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
