@@ -56,6 +56,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t1);
 .ctr{margin-left:auto;display:flex;gap:5px;align-items:center;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+/* 칸 안의 긴 선택 상자·표가 칸을 넓혀 작은 폰(320~375px)에서 화면이 옆으로 밀리던 문제 — 칸은 화면 폭에 맞추고 내용이 줄어들게 */
+.g2>*,.g3>*{min-width:0}.g2 .fs,.g3 .fs{max-width:100%}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
 .frow{margin-bottom:8px;display:flex;flex-direction:column;}
 .fl{display:block;font-size:13px;color:var(--t2);margin-bottom:3px;font-weight:500;}
@@ -304,7 +306,7 @@ input[type=range]{accent-color:var(--gold);width:100%;}
 hr.d{border:none;border-top:1px solid var(--bd);margin:11px 0;}
 @keyframes toast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:1100px){.sgrids{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:1fr 1fr;}}
-@media(max-width:700px){.g2,.g3{grid-template-columns:1fr;}.sgrids{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.g2,.g3{grid-template-columns:minmax(0,1fr);}.sgrids{grid-template-columns:1fr 1fr;}}
 .inv-slots-block{width:100%;min-width:0;box-sizing:border-box;}
 .legal-asof-note{display:block;color:#8ecfff;font-size:11px;line-height:1.55;border-left:3px solid var(--goldd);padding:6px 10px;margin:6px 0 0 0;background:rgba(80,150,230,.14);border-radius:0 8px 8px 0;}
 .job-type-card{position:relative;padding:14px 16px!important;margin-bottom:0!important;}
@@ -470,7 +472,7 @@ input[type=range]{min-height:32px;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.10.31 22:31</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.11.04 20:11</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1724,7 +1726,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.10.31 22:31';
+const PUBLISH_STAMP='2026.11.04 20:11';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
