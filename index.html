@@ -439,7 +439,7 @@ body{font-size:18px;line-height:1.72;letter-spacing:.01em;}
 .qs-assume{border:1px solid var(--goldd);background:var(--bg2);border-radius:12px;padding:14px 16px;margin:0 0 14px;font-size:15px;color:var(--t1);}
 .qs-assume-h{font-weight:800;color:var(--goldl);margin-bottom:8px;}
 .qs-assume dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0 0 8px;}.qs-assume dt{color:var(--t2);}.qs-assume dd{margin:0;}
-.qs-assume p{margin:6px 0 0;color:var(--t2);line-height:1.6;}.qs-note{font-size:13px;}
+.qs-assume p{margin:6px 0 0;color:var(--t2);line-height:1.6;}.qs-note{font-size:15px;color:var(--t1);font-weight:600;}
 @media(max-width:600px){.qs-q{font-size:21px;}.qs-in{font-size:21px;}.qs-assume dl{grid-template-columns:1fr;}.qs-assume dt{margin-top:4px;}}
 @media(max-width:900px){
   html{font-size:17px;}
@@ -472,7 +472,7 @@ input[type=range]{min-height:32px;}
     <div class="hdr-head-block">
       <div class="hdr-title-meta" role="group" aria-label="제목·버전·로컬 계산 안내">
         <span class="hdr-logo">🏦 은퇴 현금흐름 시뮬레이터</span>
-        <span id="hdr-publish" class="hdr-ver">Ver. 2026.11.06 20:24</span>
+        <span id="hdr-publish" class="hdr-ver">Ver. 2026.11.16 20:45</span>
         <span class="hdr-note-green">· 모든 계산은 사용자의 브라우저(Local)에서 처리하고 결과만 보여주는 방식이라 보안상 안전합니다.</span>
       </div>
       <div class="hdr-sub" role="group" aria-label="기능·연락처·시뮬 안내">
@@ -1726,7 +1726,7 @@ let aiChatHist=[];
 let _simQuickSnapshot=null;
 let lumpEvents=[];
 /** 코드 변경 후 커밋할 때마다 최신 시각으로 맞추세요 (자동: life-after-60/githooks 참고) */
-const PUBLISH_STAMP='2026.11.06 20:24';
+const PUBLISH_STAMP='2026.11.16 20:45';
 /** 법령/행정 해석 반영 기준일(도구 내부 정책값) */
 const LEGAL_REF_AS_OF=(typeof REGULATORY_REF!=='undefined'&&REGULATORY_REF.REVIEW_STAMP)||'2026-04-02';
 const TAX_RULES={
@@ -8472,6 +8472,10 @@ function runMonteCarlo(){
 }
 
 </script>
+<footer class="disclaimer" role="note" style="max-width:960px;margin:28px auto 36px;padding:16px 18px;border:1px solid var(--bdl);border-left:4px solid var(--gold);border-radius:12px;background:var(--bgc);color:var(--t1);font-size:16px;line-height:1.7;">
+<b>⚠️ 꼭 읽어 주세요</b> — 이 계산기는 입력값과 공개된 제도 기준으로 미래를 <b>가정해 본 결과</b>이며, 투자·세무·법률 자문이 아닙니다.
+실제 연금액·세금·건강보험료는 개인 사정과 제도 변경에 따라 달라질 수 있으니, 결정 전에 국민연금공단·국세청·가입 금융기관에서 꼭 확인하세요.
+</footer>
 <script src="./quickstart.js" defer></script>
 </body>
 </html>
